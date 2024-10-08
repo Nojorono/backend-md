@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1728378245770,
+      "tag": "0000_sweet_leper_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1728378351047,
+      "tag": "0001_striped_owl",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1728378562428,
+      "tag": "0002_create_m_user_and_m_user_role",
+      "breakpoints": true
+    }
+  ]
+}
