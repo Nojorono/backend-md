@@ -2,15 +2,14 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { HealthIndicatorResult } from '@nestjs/terminus';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { config } from 'dotenv';
 import * as schema from '../../schema'; // Import all schemas from index file
-
+import { config } from 'dotenv';
 config();
 
 @Injectable()
 export class DrizzleService implements OnModuleInit {
   private readonly databaseType: string;
-  private db: any;
+  private db: any | null = null;
 
   constructor() {
     this.databaseType = process.env.DATABASE_TYPE || 'postgresql';
@@ -18,21 +17,23 @@ export class DrizzleService implements OnModuleInit {
 
   // On module initialization, connect to the database
   async onModuleInit() {
-    if (this.databaseType === 'postgresql') {
-      const pool = new Pool({
-        connectionString: process.env.DATABASE_URL, // Ensure DATABASE_URL is set in your .env file
-      });
+    try {
+      if (this.databaseType === 'postgresql') {
+        const pool = new Pool({
+          connectionString: process.env.DATABASE_URL,
+        });
 
-      // Initialize the Drizzle ORM instance with the connection pool
-      this.db = drizzle(pool, { schema });
-    } else {
-      throw new Error('Unsupported database provider');
+        // Initialize the Drizzle ORM instance with the connection pool
+        this.db = drizzle(pool, { schema });
+      } else {
+        throw new Error('Unsupported database provider');
+      }
+    } catch (error) {
+      console.error('Error initializing database connection:', error);
+      throw new Error(
+        'Failed to initialize database connection in DrizzleService.',
+      );
     }
-  }
-
-  // Get the database instance for use in other services
-  getDatabase() {
-    return this.db;
   }
 
   // Health check function to verify the database connection

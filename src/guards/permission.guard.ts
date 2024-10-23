@@ -20,7 +20,7 @@ export class PermissionsGuard implements CanActivate {
     private readonly reflector: Reflector,
     private readonly drizzleService: DrizzleService,
   ) {
-    this.db = this.drizzleService.getDatabase();
+    this.db = this.drizzleService;
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

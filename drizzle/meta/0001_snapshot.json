@@ -1,6 +1,6 @@
 {
-  "id": "46c47ae2-7332-4200-afaf-7bb774ff242d",
-  "prevId": "8c30a81c-7d42-491b-bfc9-be0db833f468",
+  "id": "2801b062-b0c1-4a95-8ee8-bcaf5ea1ede2",
+  "prevId": "46e37ebe-e8da-4e57-9a8f-17456702a00e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -91,7 +91,7 @@
         },
         "remember_token": {
           "name": "remember_token",
-          "type": "varchar(100)",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
@@ -126,6 +126,19 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
         }
       },
       "indexes": {},

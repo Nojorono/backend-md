@@ -1,0 +1,1 @@
+ALTER TABLE "m_user" ALTER COLUMN "remember_token" SET DATA TYPE varchar(255);
