@@ -1,5 +1,5 @@
 {
-  "id": "8c30a81c-7d42-491b-bfc9-be0db833f468",
+  "id": "46e37ebe-e8da-4e57-9a8f-17456702a00e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -17,7 +17,7 @@
         "username": {
           "name": "username",
           "type": "varchar(30)",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true
         },
         "user_role_id": {
@@ -126,6 +126,19 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
         }
       },
       "indexes": {},
