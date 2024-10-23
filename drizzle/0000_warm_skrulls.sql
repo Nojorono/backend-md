@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "m_user" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"username" varchar(30) PRIMARY KEY NOT NULL,
+	"username" varchar(30) NOT NULL,
 	"user_role_id" bigint,
 	"fullname" varchar(50),
 	"password" varchar(100),
@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS "m_user" (
 	"created_by" varchar(20),
 	"created_at" timestamp DEFAULT now(),
 	"update_by" varchar(20),
-	"updated_at" timestamp DEFAULT now()
+	"updated_at" timestamp DEFAULT now(),
+	"deleted_by" varchar(20),
+	"deleted_at" timestamp DEFAULT null
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "m_user_role" (

@@ -11,10 +11,18 @@ import { GlobalExceptionFilter } from 'src/interceptors/exception.interceptor';
 import { LoggingMiddleware } from '../middlewares/logging.middleware';
 import { CommonModule } from '../common/common.module';
 import { PermissionsGuard } from '../guards/permission.guard';
+import { UserModule } from '../modules/user/user.module';
+import { AuthModule } from '../modules/auth/auth.module';
+import { OutletModule } from '../modules/outlet/outlet.module';
+import { RolesModule } from '../modules/roles/roles.module';
 
 @Module({
   imports: [
     CommonModule, // add new module
+    AuthModule, // add new module
+    UserModule, // add new module
+    OutletModule, // add new module
+    RolesModule, // add new module
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',

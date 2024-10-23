@@ -1,8 +1,18 @@
 // src/user/user.controller.ts
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { UserService } from '../service/user.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
+import { UserRepo } from '../repository/user.repo';
+import { MessagePattern } from '@nestjs/microservices';
 
 @ApiTags('user')
 @Controller({
@@ -10,30 +20,37 @@ import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
   path: '/user',
 })
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-
+  constructor(
+    private readonly userService: UserService,
+    private readonly userRepo: UserRepo,
+  ) {}
+  @ApiBearerAuth('accessToken')
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.createUser(createUserDto);
+  public async create(@Body() createUserDto: CreateUserDto) {
+    return await this.userService.store(createUserDto);
   }
-
+  @ApiBearerAuth('accessToken')
+  @MessagePattern('getUserById')
   @Get(':id')
-  async getById(@Param('id') id: number) {
-    return await this.userService.getUserById(id);
+  public async getById(@Param('id') id: string) {
+    return await this.userRepo.getUserById(id);
   }
-
+  @ApiBearerAuth('accessToken')
   @Patch(':id')
-  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    return await this.userService.updateUser(id, updateUserDto);
+  public async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.userRepo.updateUser(id, updateUserDto);
   }
-
+  @ApiBearerAuth('accessToken')
   @Delete(':id')
-  async delete(@Param('id') id: number) {
-    return await this.userService.deleteUser(id);
+  public async delete(@Param('id') id: string) {
+    return await this.userRepo.softDeleteUser(id);
   }
-
+  @ApiBearerAuth('accessToken')
   @Post('get-role/:username')
-  async getUserWithRole(@Param('username') username: string) {
-    return await this.userService.getUserWithRole(username);
+  public async getUserWithRole(@Param('username') username: string) {
+    return await this.userRepo.getUserWithRole(username);
   }
 }
