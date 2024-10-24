@@ -15,6 +15,7 @@ import { UserModule } from '../modules/user/user.module';
 import { AuthModule } from '../modules/auth/auth.module';
 import { OutletModule } from '../modules/outlet/outlet.module';
 import { RolesModule } from '../modules/roles/roles.module';
+import { CallPlanModule } from '../modules/callplan/callplan.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RolesModule } from '../modules/roles/roles.module';
     UserModule, // add new module
     OutletModule, // add new module
     RolesModule, // add new module
+    CallPlanModule, // add new module
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
@@ -51,10 +53,10 @@ import { RolesModule } from '../modules/roles/roles.module';
       provide: APP_GUARD,
       useClass: AuthJwtAccessGuard,
     },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionsGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: PermissionsGuard,
+    // },
   ],
 })
 export class AppModule implements NestModule {

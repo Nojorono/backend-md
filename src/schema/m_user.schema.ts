@@ -7,12 +7,14 @@ export const mUser = pgTable('m_user', {
   username: varchar('username', { length: 50 }).notNull(),
   user_role_id: integer('user_role_id')
     .references(() => mUserRoles.id)
-    .notNull(), // Ensure this is integer and not null
+    .notNull(),
   fullname: varchar('fullname', { length: 50 }),
   password: varchar('password', { length: 100 }),
   email: varchar('email', { length: 60 }),
   phone: varchar('phone', { length: 20 }),
   type_md: varchar('type_md', { length: 20 }),
+  area: varchar('area', { length: 50 }).default(null),
+  region: varchar('region', { length: 50 }).notNull(),
   is_active: integer('is_active').notNull().default(1),
   valid_from: timestamp('valid_from'),
   valid_to: timestamp('valid_to'),
