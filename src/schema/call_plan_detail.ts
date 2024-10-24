@@ -8,7 +8,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { CallPlan } from './call_plan';
 import { mOutlets } from './m_outlet.schema';
-export const CallPlanDetail = pgTable('call_plan_detail', {
+export const CallPlanDetailSchedule = pgTable('call_plan_detail_schedule', {
   id: serial('id').primaryKey().notNull(),
   code_call_plan: varchar('code_call_plan', { length: 20 }).notNull(),
   call_plan_id: integer('call_plan_id')

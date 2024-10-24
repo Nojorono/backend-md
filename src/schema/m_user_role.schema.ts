@@ -7,9 +7,7 @@ import {
 } from 'drizzle-orm/pg-core';
 export const mUserRoles = pgTable('m_user_role', {
   id: serial('id').primaryKey().notNull(),
-  name: varchar('name', { length: 10 }).notNull(),
-  area: varchar('name', { length: 10 }),
-  region: varchar('name', { length: 10 }),
+  name: varchar('name', { length: 20 }).notNull(),
   description: varchar('description', { length: 255 }).notNull(),
   created_by: varchar('created_by', { length: 50 }),
   created_at: timestamp('created_at').defaultNow(),

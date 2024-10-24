@@ -57,6 +57,24 @@ export class UserRepo {
     return null;
   }
 
+  async findByToken(token: string) {
+    const db = this.drizzleService['db'];
+    const data = await db
+      .select()
+      .from(mUser)
+      .where(eq(mUser.remember_token, token))
+      .execute();
+    if (data.length > 0) {
+      const user = data[0];
+      const encryptedId = await this.encryptedId(user.id);
+      return {
+        ...user,
+        id: encryptedId,
+      };
+    }
+    return null;
+  }
+
   // Read user by Email
   async getUserByEmail(email: string) {
     const db = this.drizzleService['db'];

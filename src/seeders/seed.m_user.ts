@@ -12,13 +12,15 @@ async function seedUsers() {
     // Sample user data
     const users = [
       {
-        username: 'admin_user',
+        username: 'administrator',
         user_role_id: 1, // Ensure this role exists in your m_user_roles table
         fullname: 'Administrator',
         password: await bcrypt.hash('securepassword', 10),
-        email: 'admin@example.com',
+        email: 'administrator@nna.id',
         phone: '1234567890',
         tipe_md: 'N',
+        area: 'ALL',
+        region: 'ALL',
         is_active: 1,
         valid_from: new Date(),
         valid_to: new Date(
@@ -30,13 +32,95 @@ async function seedUsers() {
         updated_by: 'system',
       },
       {
-        username: 'regular_user',
+        username: 'regular_admin',
         user_role_id: 2, // Ensure this role exists in your m_user_roles table
-        fullname: 'Regular User',
+        fullname: 'Regular Admin',
         password: await bcrypt.hash('securepassword', 10), // Hash the password
-        email: 'user@example.com',
+        email: 'admin@nna.1',
         phone: '0987654321',
         tipe_md: 'N',
+        area: 'ALL',
+        region: 'ALL',
+        is_active: 1,
+        valid_from: new Date(),
+        valid_to: new Date(
+          new Date().setFullYear(new Date().getFullYear() + 1),
+        ), // Valid for 1 year
+        remember_token: null,
+        last_login: null,
+        created_by: 'system',
+        updated_by: 'system',
+      },
+      {
+        username: 'regular_user_tl_1',
+        user_role_id: 3, // Ensure this role exists in your m_user_roles table
+        fullname: 'Regular User',
+        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        email: 'tl@nna.1',
+        phone: '0987654321',
+        tipe_md: 'MOTOR',
+        area: null,
+        region: 'JAWA TENGAH',
+        is_active: 1,
+        valid_from: new Date(),
+        valid_to: new Date(
+          new Date().setFullYear(new Date().getFullYear() + 1),
+        ), // Valid for 1 year
+        remember_token: null,
+        last_login: null,
+        created_by: 'system',
+        updated_by: 'system',
+      },
+      {
+        username: 'regular_user_tl_2',
+        user_role_id: 3, // Ensure this role exists in your m_user_roles table
+        fullname: 'Regular User',
+        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        email: 'tl@nna.2',
+        phone: '0987654321',
+        tipe_md: 'MOTOR',
+        area: 'SEMARANG',
+        region: 'JAWA TENGAH',
+        is_active: 1,
+        valid_from: new Date(),
+        valid_to: new Date(
+          new Date().setFullYear(new Date().getFullYear() + 1),
+        ), // Valid for 1 year
+        remember_token: null,
+        last_login: null,
+        created_by: 'system',
+        updated_by: 'system',
+      },
+      {
+        username: 'regular_user_md_1',
+        user_role_id: 4, // Ensure this role exists in your m_user_roles table
+        fullname: 'Regular User',
+        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        email: 'md@nna.1',
+        phone: '0987654321',
+        tipe_md: 'MOTOR',
+        area: 'SEMARANG',
+        region: 'JAWA TENGAH',
+        is_active: 1,
+        valid_from: new Date(),
+        valid_to: new Date(
+          new Date().setFullYear(new Date().getFullYear() + 1),
+        ), // Valid for 1 year
+        remember_token: null,
+        last_login: null,
+        created_by: 'system',
+        updated_by: 'system',
+      },
+      {
+        username: 'regular_user_md_2',
+        user_role_id: 4, // Ensure this role exists in your m_user_roles table
+        fullname: 'Regular User',
+        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        email: 'md@nna.2',
+        phone: '0987654321',
+        tipe_md: 'MOBIL',
+        area: 'YOGYAKARTA',
+        region: 'JAWA TENGAH',
         is_active: 1,
         valid_from: new Date(),
         valid_to: new Date(

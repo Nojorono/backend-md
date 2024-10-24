@@ -13,11 +13,31 @@ import {
 import { OutletService } from '../service/outlet.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('outlets')
+@Controller({
+  version: '1',
+  path: '/outlets',
+})
 @Controller('outlets')
 export class OutletController {
   constructor(private readonly outletService: OutletService) {}
+  @ApiBearerAuth('accessToken')
+  @Get('sio')
+  async getSio() {
+    return this.outletService.getOutletSio();
+  }
+  @ApiBearerAuth('accessToken')
+  @Get('region')
+  async getRegion() {
+    return this.outletService.getOutletRegion();
+  }
+  @ApiBearerAuth('accessToken')
+  @Get('area')
+  async getArea() {
+    return this.outletService.getOutletArea();
+  }
   @ApiBearerAuth('accessToken')
   @Post()
   async create(@Body() createOutletDto: CreateOutletDto) {

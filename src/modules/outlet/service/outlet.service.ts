@@ -21,6 +21,16 @@ export class OutletService {
     storage: multer.memoryStorage(),
   };
 
+  async getOutletSio() {
+    return this.outletRepository.getOutletTypeSio();
+  }
+  async getOutletRegion() {
+    return this.outletRepository.getOutletRegion();
+  }
+  async getOutletArea() {
+    return this.outletRepository.getOutletArea();
+  }
+
   async createOutlet(createOutletDto: CreateOutletDto) {
     return this.outletRepository.createOutlet(createOutletDto);
   }

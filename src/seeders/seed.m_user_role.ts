@@ -18,7 +18,7 @@ const createRole = (
   description,
   is_active: 1,
   is_web: 1,
-  is_mobile: 0,
+  is_mobile: 1,
   created_by: createdBy,
   updated_by: updatedBy,
 });
@@ -27,10 +27,11 @@ const createRole = (
 async function seedUserRoles() {
   try {
     const roles = [
-      createRole('admin', 'Administrator with full access'),
-      createRole('user', 'Regular user with limited access'),
+      createRole('SUPER-ADMIN', 'Administrator with full access'),
+      createRole('ADMIN', 'Administrator with full access'),
+      createRole('TL', 'Regular user with limited access'),
+      createRole('MD', 'Regular user with limited access'),
     ];
-
     await db.insert(mUserRoles).values(roles);
     console.log('User roles seeded successfully');
   } catch (error) {

@@ -2,12 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { eq, sql } from 'drizzle-orm';
 import { mUserRoles } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
-import {
-  buildSearchQuery,
-  decrypt,
-  encrypt,
-  paginate,
-} from '../../../helpers/nojorono.helpers';
+import { buildSearchQuery, decrypt, encrypt, paginate } from '../../../helpers/nojorono.helpers';
 import { CreateRolesDto, UpdateRolesDto } from '../dtos/roles.dtos';
 
 @Injectable()
@@ -45,12 +40,16 @@ export class RolesRepository {
   }
 
   // Update Roles by ID
-  async updateRoles(id: number, updateRolesDto: UpdateRolesDto) {
+  async updateRoles(id: string, updateRolesDto: UpdateRolesDto) {
     const db = this.drizzleService['db'];
+    const idDecrypted = await this.decryptId(id);
+    console.log(idDecrypted, id);
+    console.log(updateRolesDto);
+
     return await db
       .update(mUserRoles)
       .set(updateRolesDto)
-      .where(eq(mUserRoles.id, id))
+      .where(eq(mUserRoles.id, idDecrypted))
       .execute();
   }
 
@@ -70,19 +69,17 @@ export class RolesRepository {
   }
 
   // Delete an Roles (soft delete by updating is_deleted field)
-  async deleteRoles(id: number) {
+  async deleteRoles(id: string, userBy: string) {
+    const idDecrypted = await this.decryptId(id);
     const db = this.drizzleService['db'];
-
     if (!db) {
       throw new Error('Database not initialized');
     }
-
-    const result = await db
+    return await db
       .update(mUserRoles)
-      .set({ updated_at: new Date(), updated_by: 'admin', is_active: 0 }) // assuming these fields exist
-      .where(eq(mUserRoles.id, id))
+      .set({ updated_at: new Date(), updated_by: userBy, is_active: 0 }) // assuming these fields exist
+      .where(eq(mUserRoles.id, idDecrypted))
       .returning();
-    return result;
   }
 
   // List all active Roles with pagination and search
