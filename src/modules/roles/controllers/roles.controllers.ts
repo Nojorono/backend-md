@@ -2,12 +2,13 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Delete,
   Param,
   Body,
   Query,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { RolesService } from '../service/roles.service';
@@ -27,17 +28,19 @@ export class RolesControllers {
     return this.rolesService.getRolesById(id);
   }
   @ApiBearerAuth('accessToken')
-  @Put(':id')
+  @Post(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updateRolesDto: UpdateRolesDto,
   ) {
     return this.rolesService.updateRoles(id, updateRolesDto);
   }
   @ApiBearerAuth('accessToken')
   @Delete(':id')
-  async remove(@Param('id') id: number) {
-    return this.rolesService.deleteRoles(id);
+  async remove(@Param('id') id: string, @Req() request: Request) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    console.log(accessToken);
+    return this.rolesService.deleteRoles(id, accessToken);
   }
   @ApiBearerAuth('accessToken')
   @Get()

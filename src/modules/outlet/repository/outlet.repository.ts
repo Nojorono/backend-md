@@ -3,12 +3,16 @@ import { eq, sql } from 'drizzle-orm';
 import { mOutlets } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
-import { buildSearchQuery, decrypt, encrypt, paginate } from '../../../helpers/nojorono.helpers';
+import {
+  buildSearchQuery,
+  decrypt,
+  encrypt,
+  paginate,
+} from '../../../helpers/nojorono.helpers';
 
 @Injectable()
 export class OutletRepository {
   constructor(private readonly drizzleService: DrizzleService) {}
-
   async decryptId(id: string) {
     const stringId = id.toString();
     return decrypt(stringId);
@@ -61,7 +65,6 @@ export class OutletRepository {
 
     return result;
   }
-
   // Update Outlet by ID
   async updateOutlet(id: number, updateOutletDto: UpdateOutletDto) {
     const db = this.drizzleService['db'];
@@ -71,7 +74,6 @@ export class OutletRepository {
       .where(eq(mOutlets.id, id))
       .execute();
   }
-
   // Get outlet by id
   async getOutletById(id: number) {
     const db = this.drizzleService['db'];
@@ -83,7 +85,6 @@ export class OutletRepository {
     const result = await db.select().from(mOutlets).where(eq(mOutlets.id, id));
     return result[0]; // Return the first (and expectedly only) result
   }
-
   // Delete an outlet (soft delete by updating is_deleted field)
   async deleteOutlet(id: number) {
     const db = this.drizzleService['db'];
@@ -99,7 +100,6 @@ export class OutletRepository {
       .returning();
     return result;
   }
-
   // List all active outlets with pagination and search
   async getAllActiveOutlets(
     page: number = 1,
@@ -173,11 +173,54 @@ export class OutletRepository {
         };
       }),
     );
-
     // Return data with pagination metadata
     return {
       data: encryptedResult,
       ...paginate(totalRecords, page, limit), // Return pagination metadata
     };
+  }
+  // List outlet summary
+  async getOutletSummary() {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    // Querying the outlet_summary view
+    const result = await db.execute(
+      sql`SELECT "REGIONAL", "AREA", "AMO_TYPE_OUTLET", "BRAND_TYPE_OUTLET", "TOTAL" FROM outlet_summary;`,
+    );
+    return result.rows;
+  }
+  // List area
+  async getOutletArea() {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    // Querying the outlet_area view
+    const result = await db.execute(sql`SELECT "AREA" FROM outlet_area;`);
+    return result.rows;
+  }
+  // List region
+  async getOutletRegion() {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    // Querying the outlet_region view
+    const result = await db.execute(sql`SELECT region FROM outlet_region;`);
+    return result.rows;
+  }
+  // List type sio
+  async getOutletTypeSio() {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    // Querying the view using raw SQL
+    const result = await db.execute(
+      sql`SELECT outlet_type FROM outlet_type_sio;`,
+    );
+    return result.rows;
   }
 }

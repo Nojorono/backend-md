@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { RolesRepository } from '../repository/roles.repository';
+import { UserRepo } from '../../user/repository/user.repo';
 import { CreateRolesDto, UpdateRolesDto } from '../dtos/roles.dtos';
 
 @Injectable()
 export class RolesService {
-  constructor(private readonly rolesRepository: RolesRepository) {}
+  constructor(
+    private readonly rolesRepository: RolesRepository,
+    private readonly userRepository: UserRepo,
+  ) {}
 
   async createRoles(createRolesDto: CreateRolesDto) {
     return this.rolesRepository.createRoles(createRolesDto);
@@ -14,12 +18,13 @@ export class RolesService {
     return this.rolesRepository.getRolesById(id);
   }
 
-  async updateRoles(id: number, updateRolesDto: UpdateRolesDto) {
+  async updateRoles(id: string, updateRolesDto: UpdateRolesDto) {
     return this.rolesRepository.updateRoles(id, updateRolesDto);
   }
 
-  async deleteRoles(id: number) {
-    return this.rolesRepository.deleteRoles(id);
+  async deleteRoles(id: string, accessToken: string): Promise<void> {
+    const user = await this.userRepository.findByToken(accessToken);
+    return this.rolesRepository.deleteRoles(id, user.email);
   }
 
   async getAllActiveRoles(
