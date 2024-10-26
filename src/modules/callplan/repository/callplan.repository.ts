@@ -18,9 +18,11 @@ export class CallPlanRepository {
     const stringId = id.toString();
     return decrypt(stringId);
   }
+
   async encryptedId(id: number) {
     return encrypt(id.toString());
   }
+
   // Create
   async createData(createCallPlanDto: CreateCallPlanDto) {
     const db = this.drizzleService['db'];
@@ -100,7 +102,23 @@ export class CallPlanRepository {
     return result[0]; // Return the first (and expectedly only) result
   }
 
-  // Delete an Roles (soft delete by updating is_deleted field)
+  // Get User by id
+  async getCallPlanByUserId(id: string) {
+    const db = this.drizzleService['db'];
+    const idDecrypted = await this.decryptId(id);
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    return await db.query.CallPlan.findMany({
+      where: (CallPlan, { eq }) => eq(CallPlan.user_id, idDecrypted),
+      with: {
+        callPlan: true,
+      },
+    });
+  }
+
   async deleteById(id: string) {
     const db = this.drizzleService['db'];
     const idDecrypted = await this.decryptId(id);
@@ -111,12 +129,11 @@ export class CallPlanRepository {
 
     return await db
       .update(CallPlan)
-      .set({ updated_at: new Date(), deleted_at: new Date() }) // assuming these fields exist
+      .set({ updated_at: new Date(), deleted_at: new Date() })
       .where(eq(CallPlan.id, idDecrypted))
       .returning();
   }
 
-  // List all active Roles with pagination and search
   async getAllCallPlan(
     page: number = 1,
     limit: number = 10,
