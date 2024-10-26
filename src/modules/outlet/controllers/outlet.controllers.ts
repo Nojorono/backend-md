@@ -20,7 +20,6 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
   version: '1',
   path: '/outlets',
 })
-@Controller('outlets')
 export class OutletController {
   constructor(private readonly outletService: OutletService) {}
   @ApiBearerAuth('accessToken')

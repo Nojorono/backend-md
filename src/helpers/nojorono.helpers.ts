@@ -51,23 +51,18 @@ export function buildSearchQuery(searchTerm: string, searchColumns: string[]) {
 }
 
 // pagination.helper.ts
-export function paginate(
-  totalRecords: number,
-  currentPage: number = 1,
-  limit: number = 10,
-) {
+export function paginate(totalRecords: number, page: number, limit: number) {
   const totalPages = Math.ceil(totalRecords / limit);
-  const offset = (currentPage - 1) * limit;
+  const offset = (page - 1) * limit;
 
   return {
-    currentPage,
-    limit,
-    totalPages,
     totalRecords,
+    totalPages,
+    currentPage: page,
+    limit,
     offset,
   };
 }
-
 export function chunkArray(array: any[], chunkSize: number) {
   const chunks = [];
   for (let i = 0; i < array.length; i += chunkSize) {

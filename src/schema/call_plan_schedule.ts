@@ -8,7 +8,8 @@ import {
 } from 'drizzle-orm/pg-core';
 import { CallPlan } from './call_plan';
 import { mOutlets } from './m_outlet.schema';
-export const CallPlanDetailSchedule = pgTable('call_plan_detail_schedule', {
+import { relations } from 'drizzle-orm';
+export const CallPlanSchedule = pgTable('call_plan_schedule', {
   id: serial('id').primaryKey().notNull(),
   code_call_plan: varchar('code_call_plan', { length: 20 }).notNull(),
   call_plan_id: integer('call_plan_id')
@@ -27,3 +28,14 @@ export const CallPlanDetailSchedule = pgTable('call_plan_detail_schedule', {
   deleted_by: varchar('deleted_by', { length: 50 }),
   deleted_at: timestamp('deleted_at').default(null),
 });
+
+export const CallPlanScheduleRelations = relations(
+  CallPlanSchedule,
+  ({ one, many }) => ({
+    callPlan: one(CallPlan, {
+      fields: [CallPlanSchedule.call_plan_id],
+      references: [CallPlan.id],
+    }),
+    callPlanSchedule: many(CallPlanSchedule),
+  }),
+);

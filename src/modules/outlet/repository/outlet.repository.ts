@@ -118,7 +118,7 @@ export class OutletRepository {
       .from(mOutlets)
       .where(eq(mOutlets.is_active, 1))
       .execute();
-    console.log(totalRecordsQuery[0]);
+
     const totalRecords = parseInt(totalRecordsQuery[0]?.count) || 0;
 
     const { offset } = paginate(totalRecords, page, limit);
@@ -155,14 +155,14 @@ export class OutletRepository {
       .from(mOutlets)
       .where(eq(mOutlets.is_active, 1))
       .limit(limit) // Specify your limit
-      .offset(offset); // Specify your offset
+      .offset(offset);
 
     // Apply search condition if available
     if (searchCondition) {
       query.where(searchCondition);
     }
 
-    const result = await query;
+    const result = await query.execute();
 
     // Encrypt IDs for the returned data
     const encryptedResult = await Promise.all(
@@ -173,6 +173,7 @@ export class OutletRepository {
         };
       }),
     );
+
     // Return data with pagination metadata
     return {
       data: encryptedResult,
@@ -198,7 +199,7 @@ export class OutletRepository {
       throw new Error('Database not initialized');
     }
     // Querying the outlet_area view
-    const result = await db.execute(sql`SELECT "AREA" FROM outlet_area;`);
+    const result = await db.execute(sql`SELECT area as name FROM outlet_area;`);
     return result.rows;
   }
   // List region
@@ -208,7 +209,9 @@ export class OutletRepository {
       throw new Error('Database not initialized');
     }
     // Querying the outlet_region view
-    const result = await db.execute(sql`SELECT region FROM outlet_region;`);
+    const result = await db.execute(
+      sql`SELECT region as name FROM outlet_region;`,
+    );
     return result.rows;
   }
   // List type sio

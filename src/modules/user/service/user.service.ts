@@ -15,4 +15,12 @@ export class UserService {
       throw new InternalServerErrorException(e.message);
     }
   }
+
+  async getAllWithPaginate(
+    page: number = 1,
+    limit: number = 10,
+    searchTerm: string = '',
+  ) {
+    return this.userRepo.getAllPagination(page, limit, searchTerm);
+  }
 }

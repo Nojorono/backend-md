@@ -43,18 +43,6 @@ export class AuthService implements IAuthService {
     );
   }
 
-  // async getPermissionsFromRole({
-  //   role,
-  //   module,
-  // }: IGetPermissionFromRolePayload): Promise<Permission[]> {
-  //   return this.prismaService.permission.findMany({
-  //     where: {
-  //       role,
-  //       module,
-  //     },
-  //   });
-  // }
-
   async verifyToken(accessToken: string): Promise<IAuthPayload> {
     try {
       const data = await this.jwtService.verifyAsync(accessToken, {
@@ -117,28 +105,32 @@ export class AuthService implements IAuthService {
   async login(data: UserLoginDto): Promise<AuthResponseDto> {
     try {
       const { email, password } = data;
-      const user = await this.userRepo.getUserByEmail(email);
-      if (!user) {
+      const userFind = await this.userRepo.getUserByEmail(email);
+      console.log('test', userFind);
+      if (!userFind) {
         throw new NotFoundException('userNotFound');
       }
-      console.log(user);
-      const match = await this.helperHashService.match(password, user.password);
+      const match = await this.helperHashService.match(
+        password,
+        userFind.password,
+      );
       if (!match) {
         throw new NotFoundException('invalidPassword');
       }
       const { accessToken, refreshToken } = await this.generateTokens({
-        id: user.id,
-        user_role_id: user.user_role_id,
-        username: user.username,
-        is_active: user.is_active,
-        email: user.email,
+        id: userFind.id,
+        user_role_id: userFind.user_role_id,
+        username: userFind.username,
+        is_active: userFind.is_active,
+        email: userFind.email,
       });
-      await this.userRepo.updateUser(user.id, {
+      await this.userRepo.updateUser(userFind.id, {
         remember_token: accessToken,
         last_login: new Date(),
         updated_by: 'system',
         updated_at: new Date(),
       });
+      const user = await this.userRepo.getUserById(userFind.id);
       return {
         accessToken,
         refreshToken,
@@ -148,34 +140,4 @@ export class AuthService implements IAuthService {
       throw e;
     }
   }
-
-  // async signup(data: UserCreateDto): Promise<AuthResponseDto> {
-  //   try {
-  //     const { email, firstName, lastName, password, username } = data;
-  //     const findUser = await this.userService.getUserByEmail(email);
-  //     if (findUser) {
-  //       throw new HttpException('userExists', HttpStatus.CONFLICT);
-  //     }
-  //     const passwordHashed = this.helperHashService.createHash(password);
-  //     const createdUser = await this.userService.createUser({
-  //       email,
-  //       firstName: firstName?.trim(),
-  //       lastName: lastName?.trim(),
-  //       password: passwordHashed,
-  //       username: username?.trim(),
-  //     });
-  //     const tokens = await this.generateTokens({
-  //       id: createdUser.id,
-  //       device_token: createdUser.device_token,
-  //       role: createdUser.role,
-  //     });
-  //     delete createdUser.password;
-  //     return {
-  //       ...tokens,
-  //       user: createdUser,
-  //     };
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
 }
