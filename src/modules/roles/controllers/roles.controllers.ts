@@ -9,12 +9,14 @@ import {
   Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RolesService } from '../service/roles.service';
 import { CreateRolesDto, UpdateRolesDto } from '../dtos/roles.dtos';
-
-@Controller('roles')
+@ApiTags('roles')
+@Controller({
+  version: '1',
+  path: '/roles',
+})
 export class RolesControllers {
   constructor(private readonly rolesService: RolesService) {}
   @ApiBearerAuth('accessToken')
@@ -49,6 +51,10 @@ export class RolesControllers {
     @Query('limit') limit: number = 10,
     @Query('searchTerm') searchTerm: string = '',
   ) {
-    return this.rolesService.getAllActiveRoles(page, limit, searchTerm);
+    if (page) {
+      return this.rolesService.getAllActiveRoles(page, limit, searchTerm);
+    } else {
+      return this.rolesService.getAllRolesList();
+    }
   }
 }

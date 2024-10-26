@@ -3,15 +3,15 @@ import { Exclude } from 'class-transformer';
 
 export class CreateUserDto {
   username: string;
-  user_role_id?: number;
+  user_role_id?: string;
   fullname?: string;
   password: string;
   email?: string;
   phone?: string;
-  tipe_md?: string;
+  type_md?: string;
+  area?: string;
+  region?: string;
   is_active?: boolean;
-  is_android?: boolean;
-  is_web?: boolean;
   valid_from?: Date;
   valid_to?: Date;
 }
@@ -23,8 +23,10 @@ export class UpdateUserDto {
   fullname?: string;
   password?: string;
   email?: string;
+  area?: string;
+  region?: string;
   phone?: string;
-  tipe_md?: string;
+  type_md?: string;
   is_active?: boolean;
   is_android?: boolean;
   is_web?: boolean;
@@ -41,14 +43,18 @@ export class UpdateUserDto {
 }
 
 export class UserResponseDto {
-  created_at: Date;
-  deleted_at: Date;
-  email: string;
-  id: number;
-  phone: string;
-  valid_to: Date;
-  username: string;
+  id?: string;
+  username?: string;
+  roles?: string;
+  email?: string;
+  phone?: string;
+  fullname?: string;
+  region?: string;
+  area?: string;
+  type_md?: string;
+  is_active?: string;
+  last_login?: string;
 
   @Exclude()
-  password: string;
+  password?: string;
 }

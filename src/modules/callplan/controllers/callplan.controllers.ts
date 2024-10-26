@@ -9,11 +9,14 @@ import {
   Query,
 } from '@nestjs/common';
 
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CallPlanService } from '../service/callplan.service';
 import { CreateCallPlanDto, UpdateCallPlanDto } from '../dtos/callplan.dtos';
-
-@Controller('call-plan')
+@ApiTags('call-plan')
+@Controller({
+  version: '1',
+  path: '/call-plan',
+})
 export class CallPlanControllers {
   constructor(private readonly callPlanService: CallPlanService) {}
   @ApiBearerAuth('accessToken')
