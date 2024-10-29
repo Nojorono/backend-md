@@ -8,12 +8,14 @@ import {
   Body,
   UseInterceptors,
   UploadedFile,
-  Query,
+  Query, Req,
 } from '@nestjs/common';
 import { OutletService } from '../service/outlet.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { OutletRepository } from '../repository/outlet.repository';
+import { Request } from 'express';
 
 @ApiTags('outlets')
 @Controller({
@@ -21,7 +23,10 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
   path: '/outlets',
 })
 export class OutletController {
-  constructor(private readonly outletService: OutletService) {}
+  constructor(
+    private readonly outletService: OutletService,
+    private readonly outletRepository: OutletRepository,
+  ) {}
   @ApiBearerAuth('accessToken')
   @Get('sio')
   async getSio() {
@@ -36,6 +41,12 @@ export class OutletController {
   @Get('area')
   async getArea() {
     return this.outletService.getOutletArea();
+  }
+  @ApiBearerAuth('accessToken')
+  @Get('list-by')
+  async getOutletByType(@Req() request: Request) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.outletService.getOutletByUser(accessToken);
   }
   @ApiBearerAuth('accessToken')
   @Post()

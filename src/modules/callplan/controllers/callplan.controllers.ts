@@ -6,12 +6,14 @@ import {
   Delete,
   Param,
   Body,
-  Query,
+  Query, Req,
 } from '@nestjs/common';
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CallPlanService } from '../service/callplan.service';
 import { CreateCallPlanDto, UpdateCallPlanDto } from '../dtos/callplan.dtos';
+import { CreateCallPlanScheduleDto, UpdateCallPlanScheduleDto } from '../dtos/callplanschedule.dtos';
+import { Request } from 'express';
 @ApiTags('call-plan')
 @Controller({
   version: '1',
@@ -50,5 +52,42 @@ export class CallPlanControllers {
     @Query('searchTerm') searchTerm: string = '',
   ) {
     return this.callPlanService.getAll(page, limit, searchTerm);
+  }
+  @ApiBearerAuth('accessToken')
+  @Post('schedule')
+  async createSchedule(
+    @Body() createCallPlanScheduleDto: CreateCallPlanScheduleDto,
+    @Req() request: Request,
+  ) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.callPlanService.createCallPlanSchedule(
+      createCallPlanScheduleDto,
+      accessToken,
+    );
+  }
+  @ApiBearerAuth('accessToken')
+  @Put('schedule/:id')
+  async updateSchedule(
+    @Param('id') id: number,
+    @Body() updateCallPlanScheduleDto: UpdateCallPlanScheduleDto,
+    @Req() request: Request,
+  ) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.callPlanService.updateCallPlanSchedule(
+      id,
+      updateCallPlanScheduleDto,
+      accessToken,
+    );
+  }
+  @ApiBearerAuth('accessToken')
+  @Delete('schedule/:id')
+  async removeSchedule(@Param('id') id: number, @Req() request: Request) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.callPlanService.deleteCallPlanSchedule(id, accessToken);
+  }
+  @ApiBearerAuth('accessToken')
+  @Get('schedule/:id')
+  async findListSchedule(@Param('id') id: string) {
+    return this.callPlanService.getSchedules(id);
   }
 }

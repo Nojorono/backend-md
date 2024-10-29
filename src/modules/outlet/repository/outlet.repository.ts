@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { mOutlets } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
@@ -225,5 +225,33 @@ export class OutletRepository {
       sql`SELECT outlet_type FROM outlet_type_sio;`,
     );
     return result.rows;
+  }
+  async getOutletByType(region?: string, area?: []) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    // Start building the query
+    let query = db
+      .select({
+        id: mOutlets.id,
+        outlet_code: mOutlets.outlet_code,
+        name: mOutlets.name,
+        area: mOutlets.area,
+        region: mOutlets.region,
+      })
+      .from(mOutlets)
+      .where(eq(mOutlets.is_active, 1));
+
+    // Add conditional filters
+    if (region) {
+      query = query.where(eq(mOutlets.region, region));
+    }
+    if (area && area.length > 0) {
+      query = query.where(inArray(mOutlets.area, area));
+    }
+
+    return await query;
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import {
   buildSearchQuery,
@@ -212,20 +212,23 @@ export class UserRepo {
     const db = this.drizzleService['db'];
     const conditions = [];
 
-    // Add region condition only if region is provided and is not "ALL"
     if (region && region !== 'ALL') {
       conditions.push(eq(mUser.region, region));
     }
 
-    if (area && area !== 'ALL') {
-      conditions.push(eq(mUser.area, area));
+    if (area && Array.isArray(area) && area.length > 0) {
+      conditions.push(inArray(mUser.area, area));
     }
 
-    return await db
-      .select(mUser.id, mUser.email, mUserRoles.name)
-      .from(mUser)
-      .leftJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id))
-      .where(and(...conditions))
-      .execute();
+    const users = await db.query.mUser.findMany({
+      with: {
+        Roles: {
+          where: (role, { eq }) => eq(role.name, 'MD'),
+        },
+      },
+      where: (mUser, { and }) => and(...conditions),
+    });
+
+    return users;
   }
 }
