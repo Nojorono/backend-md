@@ -5,6 +5,7 @@ export { CallPlan, usersCallPlanRelations } from './call_plan';
 export {
   CallPlanSchedule,
   CallPlanScheduleRelations,
+  CallPlanOutletRelations,
 } from './call_plan_schedule';
 export { ActivityMd } from './activity_md';
 export { ActivityMdDetail } from './activity_md_detail';

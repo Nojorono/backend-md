@@ -31,11 +31,20 @@ export const CallPlanSchedule = pgTable('call_plan_schedule', {
 
 export const CallPlanScheduleRelations = relations(
   CallPlanSchedule,
-  ({ one, many }) => ({
+  ({ one }) => ({
     callPlan: one(CallPlan, {
-      fields: [CallPlanSchedule.call_plan_id],
-      references: [CallPlan.id],
+      fields: [CallPlanSchedule.call_plan_id], // Foreign key field
+      references: [CallPlan.id], // Primary key in CallPlan
     }),
-    callPlanSchedule: many(CallPlanSchedule),
+  }),
+);
+
+export const CallPlanOutletRelations = relations(
+  CallPlanSchedule,
+  ({ one }) => ({
+    callPlanOutlet: one(mOutlets, {
+      fields: [CallPlanSchedule.outlet_id],
+      references: [mOutlets.id],
+    }),
   }),
 );

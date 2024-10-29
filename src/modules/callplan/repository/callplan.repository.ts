@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
-import { CallPlan } from '../../../schema';
+import { desc, eq, isNull, sql } from 'drizzle-orm';
+import { CallPlan, mUser } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
   buildSearchQuery,
@@ -23,24 +23,37 @@ export class CallPlanRepository {
     return encrypt(id.toString());
   }
 
+  async findLastId() {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    const lastEntry = await db
+      .select()
+      .from(CallPlan)
+      .orderBy(desc(CallPlan.id))
+      .limit(1);
+
+    return lastEntry[0] ?? null;
+  }
+
   // Create
   async createData(createCallPlanDto: CreateCallPlanDto) {
     const db = this.drizzleService['db'];
 
-    // Destructure values from the DTO
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
     const {
       user_id,
-      code_call_plan,
       area,
       region,
+      code_call_plan,
       start_plan,
       end_plan,
       created_by,
     } = createCallPlanDto;
-
-    if (!db) {
-      throw new Error('Database not initialized');
-    }
 
     return await db
       .insert(CallPlan)
@@ -149,21 +162,22 @@ export class CallPlanRepository {
     const totalRecordsQuery = await db
       .select({ count: sql`COUNT(*)` })
       .from(CallPlan)
-      .where(eq(CallPlan.deleted_at, null))
+      .where(isNull(CallPlan.deleted_at))
       .execute();
     const totalRecords = parseInt(totalRecordsQuery[0]?.count) || 0;
 
     const { offset } = paginate(totalRecords, page, limit);
 
     // Build search query
-    const searchColumns = ['name', 'description'];
+    const searchColumns = ['call_plan.area', 'call_plan.region'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
     // Query for paginated and filtered results
     const query = db
       .select()
       .from(CallPlan)
-      .where(eq(CallPlan.deleted_at, null))
+      .leftJoin(mUser, eq(CallPlan.user_id, mUser.id))
+      .where(isNull(CallPlan.deleted_at))
       .limit(limit) // Specify your limit
       .offset(offset); // Specify your offset
 
@@ -174,12 +188,16 @@ export class CallPlanRepository {
 
     const result = await query;
 
-    // Encrypt IDs for the returned data
     const encryptedResult = await Promise.all(
-      result.map(async (item: { id: number }) => {
+      result.map(async (item) => {
+        const encryptedId = await this.encryptedId(item.call_plan.id); // Encrypt the call_plan.id
+
         return {
           ...item,
-          id: await this.encryptedId(item.id),
+          call_plan: {
+            ...item.call_plan,
+            id: encryptedId,
+          },
         };
       }),
     );

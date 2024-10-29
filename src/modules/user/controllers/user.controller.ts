@@ -1,13 +1,5 @@
 // src/user/user.controller.ts
-import {
-  Body,
-  Controller,
-  Delete,
-  Get, HttpException, HttpStatus,
-  Param,
-  Patch,
-  Post, Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
@@ -33,9 +25,7 @@ export class UserController {
     @Query('area') area?: string,
   ) {
     try {
-      const usersWithRole = await this.userRepo.getUserWithRole(region, area);
-      console.log(usersWithRole);
-      return usersWithRole;
+      return await this.userRepo.getUserWithRole(region, area);
     } catch (error) {
       throw new HttpException(
         'Failed to fetch users',

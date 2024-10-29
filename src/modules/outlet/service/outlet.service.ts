@@ -9,11 +9,13 @@ import { mOutlets } from '../../../schema';
 import { Readable } from 'stream';
 import csvParser from 'csv-parser';
 import { chunkArray } from '../../../helpers/nojorono.helpers';
+import { UserRepo } from '../../user/repository/user.repo';
 
 @Injectable()
 export class OutletService {
   constructor(
     private readonly outletRepository: OutletRepository,
+    private readonly userRepository: UserRepo,
     private readonly drizzleService: DrizzleService,
   ) {}
 
@@ -21,6 +23,10 @@ export class OutletService {
     storage: multer.memoryStorage(),
   };
 
+  async getOutletByUser(user) {
+    const isUser = await this.userRepository.findByToken(user);
+    return this.outletRepository.getOutletByType(isUser.region, isUser.area);
+  }
   async getOutletSio() {
     return this.outletRepository.getOutletTypeSio();
   }

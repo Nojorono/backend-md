@@ -41,12 +41,32 @@ export function decrypt(encryptedText: string): number {
 export function buildSearchQuery(searchTerm: string, searchColumns: string[]) {
   if (!searchTerm) return null;
 
-  const searchCondition = searchColumns.map((column) => {
-    // Ensure that `column` is a string representing the column name
-    return sql`${sql.identifier(column)} ILIKE ${`%${searchTerm}%`}`;
+  const searchCondition = searchColumns.map((qualifiedColumn) => {
+    return sql`${sql.raw(qualifiedColumn)} ILIKE ${`%${searchTerm}%`}`;
   });
 
   // Combine conditions using OR
+  return sql.join(searchCondition, sql` OR `);
+}
+
+export function buildSearchORM(
+  searchTerm: string,
+  searchColumns: string[] = [],
+) {
+  if (
+    !searchTerm ||
+    !Array.isArray(searchColumns) ||
+    searchColumns.length === 0
+  ) {
+    return null; // Return null if searchTerm is empty or searchColumns is invalid
+  }
+
+  console.log(searchColumns, searchTerm);
+
+  const searchCondition = searchColumns?.map((column) => {
+    return sql`${sql.identifier(column)} ILIKE ${`%${searchTerm}%`}`;
+  });
+
   return sql.join(searchCondition, sql` OR `);
 }
 
@@ -69,4 +89,22 @@ export function chunkArray(array: any[], chunkSize: number) {
     chunks.push(array.slice(i, i + chunkSize));
   }
   return chunks;
+}
+
+export function generateCode(prefix = '', sequence) {
+  if (sequence === null || sequence === undefined) {
+    throw new Error('Sequence is required');
+  }
+
+  // Generate date-based portion
+  const date = new Date();
+  const yearPart = date.getFullYear().toString().slice(-2);
+  const monthPart = (date.getMonth() + 1).toString().padStart(2, '0'); // 2-digit month
+  const dayPart = date.getDate().toString().padStart(2, '0'); // 2-digit day
+
+  // Pad sequence to ensure a uniform length (e.g., 4 digits)
+  const sequencePart = sequence.toString().padStart(4, '0');
+
+  // Concatenate parts into the final code
+  return `${prefix}${yearPart}${monthPart}${dayPart}${sequencePart}`;
 }

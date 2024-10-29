@@ -41,7 +41,6 @@ export class RolesControllers {
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() request: Request) {
     const accessToken = request.headers.authorization?.split(' ')[1];
-    console.log(accessToken);
     return this.rolesService.deleteRoles(id, accessToken);
   }
   @ApiBearerAuth('accessToken')
