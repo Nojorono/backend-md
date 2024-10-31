@@ -1,1 +1,0 @@
-ALTER TABLE "m_user" ALTER COLUMN "user_role_id" SET NOT NULL;

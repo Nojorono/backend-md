@@ -1,6 +1,5 @@
 export class CreateCallPlanDto {
-  user_id: number; // Mandatory as it's a foreign key reference to mUser
-  code_call_plan?: string; // Required (varchar with length 20)
+  code_batch: string; // Required (varchar with length 20)
   area: string; // Required (varchar with length 20)
   region: string; // Required (varchar with length 20)
   start_plan: Date; // Required (date)
@@ -14,8 +13,7 @@ export class CreateCallPlanDto {
 }
 
 export class UpdateCallPlanDto {
-  user_id?: number; // Optional (integer referencing mUser)
-  code_call_plan?: string; // Optional (varchar with length 20)
+  code_batch: string; // Required (varchar with length 20)
   area?: string; // Optional (varchar with length 20)
   region?: string; // Optional (varchar with length 20)
   start_plan?: Date; // Optional (date)

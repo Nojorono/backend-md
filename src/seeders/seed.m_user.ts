@@ -15,7 +15,7 @@ async function seedUsers() {
         username: 'administrator',
         user_role_id: 1, // Ensure this role exists in your m_user_roles table
         fullname: 'Administrator',
-        password: await bcrypt.hash('securepassword', 10),
+        password: await bcrypt.hash('123123', 10),
         email: 'administrator@nna.id',
         phone: '1234567890',
         tipe_md: 'N',
@@ -35,7 +35,7 @@ async function seedUsers() {
         username: 'regular_admin',
         user_role_id: 2, // Ensure this role exists in your m_user_roles table
         fullname: 'Regular Admin',
-        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        password: await bcrypt.hash('123123', 10), // Hash the password
         email: 'admin@nna.1',
         phone: '0987654321',
         tipe_md: 'N',
@@ -55,7 +55,7 @@ async function seedUsers() {
         username: 'regular_user_tl_1',
         user_role_id: 3, // Ensure this role exists in your m_user_roles table
         fullname: 'Regular User',
-        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        password: await bcrypt.hash('123123', 10), // Hash the password
         email: 'tl@nna.1',
         phone: '0987654321',
         tipe_md: 'MOTOR',
@@ -75,7 +75,7 @@ async function seedUsers() {
         username: 'regular_user_tl_2',
         user_role_id: 3, // Ensure this role exists in your m_user_roles table
         fullname: 'Regular User',
-        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        password: await bcrypt.hash('123123', 10), // Hash the password
         email: 'tl@nna.2',
         phone: '0987654321',
         tipe_md: 'MOTOR',
@@ -95,7 +95,7 @@ async function seedUsers() {
         username: 'regular_user_md_1',
         user_role_id: 4, // Ensure this role exists in your m_user_roles table
         fullname: 'Regular User',
-        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        password: await bcrypt.hash('123123', 10), // Hash the password
         email: 'md@nna.1',
         phone: '0987654321',
         tipe_md: 'MOTOR',
@@ -115,7 +115,7 @@ async function seedUsers() {
         username: 'regular_user_md_2',
         user_role_id: 4, // Ensure this role exists in your m_user_roles table
         fullname: 'Regular User',
-        password: await bcrypt.hash('securepassword', 10), // Hash the password
+        password: await bcrypt.hash('123123', 10), // Hash the password
         email: 'md@nna.2',
         phone: '0987654321',
         tipe_md: 'MOBIL',

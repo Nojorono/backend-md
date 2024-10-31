@@ -4,23 +4,14 @@ import {
   varchar,
   timestamp,
   integer,
-  pgEnum,
 } from 'drizzle-orm/pg-core';
 import { mUser } from './m_user.schema';
-export const statusEnum = pgEnum('activity_status', [
-  'default',
-  'survey',
-  'submitted',
-  'pending',
-  'clear',
-  'reject',
-]);
 export const ActivityMd = pgTable('activity_md', {
   id: serial('id').primaryKey().notNull(),
   user_id: integer('user_id').references(() => mUser.id), // Ensure this is integer and not null
   code_outlet: varchar('code_outlet', { length: 20 }).notNull(),
   code_call_plan: varchar('code_call_plan', { length: 20 }).notNull(),
-  status: statusEnum('status').notNull(),
+  status: varchar('status').notNull(),
   area: varchar('area', { length: 20 }).notNull(),
   region: varchar('region', { length: 20 }).notNull(),
   brand: varchar('brand', { length: 20 }).notNull(),

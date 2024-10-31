@@ -1,1 +1,0 @@
-ALTER TABLE "m_user" RENAME COLUMN "update_by" TO "updated_by";
