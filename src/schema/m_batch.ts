@@ -1,10 +1,7 @@
 import { pgTable, serial, varchar, timestamp, date } from 'drizzle-orm/pg-core';
-import { Mbatch } from './m_batch';
-export const CallPlan = pgTable('call_plan', {
+export const Mbatch = pgTable('m_batch', {
   id: serial('id').primaryKey().notNull(),
-  code_batch: varchar('code_batch').references(() => Mbatch.code_batch),
-  area: varchar('area', { length: 20 }).notNull(),
-  region: varchar('region', { length: 20 }).notNull(),
+  code_batch: varchar('code_batch', { length: 20 }).unique().notNull(),
   start_plan: date('start_plan').notNull(),
   end_plan: date('end_plan').notNull(),
   created_by: varchar('created_by', { length: 50 }),

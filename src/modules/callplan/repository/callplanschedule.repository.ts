@@ -1,13 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { eq, isNull, sql } from 'drizzle-orm';
-import { CallPlan, CallPlanSchedule } from '../../../schema';
+import { desc, eq, isNull } from 'drizzle-orm';
+import { CallPlanSchedule } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
-import {
-  buildSearchORM,
-  decrypt,
-  encrypt,
-  paginate,
-} from '../../../helpers/nojorono.helpers';
+import { decrypt, encrypt } from '../../../helpers/nojorono.helpers';
 import {
   UpdateCallPlanScheduleDto,
   CreateCallPlanScheduleDto,
@@ -41,6 +36,7 @@ export class CallPlanScheduleRepository {
       start_plan,
       end_plan,
       created_by,
+      user_id,
     } = createCallPlanScheduleDto;
 
     if (!db) {
@@ -54,12 +50,27 @@ export class CallPlanScheduleRepository {
         code_call_plan,
         outlet_id,
         notes,
+        user_id,
         start_plan,
         end_plan,
         created_by,
         created_at: new Date(),
       })
       .returning();
+  }
+
+  async findLastId() {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    const lastEntry = await db
+      .select()
+      .from(CallPlanSchedule)
+      .orderBy(desc(CallPlanSchedule.id))
+      .limit(1);
+
+    return lastEntry[0] ?? null;
   }
 
   // Update by ID
@@ -98,7 +109,28 @@ export class CallPlanScheduleRepository {
           isNull(CallPlanSchedule.deleted_at),
         ),
       with: {
-        callPlanOutlet: true, // This will fetch the related CallPlan
+        callPlanOutlet: true,
+        callPlanUser: true,
+      },
+    });
+  }
+
+  // Get Schedule by callPlanId
+  async getByIdUser(id: string) {
+    const db = this.drizzleService['db'];
+    const idDecrypted = await this.decryptId(id);
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.query.CallPlanSchedule.findMany({
+      where: (CallPlanSchedule, { eq, and }) =>
+        and(
+          eq(CallPlanSchedule.user_id, idDecrypted),
+          isNull(CallPlanSchedule.deleted_at),
+        ),
+      with: {
+        callPlanOutlet: true,
+        callPlanUser: true,
       },
     });
   }

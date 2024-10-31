@@ -2,6 +2,7 @@ export class CreateCallPlanScheduleDto {
   code_call_plan: string; // Required (varchar with length 20)
   call_plan_id: string; // Required (integer referencing CallPlan)
   outlet_id: number; // Required (integer referencing mOutlets)
+  user_id: number; // Required (integer referencing mOutlets)
   start_plan: Date; // Required (date)
   end_plan: Date; // Required (date)
   notes?: string; // Optional (varchar with length 255)
@@ -16,6 +17,7 @@ export class CreateCallPlanScheduleDto {
 export class UpdateCallPlanScheduleDto {
   code_call_plan?: string; // Optional (varchar with length 20)
   outlet_id?: number; // Optional (integer referencing mOutlets)
+  user_id: number; // Required (integer referencing mOutlets)
   start_plan?: Date; // Optional (date)
   end_plan?: Date; // Optional (date)
   notes?: string; // Optional (varchar with length 255)

@@ -8,6 +8,7 @@ import {
 import { mUserRoles } from './m_user_role.schema';
 import { serial } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { CallPlanSchedule } from './call_plan_schedule';
 
 export const mUser = pgTable('m_user', {
   id: serial('id').primaryKey().notNull(),

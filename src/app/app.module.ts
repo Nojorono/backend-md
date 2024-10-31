@@ -10,17 +10,19 @@ import { ResponseInterceptor } from 'src/interceptors/response.interceptor';
 import { GlobalExceptionFilter } from 'src/interceptors/exception.interceptor';
 import { LoggingMiddleware } from '../middlewares/logging.middleware';
 import { CommonModule } from '../common/common.module';
-import { PermissionsGuard } from '../guards/permission.guard';
+// import { PermissionsGuard } from '../guards/permission.guard';
 import { UserModule } from '../modules/user/user.module';
 import { AuthModule } from '../modules/auth/auth.module';
 import { OutletModule } from '../modules/outlet/outlet.module';
 import { RolesModule } from '../modules/roles/roles.module';
 import { CallPlanModule } from '../modules/callplan/callplan.module';
+import { BatchModule } from '../modules/batch/batch.module';
 
 @Module({
   imports: [
     CommonModule, // add new module
     AuthModule, // add new module
+    BatchModule, // add new module
     UserModule, // add new module
     OutletModule, // add new module
     RolesModule, // add new module

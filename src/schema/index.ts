@@ -1,10 +1,11 @@
 export { mUser, usersRelations } from './m_user.schema';
 export { mUserRoles } from './m_user_role.schema';
 export { mOutlets } from './m_outlet.schema';
-export { CallPlan, usersCallPlanRelations } from './call_plan';
+export { CallPlan } from './call_plan';
+export { Mbatch } from './m_batch';
 export {
   CallPlanSchedule,
-  CallPlanScheduleRelations,
+  CallPlanUserRelations,
   CallPlanOutletRelations,
 } from './call_plan_schedule';
 export { ActivityMd } from './activity_md';

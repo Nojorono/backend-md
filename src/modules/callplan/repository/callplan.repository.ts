@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { desc, eq, isNull, sql } from 'drizzle-orm';
-import { CallPlan, mUser } from '../../../schema';
+import { CallPlan } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
   buildSearchQuery,
@@ -45,21 +45,13 @@ export class CallPlanRepository {
       throw new Error('Database not initialized');
     }
 
-    const {
-      user_id,
-      area,
-      region,
-      code_call_plan,
-      start_plan,
-      end_plan,
-      created_by,
-    } = createCallPlanDto;
+    const { area, region, code_batch, start_plan, end_plan, created_by } =
+      createCallPlanDto;
 
     return await db
       .insert(CallPlan)
       .values({
-        user_id,
-        code_call_plan,
+        code_batch,
         area,
         region,
         start_plan,
@@ -74,20 +66,12 @@ export class CallPlanRepository {
   async updateData(id: string, updateCallPlanDto: UpdateCallPlanDto) {
     const idDecrypted = await this.decryptId(id);
     const db = this.drizzleService['db'];
-    const {
-      user_id,
-      code_call_plan,
-      area,
-      region,
-      start_plan,
-      end_plan,
-      updated_by,
-    } = updateCallPlanDto;
+    const { code_batch, area, region, start_plan, end_plan, updated_by } =
+      updateCallPlanDto;
     return await db
       .update(CallPlan)
       .set({
-        user_id,
-        code_call_plan,
+        code_batch,
         area,
         region,
         start_plan,
@@ -116,20 +100,14 @@ export class CallPlanRepository {
   }
 
   // Get User by id
-  async getCallPlanByUserId(id: string) {
+  async getCallPlanByUserId() {
     const db = this.drizzleService['db'];
-    const idDecrypted = await this.decryptId(id);
 
     if (!db) {
       throw new Error('Database not initialized');
     }
 
-    return await db.query.CallPlan.findMany({
-      where: (CallPlan, { eq }) => eq(CallPlan.user_id, idDecrypted),
-      with: {
-        callPlan: true,
-      },
-    });
+    return await db.query.CallPlan.findMany();
   }
 
   async deleteById(id: string) {
@@ -174,12 +152,18 @@ export class CallPlanRepository {
 
     // Query for paginated and filtered results
     const query = db
-      .select()
+      .select({
+        id: CallPlan.id,
+        code_batch: CallPlan.code_batch,
+        area: CallPlan.area,
+        region: CallPlan.region,
+        start_plan: CallPlan.start_plan,
+        end_plan: CallPlan.end_plan,
+      })
       .from(CallPlan)
-      .leftJoin(mUser, eq(CallPlan.user_id, mUser.id))
       .where(isNull(CallPlan.deleted_at))
-      .limit(limit) // Specify your limit
-      .offset(offset); // Specify your offset
+      .limit(limit)
+      .offset(offset);
 
     // Apply search condition if available
     if (searchCondition) {
@@ -190,14 +174,11 @@ export class CallPlanRepository {
 
     const encryptedResult = await Promise.all(
       result.map(async (item) => {
-        const encryptedId = await this.encryptedId(item.call_plan.id); // Encrypt the call_plan.id
+        const encryptedId = await this.encryptedId(item.id); // Encrypt the call_plan.id
 
         return {
           ...item,
-          call_plan: {
-            ...item.call_plan,
-            id: encryptedId,
-          },
+          id: encryptedId,
         };
       }),
     );

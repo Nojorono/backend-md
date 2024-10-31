@@ -4,7 +4,10 @@ import { CallPlanRepository } from '../repository/callplan.repository';
 import { CallPlanScheduleRepository } from '../repository/callplanschedule.repository';
 import { generateCode } from '../../../helpers/nojorono.helpers';
 import { logger } from 'nestjs-i18n';
-import { CreateCallPlanScheduleDto, UpdateCallPlanScheduleDto } from '../dtos/callplanschedule.dtos';
+import {
+  CreateCallPlanScheduleDto,
+  UpdateCallPlanScheduleDto,
+} from '../dtos/callplanschedule.dtos';
 import { UserRepo } from '../../user/repository/user.repo';
 
 @Injectable()
@@ -36,8 +39,19 @@ export class CallPlanService {
     accessToken,
   ) {
     try {
+      const lastId = await this.callPlanScheduleRepository.findLastId();
+      if (lastId == null) {
+        createCallPlaScheduleDto.code_call_plan = generateCode('CL', 1);
+      } else {
+        createCallPlaScheduleDto.code_call_plan = generateCode(
+          'CL',
+          lastId.id + 1,
+        );
+      }
+
       const userCreate = await this.userRepository.findByToken(accessToken);
       createCallPlaScheduleDto.created_by = userCreate.email;
+
       return this.callPlanScheduleRepository.createData(
         createCallPlaScheduleDto,
       );
@@ -54,8 +68,6 @@ export class CallPlanService {
 
   async createCallPlan(createCallPlanDto: CreateCallPlanDto) {
     try {
-      const lastId = await this.callPlanRepository.findLastId();
-      createCallPlanDto.code_call_plan = generateCode('CL', lastId.id + 1);
       return this.callPlanRepository.createData(createCallPlanDto);
     } catch (e) {
       logger.error(e);
@@ -81,5 +93,9 @@ export class CallPlanService {
 
   async getSchedules(id: string) {
     return this.callPlanScheduleRepository.getByIdCallPlan(id);
+  }
+
+  async getByIdUser(id: string) {
+    return this.callPlanScheduleRepository.getByIdUser(id);
   }
 }
