@@ -17,10 +17,12 @@ import { OutletModule } from '../modules/outlet/outlet.module';
 import { RolesModule } from '../modules/roles/roles.module';
 import { CallPlanModule } from '../modules/callplan/callplan.module';
 import { BatchModule } from '../modules/batch/batch.module';
+import { S3Module } from '../modules/s3/s3.module';
 
 @Module({
   imports: [
     CommonModule, // add new module
+    S3Module, // add new module
     AuthModule, // add new module
     BatchModule, // add new module
     UserModule, // add new module
