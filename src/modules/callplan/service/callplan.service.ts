@@ -91,8 +91,18 @@ export class CallPlanService {
     return this.callPlanRepository.getAllCallPlan(page, limit, searchTerm);
   }
 
-  async getSchedules(id: string) {
-    return this.callPlanScheduleRepository.getByIdCallPlan(id);
+  async getSchedules(
+    id: string,
+    page: number = 1,
+    limit: number = 10,
+    searchTerm: string = '',
+  ) {
+    return this.callPlanScheduleRepository.getByIdCallPlan(
+      id,
+      page,
+      limit,
+      searchTerm,
+    );
   }
 
   async getByIdUser(id: string) {

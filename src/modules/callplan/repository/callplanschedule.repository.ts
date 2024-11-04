@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull, like, or } from 'drizzle-orm';
 import { CallPlanSchedule } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { decrypt, encrypt } from '../../../helpers/nojorono.helpers';
@@ -96,23 +96,47 @@ export class CallPlanScheduleRepository {
   }
 
   // Get Schedule by callPlanId
-  async getByIdCallPlan(id: string) {
+  async getByIdCallPlan(
+    id: string,
+    page: number = 1,
+    limit: number = 10,
+    searchTerm: string = '',
+  ) {
     const db = this.drizzleService['db'];
     const idDecrypted = await this.decryptId(id);
     if (!db) {
       throw new Error('Database not initialized');
     }
-    return await db.query.CallPlanSchedule.findMany({
-      where: (CallPlanSchedule, { eq, and }) =>
-        and(
-          eq(CallPlanSchedule.call_plan_id, idDecrypted),
-          isNull(CallPlanSchedule.deleted_at),
-        ),
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit;
+
+    // Prepare query to fetch schedules along with user and outlet details
+    const schedules = await db.query.CallPlanSchedule.findMany({
       with: {
         callPlanOutlet: true,
         callPlanUser: true,
       },
+      where: (CallPlanSchedule, { eq, isNull }) =>
+        and(
+          eq(CallPlanSchedule.call_plan_id, idDecrypted),
+          isNull(CallPlanSchedule.deleted_at),
+          or(
+            like(CallPlanSchedule.callPlanUser.email, `%${searchTerm}%`),
+            like(CallPlanSchedule.callPlanOutlet.name, `%${searchTerm}%`),
+          ),
+        ),
+      limit: limit,
+      offset: offset,
     });
+
+    const totalCount = schedules.length;
+
+    return {
+      data: schedules,
+      total: totalCount,
+      page,
+      limit,
+    };
   }
 
   // Get Schedule by callPlanId

@@ -1,13 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
+import { eq, notInArray, sql } from 'drizzle-orm';
 import { mUserRoles } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
-import {
-  buildSearchQuery,
-  decrypt,
-  encrypt,
-  paginate,
-} from '../../../helpers/nojorono.helpers';
+import { buildSearchQuery, decrypt, encrypt, paginate } from '../../../helpers/nojorono.helpers';
 import { CreateRolesDto, UpdateRolesDto } from '../dtos/roles.dtos';
 
 @Injectable()
@@ -74,12 +69,21 @@ export class RolesRepository {
   }
 
   // Get Roles all List
-  async getRolesList() {
+  async getRolesList(roles) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
     }
-    return await db.select().from(mUserRoles).execute();
+    if (roles.name !== 'SUPER-ADMIN' || roles.name !== 'ADMIN') {
+      const excludedRoles = ['SUPER-ADMIN', 'ADMIN'];
+      return await db
+        .select()
+        .from(mUserRoles)
+        .where(notInArray(mUserRoles.name, excludedRoles))
+        .execute();
+    } else {
+      return await db.select().from(mUserRoles).execute();
+    }
   }
 
   // Delete an Roles (soft delete by updating is_deleted field)

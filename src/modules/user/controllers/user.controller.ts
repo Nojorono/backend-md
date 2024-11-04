@@ -1,10 +1,22 @@
 // src/user/user.controller.ts
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { UserService } from '../service/user.service';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import { UserRepo } from '../repository/user.repo';
 import { MessagePattern } from '@nestjs/microservices';
+import { Request } from 'express';
 
 @ApiTags('user')
 @Controller({
@@ -35,13 +47,29 @@ export class UserController {
   }
   @ApiBearerAuth('accessToken')
   @Get()
-  public async getAll() {
-    return await this.userService.getAllWithPaginate();
+  public async getAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('searchTerm') searchTerm: string = '',
+    @Req() request: Request,
+  ) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return await this.userService.getAllWithPaginate(
+      page,
+      limit,
+      searchTerm,
+      accessToken,
+    );
   }
   @ApiBearerAuth('accessToken')
   @Post()
-  public async create(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.store(createUserDto);
+  public async create(
+    @Body() createUserDto: CreateUserDto,
+    @Req() request: Request,
+  ) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    console.log(accessToken);
+    return await this.userService.store(createUserDto, accessToken);
   }
   @ApiBearerAuth('accessToken')
   @MessagePattern('getUserById')
@@ -50,12 +78,14 @@ export class UserController {
     return await this.userRepo.getUserById(id);
   }
   @ApiBearerAuth('accessToken')
-  @Patch(':id')
+  @Post(':id')
   public async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @Req() request: Request,
   ) {
-    return await this.userRepo.updateUser(id, updateUserDto);
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return await this.userService.update(id, updateUserDto, accessToken);
   }
   @ApiBearerAuth('accessToken')
   @Delete(':id')

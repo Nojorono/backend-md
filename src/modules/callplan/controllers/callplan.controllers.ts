@@ -101,8 +101,13 @@ export class CallPlanControllers {
 
   @ApiBearerAuth('accessToken')
   @Get('schedule/:id')
-  async findListSchedule(@Param('id') id: string) {
-    return this.callPlanService.getSchedules(id);
+  async findListSchedule(
+    @Param('id') id: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('searchTerm') searchTerm: string = '',
+  ) {
+    return this.callPlanService.getSchedules(id, page, limit, searchTerm);
   }
 
   @ApiBearerAuth('accessToken')

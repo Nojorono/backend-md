@@ -37,16 +37,19 @@ export function decrypt(encryptedText: string): number {
   return parseInt(decrypted);
 }
 
-// search.helper.ts
 export function buildSearchQuery(searchTerm: string, searchColumns: string[]) {
   if (!searchTerm) return null;
 
-  const searchCondition = searchColumns.map((qualifiedColumn) => {
-    return sql`${sql.raw(qualifiedColumn)} ILIKE ${`%${searchTerm}%`}`;
+  // Create search conditions for each column
+  const searchConditions = searchColumns.map((column) => {
+    return sql`${sql.raw(column)} ILIKE ${`%${searchTerm}%`}`;
   });
 
   // Combine conditions using OR
-  return sql.join(searchCondition, sql` OR `);
+  const combinedConditions = sql.join(searchConditions, sql` OR `);
+
+  // Return the complete search condition wrapped in parentheses
+  return sql`(${combinedConditions})`;
 }
 
 export function buildSearchORM(

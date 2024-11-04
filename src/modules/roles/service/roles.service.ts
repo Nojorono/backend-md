@@ -26,8 +26,9 @@ export class RolesService {
     const user = await this.userRepository.findByToken(accessToken);
     return this.rolesRepository.deleteRoles(id, user.email);
   }
-  async getAllRolesList() {
-    return this.rolesRepository.getRolesList();
+  async getAllRolesList(accessToken) {
+    const user = await this.userRepository.findByToken(accessToken);
+    return this.rolesRepository.getRolesList(user.Roles);
   }
   async getAllActiveRoles(
     page: number = 1,
