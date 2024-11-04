@@ -20,6 +20,12 @@ import { CreateRolesDto, UpdateRolesDto } from '../dtos/roles.dtos';
 export class RolesControllers {
   constructor(private readonly rolesService: RolesService) {}
   @ApiBearerAuth('accessToken')
+  @Get('all')
+  async getAll(@Req() request: Request) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.rolesService.getAllRolesList(accessToken);
+  }
+  @ApiBearerAuth('accessToken')
   @Post()
   async create(@Body() createRolesDto: CreateRolesDto) {
     return this.rolesService.createRoles(createRolesDto);
@@ -50,10 +56,6 @@ export class RolesControllers {
     @Query('limit') limit: number = 10,
     @Query('searchTerm') searchTerm: string = '',
   ) {
-    if (page) {
-      return this.rolesService.getAllActiveRoles(page, limit, searchTerm);
-    } else {
-      return this.rolesService.getAllRolesList();
-    }
+    return this.rolesService.getAllActiveRoles(page, limit, searchTerm);
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
-import { eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import {
   buildSearchQuery,
@@ -26,6 +26,7 @@ export class UserRepo {
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
+    user: any,
   ) {
     const db = this.drizzleService['db'];
 
@@ -33,24 +34,17 @@ export class UserRepo {
       throw new Error('Database not initialized');
     }
 
-    // Apply pagination logic
-    const totalRecordsQuery = await db
-      .select({ count: sql`COUNT(*)` })
-      .from(mUser)
-      .where(eq(mUser.is_active, 1))
-      .execute();
-    const totalRecords = parseInt(totalRecordsQuery[0]?.count) || 0;
+    let getRoles = ['MD', 'TL', 'ADMIN'];
 
-    const { offset } = paginate(totalRecords, page, limit);
-
-    // Build search query
-    const searchColumns = ['username', 'email'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
+    if (user.Roles.name == 'TL') {
+      getRoles = ['MD'];
+    }
 
     // Query for paginated and filtered results
     const query = db
       .select({
         id: mUser.id,
+        user_role_id: mUser.user_role_id,
         roles: mUserRoles.name,
         username: mUser.username,
         email: mUser.email,
@@ -61,17 +55,30 @@ export class UserRepo {
         type_md: mUser.type_md,
         is_active: mUser.is_active,
         last_login: mUser.last_login,
+        valid_from: mUser.valid_from,
+        valid_to: mUser.valid_to,
       })
       .from(mUser)
       .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id))
-      .where(eq(mUser.is_active, 1))
-      .limit(limit)
-      .offset(offset);
+      .where(
+        and(
+          eq(mUser.is_active, 1),
+          inArray(mUserRoles.name, getRoles),
+          isNull(mUser.deleted_at),
+        ),
+      );
 
+    // Build search query
+    const searchColumns = ['email', 'username', 'phone'];
+    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
     // Apply search condition if available
     if (searchCondition) {
       query.where(searchCondition);
     }
+    const records = await query.execute();
+    const totalRecords = parseInt(records.length) || 0;
+    const { offset } = paginate(totalRecords, page, limit);
+    query.limit(limit).offset(offset);
 
     const result = await query;
 
@@ -92,22 +99,25 @@ export class UserRepo {
     };
   }
   // Create a new user
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto, userEmail: string) {
     const db = this.drizzleService['db'];
-    const idDecrypted = await this.decryptId(createUserDto.user_role_id);
     return await db
       .insert(mUser)
       .values({
         username: createUserDto.username,
-        user_role_id: idDecrypted,
+        user_role_id: createUserDto.user_role_id,
         fullname: createUserDto.fullname,
         password: await bcrypt.hash('123456', 10), // Hash the password,
         email: createUserDto.email,
         phone: createUserDto.phone,
-        tipe_md: createUserDto.type_md,
-        is_active: createUserDto.is_active ?? true,
-        valid_from: createUserDto.valid_from,
-        valid_to: createUserDto.valid_to,
+        area: createUserDto.area,
+        region: createUserDto.region,
+        type_md: createUserDto.type_md,
+        is_active: 1,
+        valid_from: new Date(createUserDto.valid_from),
+        valid_to: new Date(createUserDto.valid_to),
+        created_at: new Date(),
+        created_by: userEmail,
       })
       .execute();
   }
@@ -199,11 +209,11 @@ export class UserRepo {
   // Delete user by ID
   async softDeleteUser(id: string) {
     const idDecrypted = await this.decryptId(id);
+    console.log(idDecrypted);
     const db = this.drizzleService['db'];
-    const currentTimestamp = new Date();
     return await db
       .update(mUser)
-      .set({ deleted_at: currentTimestamp })
+      .set({ deleted_at: new Date() })
       .where(eq(mUser.id, idDecrypted))
       .execute();
   }
