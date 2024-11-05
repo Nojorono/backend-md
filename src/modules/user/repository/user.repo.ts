@@ -14,13 +14,16 @@ import bcrypt from 'bcrypt';
 @Injectable()
 export class UserRepo {
   constructor(private readonly drizzleService: DrizzleService) {}
+
   async decryptId(id: string) {
     const stringId = id.toString();
     return decrypt(stringId);
   }
+
   async encryptedId(id: number) {
     return encrypt(id.toString());
   }
+
   // List all active with pagination and search
   async getAllPagination(
     page: number = 1,
@@ -34,10 +37,14 @@ export class UserRepo {
       throw new Error('Database not initialized');
     }
 
-    let getRoles = ['MD', 'TL', 'ADMIN'];
+    let getRoles = ['MD', 'TL', 'SUPER-ADMIN', 'ADMIN'];
 
     if (user.Roles.name == 'TL') {
       getRoles = ['MD'];
+    }
+
+    if (user.Roles.name == 'ADMIN') {
+      getRoles = ['MD', 'TL'];
     }
 
     // Query for paginated and filtered results
@@ -66,7 +73,9 @@ export class UserRepo {
           inArray(mUserRoles.name, getRoles),
           isNull(mUser.deleted_at),
         ),
-      );
+      )
+      .orderBy(mUser.updated_at, 'desc');
+
 
     // Build search query
     const searchColumns = ['email', 'username', 'phone'];
@@ -98,6 +107,7 @@ export class UserRepo {
       ...paginate(totalRecords, page, limit),
     };
   }
+
   // Create a new user
   async createUser(createUserDto: CreateUserDto, userEmail: string) {
     const db = this.drizzleService['db'];
@@ -118,6 +128,8 @@ export class UserRepo {
         valid_to: new Date(createUserDto.valid_to),
         created_at: new Date(),
         created_by: userEmail,
+        updated_at: new Date(),
+        updated_by: userEmail,
       })
       .execute();
   }
@@ -175,6 +187,7 @@ export class UserRepo {
     }
     return null;
   }
+
   // Read user by Email
   async getUserByEmail(email: string) {
     const db = this.drizzleService['db'];
@@ -213,7 +226,7 @@ export class UserRepo {
     const db = this.drizzleService['db'];
     return await db
       .update(mUser)
-      .set({ deleted_at: new Date() })
+      .set({ deleted_at: new Date(), is_active: 0 })
       .where(eq(mUser.id, idDecrypted))
       .execute();
   }
@@ -230,7 +243,7 @@ export class UserRepo {
       conditions.push(inArray(mUser.area, area));
     }
 
-    const users = await db.query.mUser.findMany({
+    return await db.query.mUser.findMany({
       with: {
         Roles: {
           where: (role, { eq }) => eq(role.name, 'MD'),
@@ -238,7 +251,5 @@ export class UserRepo {
       },
       where: (mUser, { and }) => and(...conditions),
     });
-
-    return users;
   }
 }
