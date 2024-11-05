@@ -48,6 +48,19 @@ export class UserService {
           HttpStatus.UNAUTHORIZED,
         );
       }
+      const dataUser = await this.userRepo.getUserById(id);
+      if (dataUser.email !== updateUserDto.email) {
+        const findExist = await this.userRepo.getUserByEmail(
+          updateUserDto.email,
+        );
+        if (findExist) {
+          // Throw a conflict error if the email is already taken
+          throw new HttpException(
+            'Email is already taken',
+            HttpStatus.CONFLICT,
+          );
+        }
+      }
       return await this.userRepo.updateUser(id, {
         username: updateUserDto.username,
         user_role_id: updateUserDto.user_role_id,
