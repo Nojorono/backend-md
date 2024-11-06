@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { and, arrayContained, arrayOverlaps, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import {
   buildSearchQuery,
@@ -10,6 +10,7 @@ import {
   paginate,
 } from '../../../helpers/nojorono.helpers';
 import bcrypt from 'bcrypt';
+import { raw } from 'express';
 
 @Injectable()
 export class UserRepo {
@@ -75,7 +76,6 @@ export class UserRepo {
         ),
       )
       .orderBy(mUser.updated_at, 'desc');
-
 
     // Build search query
     const searchColumns = ['email', 'username', 'phone'];
@@ -231,7 +231,7 @@ export class UserRepo {
       .execute();
   }
 
-  async getUserWithRole(region?: string, area?: string) {
+  async getUserWithRole(region?: string, area?: any) {
     const db = this.drizzleService['db'];
     const conditions = [];
 
@@ -239,17 +239,32 @@ export class UserRepo {
       conditions.push(eq(mUser.region, region));
     }
 
-    if (area && Array.isArray(area) && area.length > 0) {
-      conditions.push(inArray(mUser.area, area));
-    }
+    // if (area && Array.isArray(area) && area.length > 0) {
+    //   console.log(area);
+    //   conditions.push(inArray(mUser.area, ['SEMARANG']));
+    // }
 
-    return await db.query.mUser.findMany({
-      with: {
-        Roles: {
-          where: (role, { eq }) => eq(role.name, 'MD'),
-        },
-      },
-      where: (mUser, { and }) => and(...conditions),
-    });
+    const query = await db
+      .select({
+        id: mUser.id,
+        roles: mUserRoles.name,
+        username: mUser.username,
+        email: mUser.email,
+        phone: mUser.phone,
+        password: mUser.password,
+        fullname: mUser.fullname,
+        region: mUser.region,
+        area: mUser.area,
+        type_md: mUser.type_md,
+        is_active: mUser.is_active,
+        last_login: mUser.last_login,
+      })
+      .from(mUser)
+      .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id))
+      .where(and(eq(mUserRoles.name, 'MD'), ...conditions))
+      .execute();
+
+    console.log('test', query);
+    return query;
   }
 }

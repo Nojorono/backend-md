@@ -1,14 +1,15 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
-  Delete,
-  Param,
-  Body,
-  UseInterceptors,
+  Query,
+  Req,
   UploadedFile,
-  Query, Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { OutletService } from '../service/outlet.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
@@ -27,37 +28,44 @@ export class OutletController {
     private readonly outletService: OutletService,
     private readonly outletRepository: OutletRepository,
   ) {}
+
   @ApiBearerAuth('accessToken')
   @Get('sio')
   async getSio() {
     return this.outletService.getOutletSio();
   }
+
   @ApiBearerAuth('accessToken')
   @Get('region')
   async getRegion() {
     return this.outletService.getOutletRegion();
   }
+
   @ApiBearerAuth('accessToken')
   @Get('area')
   async getArea() {
     return this.outletService.getOutletArea();
   }
+
   @ApiBearerAuth('accessToken')
   @Get('list-by')
   async getOutletByType(@Req() request: Request) {
     const accessToken = request.headers.authorization?.split(' ')[1];
     return this.outletService.getOutletByUser(accessToken);
   }
+
   @ApiBearerAuth('accessToken')
   @Post()
   async create(@Body() createOutletDto: CreateOutletDto) {
     return this.outletService.createOutlet(createOutletDto);
   }
+
   @ApiBearerAuth('accessToken')
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.outletService.getOutletById(id);
   }
+
   @ApiBearerAuth('accessToken')
   @Put(':id')
   async update(
@@ -66,11 +74,13 @@ export class OutletController {
   ) {
     return this.outletService.updateOutlet(id, updateOutletDto);
   }
+
   @ApiBearerAuth('accessToken')
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return this.outletService.deleteOutlet(id);
   }
+
   @ApiBearerAuth('accessToken')
   @Get()
   async findAll(
@@ -80,6 +90,7 @@ export class OutletController {
   ) {
     return this.outletService.getAllActiveOutlets(page, limit, searchTerm);
   }
+
   @ApiBearerAuth('accessToken')
   @Post('excel')
   @UseInterceptors(FileInterceptor('file'))
@@ -87,6 +98,7 @@ export class OutletController {
     await this.outletService.uploadExcel(file);
     return { message: 'Excel file uploaded successfully' };
   }
+
   @ApiBearerAuth('accessToken')
   @Post('csv')
   @UseInterceptors(FileInterceptor('file'))

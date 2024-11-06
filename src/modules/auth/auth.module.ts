@@ -9,6 +9,7 @@ import { AuthJwtRefreshStrategy } from 'src/strategies/jwt.refresh.strategy';
 import { DrizzleService } from '../../common/services/drizzle.service';
 import { UserService } from '../user/service/user.service';
 import { UserRepo } from '../user/repository/user.repo';
+import { MailerModule } from '@nest-modules/mailer';
 
 @Module({
   imports: [
@@ -16,6 +17,18 @@ import { UserRepo } from '../user/repository/user.repo';
       session: false,
     }),
     JwtModule.register({}),
+    MailerModule.forRoot({
+      transport: {
+        service: 'gmail',
+        auth: {
+          user: process.env.GMAIL_ACCESS_ID,
+          pass: process.env.GMAIL_ACCESS_SECRET,
+        },
+      },
+      defaults: {
+        from: `"MD Apps Customer Care" <noreply@gmail.com>`,
+      },
+    }),
   ],
   controllers: [AuthController],
   providers: [

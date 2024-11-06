@@ -15,6 +15,7 @@ import { HelperHashService } from './helper.hash.service';
 import { IAuthService } from '../interfaces/auth.service.interface';
 import { AuthResponseDto } from '../dtos/auth.response.dto';
 import { UserRepo } from '../../user/repository/user.repo';
+import { MailerService } from '@nest-modules/mailer';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -28,6 +29,7 @@ export class AuthService implements IAuthService {
     private readonly jwtService: JwtService,
     private readonly userRepo: UserRepo,
     private readonly helperHashService: HelperHashService,
+    private readonly mailerService: MailerService,
   ) {
     this.accessTokenSecret = this.configService.get<string>(
       'auth.accessToken.secret',
@@ -139,5 +141,26 @@ export class AuthService implements IAuthService {
     } catch (e) {
       throw e;
     }
+  }
+
+  public async forgotPassword(email: string): Promise<void> {
+    const user = await this.userRepo.getUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User with this email not found');
+    }
+
+    // Generate a reset token (you can use crypto or any other method)
+    const resetToken = 'example-reset-token';
+
+    // Send the reset email using the MailerService
+    const resetUrl = `https://yourapp.com/reset-password?token=${resetToken}`;
+    const emailBody = `You requested a password reset. Please click the link below to reset your password: ${resetUrl}`;
+
+    // Send the email using the MailerService
+    await this.mailerService.sendMail({
+      to: user.email, // User's email
+      subject: 'Password Reset Request MD Apps',
+      text: emailBody,
+    });
   }
 }
