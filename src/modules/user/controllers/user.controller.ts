@@ -34,7 +34,7 @@ export class UserController {
   @Get('get-role')
   public async getUserWithRole(
     @Query('region') region?: string,
-    @Query('area') area?: string,
+    @Query('area') area?: any,
   ) {
     try {
       return await this.userRepo.getUserWithRole(region, area);
@@ -68,7 +68,6 @@ export class UserController {
     @Req() request: Request,
   ) {
     const accessToken = request.headers.authorization?.split(' ')[1];
-    console.log(accessToken);
     return await this.userService.store(createUserDto, accessToken);
   }
   @ApiBearerAuth('accessToken')

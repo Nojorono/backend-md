@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { eq, inArray, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { mOutlets } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
@@ -38,14 +38,14 @@ export class OutletRepository {
         address_line: createOutletDto.address_line,
         sub_district: createOutletDto.sub_district,
         district: createOutletDto.district,
-        city_or_regency: createOutletDto.city_or_regency || '', // Using default value if undefined
+        city_or_regency: createOutletDto.city_or_regency || '',
         postal_code: createOutletDto.postal_code,
-        latitude: createOutletDto.latitude || '', // Using default value if undefined
-        longitude: createOutletDto.longitude || '', // Using default value if undefined
-        outlet_type: createOutletDto.outlet_type || '', // Using default value if undefined
-        region: createOutletDto.region || '', // Using default value if undefined
-        area: createOutletDto.area || '', // Using default value if undefined
-        cycle: createOutletDto.cycle || '', // Using default value if undefined
+        latitude: createOutletDto.latitude || '',
+        longitude: createOutletDto.longitude || '',
+        outlet_type: createOutletDto.outlet_type || '',
+        region: createOutletDto.region || '',
+        area: createOutletDto.area || '',
+        cycle: createOutletDto.cycle || '',
         is_active:
           createOutletDto.is_active !== undefined
             ? createOutletDto.is_active
@@ -199,8 +199,8 @@ export class OutletRepository {
       throw new Error('Database not initialized');
     }
     // Querying the outlet_area view
-    const result = await db.execute(sql`SELECT area as name FROM outlet_area;`);
-    return result.rows;
+    const result = await db.execute(sql`SELECT * FROM outlet_area;`);
+    return result.rows.map((row) => row.area);
   }
   // List region
   async getOutletRegion() {
@@ -244,14 +244,21 @@ export class OutletRepository {
       .from(mOutlets)
       .where(eq(mOutlets.is_active, 1));
 
-    // Add conditional filters
     if (region) {
       query = query.where(eq(mOutlets.region, region));
     }
-    if (area && area.length > 0) {
-      query = query.where(inArray(mOutlets.area, area));
-    }
 
-    return await query;
+    if (area && area.length > 0) {
+      console.log(area.length);
+      area.map((a) => {
+        console.log(a);
+        query = query.where(eq(mOutlets.area, a));
+      });
+    }
+    console.log(query);
+    console.log('this area', area);
+    const res = await query;
+    // console.log(res);
+    return res;
   }
 }

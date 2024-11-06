@@ -10,6 +10,7 @@ import { TransformMessagePayload } from 'src/decorators/payload.decorator';
 import { AuthUser } from 'src/decorators/auth.decorator';
 import { AuthResponseDto } from '../dtos/auth.response.dto';
 import { Serialize } from 'src/decorators/serialize.decorator';
+import { ForgotPasswordDto } from '../dtos/auth.forgot.dtos';
 
 @ApiTags('auth')
 @Controller({
@@ -40,5 +41,13 @@ export class AuthController {
   @Get('refresh-token')
   public refreshTokens(@AuthUser() user: IAuthPayload) {
     return this.authService.generateTokens(user);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  public async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<void> {
+    await this.authService.forgotPassword(forgotPasswordDto.email);
   }
 }
