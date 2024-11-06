@@ -17,12 +17,14 @@ export class CallPlanService {
     private readonly callPlanScheduleRepository: CallPlanScheduleRepository,
     private readonly userRepository: UserRepo,
   ) {}
+
   async updateCallPlanSchedule(
-    id: number,
+    id: string,
     updateCallPlanScheduleDto: UpdateCallPlanScheduleDto,
     accessToken,
   ) {
     try {
+      console.log(updateCallPlanScheduleDto);
       const userCreate = await this.userRepository.findByToken(accessToken);
       updateCallPlanScheduleDto.updated_by = userCreate.email;
       return this.callPlanScheduleRepository.updateData(
@@ -34,27 +36,36 @@ export class CallPlanService {
       return e;
     }
   }
+
   async createCallPlanSchedule(
     createCallPlaScheduleDto: CreateCallPlanScheduleDto,
     accessToken,
   ) {
     try {
-      const lastId = await this.callPlanScheduleRepository.findLastId();
-      if (lastId == null) {
-        createCallPlaScheduleDto.code_call_plan = generateCode('CL', 1);
-      } else {
-        createCallPlaScheduleDto.code_call_plan = generateCode(
-          'CL',
-          lastId.id + 1,
-        );
-      }
-
       const userCreate = await this.userRepository.findByToken(accessToken);
       createCallPlaScheduleDto.created_by = userCreate.email;
 
-      return this.callPlanScheduleRepository.createData(
-        createCallPlaScheduleDto,
-      );
+      const lastId = await this.callPlanScheduleRepository.findLastId();
+      let currentId = lastId ? lastId.id + 1 : 1;
+
+      const results = [];
+      for (const outletId of createCallPlaScheduleDto.outlet_id) {
+        const code_call_plan = generateCode('CL', currentId++);
+
+        // Clone the DTO and set the outlet-specific properties
+        const newScheduleDto = {
+          ...createCallPlaScheduleDto,
+          outlet_id: outletId,
+          code_call_plan,
+        };
+
+        // Create data for each outlet
+        const result =
+          await this.callPlanScheduleRepository.createData(newScheduleDto);
+        results.push(result);
+      }
+
+      return results;
     } catch (e) {
       logger.error(e);
       return e;
