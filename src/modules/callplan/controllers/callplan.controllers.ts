@@ -80,7 +80,7 @@ export class CallPlanControllers {
   @ApiBearerAuth('accessToken')
   @Put('schedule/:id')
   async updateSchedule(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updateCallPlanScheduleDto: UpdateCallPlanScheduleDto,
     @Req() request: Request,
   ) {

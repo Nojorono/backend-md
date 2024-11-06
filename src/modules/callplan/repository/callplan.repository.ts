@@ -135,21 +135,6 @@ export class CallPlanRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
-
-    // Apply pagination logic
-    const totalRecordsQuery = await db
-      .select({ count: sql`COUNT(*)` })
-      .from(CallPlan)
-      .where(isNull(CallPlan.deleted_at))
-      .execute();
-    const totalRecords = parseInt(totalRecordsQuery[0]?.count) || 0;
-
-    const { offset } = paginate(totalRecords, page, limit);
-
-    // Build search query
-    const searchColumns = ['call_plan.area', 'call_plan.region'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
-
     // Query for paginated and filtered results
     const query = db
       .select({
@@ -161,14 +146,19 @@ export class CallPlanRepository {
         end_plan: CallPlan.end_plan,
       })
       .from(CallPlan)
-      .where(isNull(CallPlan.deleted_at))
-      .limit(limit)
-      .offset(offset);
+      .where(isNull(CallPlan.deleted_at));
 
+    // Build search query
+    const searchColumns = ['region', 'code_batch', 'area'];
+    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
     // Apply search condition if available
     if (searchCondition) {
       query.where(searchCondition);
     }
+    const records = await query.execute();
+    const totalRecords = parseInt(records.length) || 0;
+    const { offset } = paginate(totalRecords, page, limit);
+    query.limit(limit).offset(offset);
 
     const result = await query;
 

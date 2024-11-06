@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { and, desc, eq, isNull, like, or } from 'drizzle-orm';
-import { CallPlanSchedule } from '../../../schema';
+import { CallPlanSchedule, mOutlets, mUser } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
-import { decrypt, encrypt } from '../../../helpers/nojorono.helpers';
+import { buildSearchQuery, decrypt, encrypt, paginate } from '../../../helpers/nojorono.helpers';
 import {
   UpdateCallPlanScheduleDto,
   CreateCallPlanScheduleDto,
@@ -75,10 +75,11 @@ export class CallPlanScheduleRepository {
 
   // Update by ID
   async updateData(
-    id: number,
+    id: string,
     updateCallPlanScheduleDto: UpdateCallPlanScheduleDto,
   ) {
     const db = this.drizzleService['db'];
+    const idDecrypted = await this.decryptId(id);
     const { outlet_id, notes, start_plan, end_plan, updated_by } =
       updateCallPlanScheduleDto;
     return await db
@@ -91,7 +92,7 @@ export class CallPlanScheduleRepository {
         updated_by,
         updated_at: new Date(),
       })
-      .where(eq(CallPlanSchedule.id, id))
+      .where(eq(CallPlanSchedule.id, idDecrypted))
       .execute();
   }
 
@@ -103,39 +104,54 @@ export class CallPlanScheduleRepository {
     searchTerm: string = '',
   ) {
     const db = this.drizzleService['db'];
-    const idDecrypted = await this.decryptId(id);
+
     if (!db) {
       throw new Error('Database not initialized');
     }
-    // Calculate offset for pagination
-    const offset = (page - 1) * limit;
 
-    // Prepare query to fetch schedules along with user and outlet details
-    const schedules = await db.query.CallPlanSchedule.findMany({
-      with: {
-        callPlanOutlet: true,
-        callPlanUser: true,
-      },
-      where: (CallPlanSchedule, { eq, isNull }) =>
-        and(
-          eq(CallPlanSchedule.call_plan_id, idDecrypted),
-          isNull(CallPlanSchedule.deleted_at),
-          or(
-            like(CallPlanSchedule.callPlanUser.email, `%${searchTerm}%`),
-            like(CallPlanSchedule.callPlanOutlet.name, `%${searchTerm}%`),
-          ),
-        ),
-      limit: limit,
-      offset: offset,
-    });
+    const idDecrypted = await this.decryptId(id);
 
-    const totalCount = schedules.length;
+    // Query for paginated and filtered results
+    const query = db
+      .select({
+        ...CallPlanSchedule,
+        email: mUser.email,
+        outlet_code: mOutlets.outlet_code,
+        outlet_name: mOutlets.name,
+      })
+      .from(CallPlanSchedule)
+      .innerJoin(mOutlets, eq(CallPlanSchedule.outlet_id, mOutlets.id))
+      .innerJoin(mUser, eq(CallPlanSchedule.user_id, mUser.id))
+      .where(eq(CallPlanSchedule.call_plan_id, idDecrypted));
 
+    // Build search query
+    const searchColumns = ['email', 'username', 'phone'];
+    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
+    // Apply search condition if available
+    if (searchCondition) {
+      query.where(searchCondition);
+    }
+    const records = await query.execute();
+    const totalRecords = parseInt(records.length) || 0;
+    const { offset } = paginate(totalRecords, page, limit);
+    query.limit(limit).offset(offset);
+
+    const result = await query;
+
+    // Encrypt IDs for the returned data
+    const encryptedResult = await Promise.all(
+      result.map(async (item: { id: number }) => {
+        return {
+          ...item,
+          id: await this.encryptedId(item.id),
+        };
+      }),
+    );
+
+    // Return data with pagination metadata
     return {
-      data: schedules,
-      total: totalCount,
-      page,
-      limit,
+      data: encryptedResult,
+      ...paginate(totalRecords, page, limit),
     };
   }
 
