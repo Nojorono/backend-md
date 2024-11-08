@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { eq, notInArray, sql } from 'drizzle-orm';
+import { eq, notInArray } from 'drizzle-orm';
 import { mUserRoles } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
-import { buildSearchQuery, decrypt, encrypt, paginate } from '../../../helpers/nojorono.helpers';
+import {
+  buildSearchQuery,
+  decrypt,
+  encrypt,
+  paginate,
+} from '../../../helpers/nojorono.helpers';
 import { CreateRolesDto, UpdateRolesDto } from '../dtos/roles.dtos';
 
 @Injectable()
@@ -30,10 +35,10 @@ export class RolesRepository {
         description: createRolesDto.description,
         name: createRolesDto.name,
         is_active:
-          createRolesDto.is_active !== undefined ? createRolesDto.is_active : 1, // Defaulting to 1
+          createRolesDto.is_active !== undefined ? createRolesDto.is_active : 1,
         created_by: createRolesDto.created_by,
         updated_by: createRolesDto.updated_by,
-        created_at: createRolesDto.created_at || new Date(), // Default to current date
+        created_at: createRolesDto.created_at || new Date(),
         updated_at: createRolesDto.updated_at || new Date(), // Default to current date
       })
       .returning();
@@ -112,21 +117,6 @@ export class RolesRepository {
       throw new Error('Database not initialized');
     }
 
-    // Apply pagination logic
-    const totalRecordsQuery = await db
-      .select({ count: sql`COUNT(*)` })
-      .from(mUserRoles)
-      .where(eq(mUserRoles.is_active, 1))
-      .execute();
-    const totalRecords = parseInt(totalRecordsQuery[0]?.count) || 0;
-
-    const { offset } = paginate(totalRecords, page, limit);
-
-    // Build search query
-    const searchColumns = ['name', 'description'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
-
-    // Query for paginated and filtered results
     const query = db
       .select({
         id: mUserRoles.id,
@@ -135,16 +125,23 @@ export class RolesRepository {
         is_mobile: mUserRoles.is_mobile,
         is_web: mUserRoles.is_web,
         is_active: mUserRoles.is_active,
+        menus: mUserRoles.menus,
       })
       .from(mUserRoles)
-      .where(eq(mUserRoles.is_active, 1))
-      .limit(limit) // Specify your limit
-      .offset(offset); // Specify your offset
+      .where(eq(mUserRoles.is_active, 1));
+
+    // Apply search condition if available
+    const searchColumns = ['name', 'description'];
+    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
     // Apply search condition if available
     if (searchCondition) {
       query.where(searchCondition);
     }
+    const records = await query.execute();
+    const totalRecords = parseInt(records.length) || 0;
+    const { offset } = paginate(totalRecords, page, limit);
+    query.limit(limit).offset(offset);
 
     const result = await query;
 

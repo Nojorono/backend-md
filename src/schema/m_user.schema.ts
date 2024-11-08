@@ -3,7 +3,7 @@ import {
   pgTable,
   timestamp,
   varchar,
-  json,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { mUserRoles } from './m_user_role.schema';
 import { serial } from 'drizzle-orm/pg-core';
@@ -21,7 +21,7 @@ export const mUser = pgTable('m_user', {
   phone: varchar('phone', { length: 20 }),
   type_md: varchar('type_md', { length: 20 }),
   photo: varchar('photo', { length: 255 }),
-  area: json('area').default('[]'),
+  area: jsonb('area').default([]),
   region: varchar('region', { length: 50 }).default(null),
   is_active: integer('is_active').notNull().default(1),
   valid_from: timestamp('valid_from'),

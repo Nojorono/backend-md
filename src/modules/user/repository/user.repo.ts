@@ -152,6 +152,7 @@ export class UserRepo {
         type_md: mUser.type_md,
         is_active: mUser.is_active,
         last_login: mUser.last_login,
+        menus: mUserRoles.menus,
       })
       .from(mUser)
       .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id))
