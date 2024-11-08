@@ -4,6 +4,7 @@ import {
   varchar,
   timestamp,
   integer,
+  json,
 } from 'drizzle-orm/pg-core';
 export const mUserRoles = pgTable('m_user_role', {
   id: serial('id').primaryKey().notNull(),
@@ -16,4 +17,5 @@ export const mUserRoles = pgTable('m_user_role', {
   is_active: integer('is_active').notNull().default(1),
   is_mobile: integer('is_mobile').notNull().default(0),
   is_web: integer('is_web').notNull().default(0),
+  menus: json('menus').default([]),
 });

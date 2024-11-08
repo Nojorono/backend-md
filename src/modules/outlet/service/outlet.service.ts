@@ -54,11 +54,17 @@ export class OutletService {
   }
 
   async getAllActiveOutlets(
-    page: number = 1,
-    limit: number = 10,
+    page: string = '1',
+    limit: string = '10',
     searchTerm: string = '',
   ) {
-    return this.outletRepository.getAllActiveOutlets(page, limit, searchTerm);
+    const pageInt = parseInt(page, 10);
+    const limitInt = parseInt(limit, 10);
+    return this.outletRepository.getAllActiveOutlets(
+      pageInt,
+      limitInt,
+      searchTerm,
+    );
   }
 
   async uploadExcel(file: Express.Multer.File) {

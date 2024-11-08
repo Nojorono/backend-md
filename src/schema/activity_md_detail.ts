@@ -9,7 +9,7 @@ import { ActivityMd } from './activity_md';
 
 export const ActivityMdDetail = pgTable('activity_md_detail', {
   id: serial('id').primaryKey().notNull(),
-  activity_id: integer('activity_id').references(() => ActivityMd.id), // Ensure this is integer and not null
+  activity_md_id: integer('activity_id').references(() => ActivityMd.id),
   name: varchar('name', { length: 30 }).notNull(),
   description: varchar('description', { length: 255 }),
   notes: varchar('notes', { length: 255 }),

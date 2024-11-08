@@ -8,6 +8,13 @@
       "when": 1730252939797,
       "tag": "0000_wild_warbound",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1730882673772,
+      "tag": "0001_complex_rage",
+      "breakpoints": true
     }
   ]
 }

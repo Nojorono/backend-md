@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, count } from 'drizzle-orm';
 import { mOutlets } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
@@ -7,7 +7,6 @@ import {
   buildSearchQuery,
   decrypt,
   encrypt,
-  paginate,
 } from '../../../helpers/nojorono.helpers';
 
 @Injectable()
@@ -93,14 +92,13 @@ export class OutletRepository {
       throw new Error('Database not initialized');
     }
 
-    const result = await db
+    return await db
       .update(mOutlets)
-      .set({ deleted_at: new Date(), deleted_by: 'admin', is_active: 0 }) // assuming these fields exist
+      .set({ deleted_at: new Date(), deleted_by: 'admin', is_active: 0 })
       .where(eq(mOutlets.id, id))
       .returning();
-    return result;
   }
-  // List all active outlets with pagination and search
+
   async getAllActiveOutlets(
     page: number = 1,
     limit: number = 10,
@@ -112,23 +110,24 @@ export class OutletRepository {
       throw new Error('Database not initialized');
     }
 
-    // Apply pagination logic
-    const totalRecordsQuery = await db
-      .select({ count: sql`COUNT(*)` })
-      .from(mOutlets)
-      .where(eq(mOutlets.is_active, 1))
-      .execute();
-
-    const totalRecords = parseInt(totalRecordsQuery[0]?.count) || 0;
-
-    const { offset } = paginate(totalRecords, page, limit);
-
-    // Build search query
-    const searchColumns = ['name', 'outlet_code'];
+    // Define the search columns and build search condition
+    const searchColumns = ['name', 'brand', 'area', 'region'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
-    // Query for paginated and filtered results
-    const query = db
+    // Count query for total records
+    const countQuery = db
+      .select({ count: count() })
+      .from(mOutlets)
+      .where(eq(mOutlets.is_active, 1));
+
+    if (searchCondition) {
+      countQuery.where(searchCondition);
+    }
+
+    const totalRecordsResult = await countQuery;
+    const totalRecords = totalRecordsResult[0]?.count ?? 0;
+    // Paginated data query
+    let paginatedQuery = db
       .select({
         id: mOutlets.id,
         outlet_code: mOutlets.outlet_code,
@@ -154,19 +153,17 @@ export class OutletRepository {
       })
       .from(mOutlets)
       .where(eq(mOutlets.is_active, 1))
-      .limit(limit) // Specify your limit
-      .offset(offset);
+      .limit(limit)
+      .offset((page - 1) * limit);
 
-    // Apply search condition if available
     if (searchCondition) {
-      query.where(searchCondition);
+      paginatedQuery = paginatedQuery.where(searchCondition);
     }
 
-    const result = await query.execute();
-
+    const paginatedResult = await paginatedQuery;
     // Encrypt IDs for the returned data
     const encryptedResult = await Promise.all(
-      result.map(async (item: { id: number }) => {
+      paginatedResult.map(async (item: { id: number }) => {
         return {
           ...item,
           id: await this.encryptedId(item.id),
@@ -177,7 +174,9 @@ export class OutletRepository {
     // Return data with pagination metadata
     return {
       data: encryptedResult,
-      ...paginate(totalRecords, page, limit), // Return pagination metadata
+      totalItems: totalRecords,
+      currentPage: page,
+      totalPages: Math.ceil(totalRecords / limit),
     };
   }
   // List outlet summary
@@ -212,7 +211,7 @@ export class OutletRepository {
     const result = await db.execute(
       sql`SELECT region as name FROM outlet_region;`,
     );
-    return result.rows;
+    return result.rows.map((row) => row.name);
   }
   // List type sio
   async getOutletTypeSio() {
