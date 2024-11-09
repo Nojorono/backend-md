@@ -1,0 +1,1 @@
+ALTER TABLE "m_user" ADD COLUMN "refresh_token" varchar(500);

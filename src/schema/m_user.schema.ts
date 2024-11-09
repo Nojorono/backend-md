@@ -27,6 +27,7 @@ export const mUser = pgTable('m_user', {
   valid_from: timestamp('valid_from'),
   valid_to: timestamp('valid_to'),
   remember_token: varchar('remember_token', { length: 500 }),
+  refresh_token: varchar('refresh_token', { length: 500 }),
   last_login: timestamp('last_login'),
   created_by: varchar('created_by', { length: 20 }),
   created_at: timestamp('created_at').defaultNow(),

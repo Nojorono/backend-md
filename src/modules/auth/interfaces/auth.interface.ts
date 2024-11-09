@@ -9,7 +9,6 @@ export interface IAuthPayload {
   id: number;
   user_role_id: string;
   username: string;
-  is_active: string;
   email: string;
 }
 

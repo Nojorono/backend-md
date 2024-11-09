@@ -3,6 +3,7 @@ export { mUserRoles } from './m_user_role.schema';
 export { mOutlets } from './m_outlet.schema';
 export { CallPlan } from './call_plan';
 export { Mbatch } from './m_batch';
+export { MbatchTarget } from './m_batch_target';
 export {
   CallPlanSchedule,
   CallPlanUserRelations,

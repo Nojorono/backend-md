@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { and, desc, eq, isNull, like, or } from 'drizzle-orm';
+import { desc, eq, isNull } from 'drizzle-orm';
 import { CallPlanSchedule, mOutlets, mUser } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
-import { buildSearchQuery, decrypt, encrypt, paginate } from '../../../helpers/nojorono.helpers';
 import {
-  UpdateCallPlanScheduleDto,
+  buildSearchQuery,
+  decrypt,
+  encrypt,
+  paginate,
+} from '../../../helpers/nojorono.helpers';
+import {
   CreateCallPlanScheduleDto,
+  UpdateCallPlanScheduleDto,
 } from '../dtos/callplanschedule.dtos';
 
 @Injectable()
@@ -29,15 +34,8 @@ export class CallPlanScheduleRepository {
     );
 
     // Destructure values from the DTO
-    const {
-      code_call_plan,
-      outlet_id,
-      notes,
-      start_plan,
-      end_plan,
-      created_by,
-      user_id,
-    } = createCallPlanScheduleDto;
+    const { code_call_plan, outlet_id, notes, day_plan, created_by, user_id } =
+      createCallPlanScheduleDto;
 
     if (!db) {
       throw new Error('Database not initialized');
@@ -51,8 +49,7 @@ export class CallPlanScheduleRepository {
         outlet_id,
         notes,
         user_id,
-        start_plan,
-        end_plan,
+        day_plan,
         created_by,
         created_at: new Date(),
       })
@@ -80,15 +77,14 @@ export class CallPlanScheduleRepository {
   ) {
     const db = this.drizzleService['db'];
     const idDecrypted = await this.decryptId(id);
-    const { outlet_id, notes, start_plan, end_plan, updated_by } =
+    const { outlet_id, notes, day_plan, updated_by } =
       updateCallPlanScheduleDto;
     return await db
       .update(CallPlanSchedule)
       .set({
         outlet_id,
         notes,
-        start_plan,
-        end_plan,
+        day_plan,
         updated_by,
         updated_at: new Date(),
       })

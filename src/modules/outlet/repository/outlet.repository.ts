@@ -1,13 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { eq, sql, count } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 import { mOutlets } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
-import {
-  buildSearchQuery,
-  decrypt,
-  encrypt,
-} from '../../../helpers/nojorono.helpers';
+import { buildSearchQuery, decrypt, encrypt } from '../../../helpers/nojorono.helpers';
 
 @Injectable()
 export class OutletRepository {
@@ -27,7 +23,7 @@ export class OutletRepository {
       throw new Error('Database not initialized');
     }
 
-    const result = await db
+    return await db
       .insert(mOutlets)
       .values({
         outlet_code: createOutletDto.outlet_code,
@@ -61,8 +57,6 @@ export class OutletRepository {
         updated_at: createOutletDto.updated_at || new Date(), // Default to current date
       })
       .returning();
-
-    return result;
   }
   // Update Outlet by ID
   async updateOutlet(id: number, updateOutletDto: UpdateOutletDto) {
@@ -187,7 +181,7 @@ export class OutletRepository {
     }
     // Querying the outlet_summary view
     const result = await db.execute(
-      sql`SELECT "REGIONAL", "AREA", "AMO_TYPE_OUTLET", "BRAND_TYPE_OUTLET", "TOTAL" FROM outlet_summary;`,
+      sql`SELECT regional, area, brand_type_sio, brand_type_outlet FROM outlet_summary;`,
     );
     return result.rows;
   }
@@ -248,16 +242,10 @@ export class OutletRepository {
     }
 
     if (area && area.length > 0) {
-      console.log(area.length);
       area.map((a) => {
-        console.log(a);
         query = query.where(eq(mOutlets.area, a));
       });
     }
-    console.log(query);
-    console.log('this area', area);
-    const res = await query;
-    // console.log(res);
-    return res;
+    return await query;
   }
 }

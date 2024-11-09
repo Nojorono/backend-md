@@ -11,7 +11,6 @@ export class BatchService {
   ) {}
 
   async createRoles(createRolesDto: CreateBatchDto) {
-    console.log(createRolesDto);
     return this.batchRepository.create(createRolesDto);
   }
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq, isNull, sql } from 'drizzle-orm';
+import { desc, eq, isNull, count } from 'drizzle-orm';
 import { CallPlan } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
@@ -45,8 +45,7 @@ export class CallPlanRepository {
       throw new Error('Database not initialized');
     }
 
-    const { area, region, code_batch, start_plan, end_plan, created_by } =
-      createCallPlanDto;
+    const { area, region, code_batch, created_by } = createCallPlanDto;
 
     return await db
       .insert(CallPlan)
@@ -54,8 +53,6 @@ export class CallPlanRepository {
         code_batch,
         area,
         region,
-        start_plan,
-        end_plan,
         created_by,
         created_at: new Date(),
       })
@@ -66,16 +63,13 @@ export class CallPlanRepository {
   async updateData(id: string, updateCallPlanDto: UpdateCallPlanDto) {
     const idDecrypted = await this.decryptId(id);
     const db = this.drizzleService['db'];
-    const { code_batch, area, region, start_plan, end_plan, updated_by } =
-      updateCallPlanDto;
+    const { code_batch, area, region, updated_by } = updateCallPlanDto;
     return await db
       .update(CallPlan)
       .set({
         code_batch,
         area,
         region,
-        start_plan,
-        end_plan,
         updated_by,
         created_at: new Date(),
       })
@@ -135,36 +129,44 @@ export class CallPlanRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
+
+    // Define the search columns and build search condition
+    const searchColumns = ['region', 'code_batch', 'area'];
+    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
+
+    // Count query for total records
+    const countQuery = db
+      .select({ count: count() })
+      .from(CallPlan)
+      .where(isNull(CallPlan.deleted_at));
+
+    if (searchCondition) {
+      countQuery.where(searchCondition);
+    }
+
+    const totalRecordsResult = await countQuery;
+    const totalRecords = totalRecordsResult[0]?.count ?? 0;
     // Query for paginated and filtered results
-    const query = db
+    let paginatedQuery = db
       .select({
         id: CallPlan.id,
         code_batch: CallPlan.code_batch,
         area: CallPlan.area,
         region: CallPlan.region,
-        start_plan: CallPlan.start_plan,
-        end_plan: CallPlan.end_plan,
       })
       .from(CallPlan)
-      .where(isNull(CallPlan.deleted_at));
+      .where(isNull(CallPlan.deleted_at))
+      .limit(limit)
+      .offset((page - 1) * limit);
 
-    // Build search query
-    const searchColumns = ['region', 'code_batch', 'area'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
-    // Apply search condition if available
     if (searchCondition) {
-      query.where(searchCondition);
+      paginatedQuery = paginatedQuery.where(searchCondition);
     }
-    const records = await query.execute();
-    const totalRecords = parseInt(records.length) || 0;
-    const { offset } = paginate(totalRecords, page, limit);
-    query.limit(limit).offset(offset);
-
-    const result = await query;
+    const result = await paginatedQuery;
 
     const encryptedResult = await Promise.all(
       result.map(async (item) => {
-        const encryptedId = await this.encryptedId(item.id); // Encrypt the call_plan.id
+        const encryptedId = await this.encryptedId(item.id);
 
         return {
           ...item,
@@ -176,7 +178,9 @@ export class CallPlanRepository {
     // Return data with pagination metadata
     return {
       data: encryptedResult,
-      ...paginate(totalRecords, page, limit),
+      totalItems: totalRecords,
+      currentPage: page,
+      totalPages: Math.ceil(totalRecords / limit),
     };
   }
 }

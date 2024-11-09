@@ -20,10 +20,9 @@ export const CallPlanSchedule = pgTable('call_plan_schedule', {
   outlet_id: integer('outlet_id')
     .references(() => mOutlets.id)
     .notNull(),
-  start_plan: date('start_plan').notNull(),
-  end_plan: date('end_plan').notNull(),
+  day_plan: date('day_plan').notNull(),
   notes: varchar('notes', { length: 255 }),
-  status: varchar('status', { length: 20 }).default('ready'),
+  status: varchar('status', { length: 20 }).default('ready'), // ready, progress, success, cancel
   created_by: varchar('created_by', { length: 50 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 50 }),

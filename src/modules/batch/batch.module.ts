@@ -5,11 +5,28 @@ import { BatchControllers } from './controllers/batch.controllers';
 import { BatchRepository } from './repository/batch.repository';
 import { BatchService } from './service/batch.service';
 import { UserRepo } from '../user/repository/user.repo';
+import { OutletRepository } from '../outlet/repository/outlet.repository';
+import { BatchTargetRepository } from './repository/batchtarget.repository';
+import { BatchTargetService } from './service/batchtarget.service';
+import { BatchTargetControllers } from './controllers/batchtarget.controllers';
 
 @Module({
-  controllers: [BatchControllers],
+  controllers: [BatchControllers, BatchTargetControllers],
   imports: [CommonModule],
-  providers: [DrizzleService, BatchRepository, BatchService, UserRepo],
-  exports: [BatchRepository, BatchService],
+  providers: [
+    DrizzleService,
+    BatchRepository,
+    BatchTargetRepository,
+    BatchService,
+    BatchTargetService,
+    UserRepo,
+    OutletRepository,
+  ],
+  exports: [
+    BatchRepository,
+    BatchTargetRepository,
+    BatchService,
+    BatchTargetService,
+  ],
 })
 export class BatchModule {}
