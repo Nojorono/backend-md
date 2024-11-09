@@ -32,7 +32,6 @@ export class AuthController {
   @Serialize(AuthResponseDto)
   @Post('login')
   public login(@Body() payload: UserLoginDto): Promise<AuthResponseDto> {
-    console.log(payload);
     return this.authService.login(payload);
   }
 

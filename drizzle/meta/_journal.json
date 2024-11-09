@@ -15,6 +15,27 @@
       "when": 1730882673772,
       "tag": "0001_complex_rage",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731086440029,
+      "tag": "0002_tiresome_warhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731137949963,
+      "tag": "0003_misty_firelord",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1731141958113,
+      "tag": "0004_regular_falcon",
+      "breakpoints": true
     }
   ]
 }

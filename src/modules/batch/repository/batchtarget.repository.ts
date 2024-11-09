@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { desc, eq, sql } from 'drizzle-orm';
-import { Mbatch } from '../../../schema';
+import { Mbatch, MbatchTarget } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
   buildSearchQuery,
@@ -8,10 +8,13 @@ import {
   encrypt,
   paginate,
 } from '../../../helpers/nojorono.helpers';
-import { CreateBatchDto, UpdateBatchDto } from '../dtos/batch.dtos';
+import {
+  CreateBatchTargetDto,
+  UpdateBatchTargetDto,
+} from '../dtos/batchtarget.dtos';
 
 @Injectable()
-export class BatchRepository {
+export class BatchTargetRepository {
   constructor(private readonly drizzleService: DrizzleService) {}
 
   async decryptId(id: string) {
@@ -21,27 +24,26 @@ export class BatchRepository {
   async encryptedId(id: number) {
     return encrypt(id.toString());
   }
-  // Create Roles
-  async create(createRolesDto: CreateBatchDto) {
+  // Create
+  async create(createBatchTargetDto: CreateBatchTargetDto) {
     const db = this.drizzleService['db'];
-
     if (!db) {
       throw new Error('Database not initialized');
     }
     return await db
-      .insert(Mbatch)
-      .values({ ...createRolesDto })
+      .insert(MbatchTarget)
+      .values({ ...createBatchTargetDto })
       .returning();
   }
 
   // Update Roles by ID
-  async update(id: string, updateRolesDto: UpdateBatchDto) {
+  async update(id: string, updateBatchTargetDto: UpdateBatchTargetDto) {
     const db = this.drizzleService['db'];
     const idDecrypted = await this.decryptId(id);
     return await db
-      .update(Mbatch)
-      .set(updateRolesDto)
-      .where(eq(Mbatch.id, idDecrypted))
+      .update(MbatchTarget)
+      .set(updateBatchTargetDto)
+      .where(eq(MbatchTarget.id, idDecrypted))
       .execute();
   }
 
@@ -52,14 +54,14 @@ export class BatchRepository {
     }
     const lastEntry = await db
       .select()
-      .from(Mbatch)
-      .orderBy(desc(Mbatch.id))
+      .from(MbatchTarget)
+      .orderBy(desc(MbatchTarget.id))
       .limit(1);
 
     return lastEntry[0] ?? null;
   }
 
-  // Get Roles by id
+  // Get by id
   async getById(id: number) {
     const db = this.drizzleService['db'];
 
@@ -67,7 +69,7 @@ export class BatchRepository {
       throw new Error('Database not initialized');
     }
 
-    const result = await db.select().from(Mbatch).where(eq(Mbatch.id, id));
+    const result = await db.select().from(MbatchTarget).where(eq(MbatchTarget.id, id));
     return result[0]; // Return the first (and expectedly only) result
   }
 
@@ -77,7 +79,7 @@ export class BatchRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    return await db.select().from(Mbatch).execute();
+    return await db.select().from(MbatchTarget).execute();
   }
 
   // Delete an Roles (soft delete by updating is_deleted field)
@@ -88,14 +90,14 @@ export class BatchRepository {
       throw new Error('Database not initialized');
     }
     return await db
-      .update(Mbatch)
+      .update(MbatchTarget)
       .set({ updated_at: new Date(), updated_by: userBy, is_active: 0 }) // assuming these fields exist
-      .where(eq(Mbatch.id, idDecrypted))
+      .where(eq(MbatchTarget.id, idDecrypted))
       .returning();
   }
 
   // List all active Roles with pagination and search
-  async getAllActive(
+  async getAllPagination(
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',

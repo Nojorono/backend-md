@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
-import { and, arrayContained, arrayOverlaps, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import {
   buildSearchQuery,
@@ -10,7 +10,6 @@ import {
   paginate,
 } from '../../../helpers/nojorono.helpers';
 import bcrypt from 'bcrypt';
-import { raw } from 'express';
 
 @Injectable()
 export class UserRepo {
@@ -145,7 +144,6 @@ export class UserRepo {
         username: mUser.username,
         email: mUser.email,
         phone: mUser.phone,
-        password: mUser.password,
         fullname: mUser.fullname,
         region: mUser.region,
         area: mUser.area,
@@ -245,7 +243,7 @@ export class UserRepo {
     //   conditions.push(inArray(mUser.area, ['SEMARANG']));
     // }
 
-    const query = await db
+    return await db
       .select({
         id: mUser.id,
         roles: mUserRoles.name,
@@ -264,8 +262,5 @@ export class UserRepo {
       .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id))
       .where(and(eq(mUserRoles.name, 'MD'), ...conditions))
       .execute();
-
-    console.log('test', query);
-    return query;
   }
 }

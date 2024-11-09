@@ -8,11 +8,15 @@ import {
 import { mUser } from './m_user.schema';
 import { CallPlan } from './call_plan';
 import { mOutlets } from './m_outlet.schema';
+import { CallPlanSchedule } from './call_plan_schedule';
 export const ActivityMd = pgTable('activity_md', {
   id: serial('id').primaryKey().notNull(),
   user_id: integer('user_id').references(() => mUser.id),
   call_plan_id: integer('call_plan_id')
     .references(() => CallPlan.id)
+    .notNull(),
+  call_plan_schedule_id: integer('call_plan_schedule_id')
+    .references(() => CallPlanSchedule.id)
     .notNull(),
   outlet_id: integer('outlet_id')
     .references(() => mOutlets.id)

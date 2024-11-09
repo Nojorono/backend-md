@@ -70,7 +70,6 @@ export class AuthService implements IAuthService {
           id: user.id,
           user_role_id: user.user_role_id,
           username: user.username,
-          is_active: user.is_active,
           tokenType: TokenType.ACCESS_TOKEN,
         },
         {
@@ -83,7 +82,6 @@ export class AuthService implements IAuthService {
           id: user.id,
           user_role_id: user.user_role_id,
           username: user.username,
-          is_active: user.is_active,
           tokenType: TokenType.REFRESH_TOKEN,
         },
         {
@@ -108,7 +106,6 @@ export class AuthService implements IAuthService {
     try {
       const { email, password } = data;
       const userFind = await this.userRepo.getUserByEmail(email);
-      console.log('test', userFind);
       if (!userFind) {
         throw new NotFoundException('userNotFound');
       }
@@ -123,12 +120,10 @@ export class AuthService implements IAuthService {
         id: userFind.id,
         user_role_id: userFind.user_role_id,
         username: userFind.username,
-        is_active: userFind.is_active,
         email: userFind.email,
       });
       await this.userRepo.updateUser(userFind.id, {
         remember_token: accessToken,
-        last_login: new Date(),
         updated_by: 'system',
         updated_at: new Date(),
       });
