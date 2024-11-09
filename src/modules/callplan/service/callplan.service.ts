@@ -39,6 +39,16 @@ export class CallPlanService {
     searchTerm: string = '',
   ) {
     const user = await this.userRepository.findByToken(accessToken);
-    return this.callPlanRepository.getAllCallPlan(page, limit, searchTerm);
+    // Extract area and region from the user object to pass as filters
+    const filter = {
+      area: user.area || [],
+      region: user.region || '',
+    };
+    return this.callPlanRepository.getAllCallPlan(
+      page,
+      limit,
+      searchTerm,
+      filter,
+    );
   }
 }
