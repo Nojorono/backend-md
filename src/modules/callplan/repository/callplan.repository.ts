@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq, isNull, count } from 'drizzle-orm';
+import { desc, eq, isNull, count, inArray } from 'drizzle-orm';
 import { CallPlan } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
   buildSearchQuery,
   decrypt,
   encrypt,
-  paginate,
 } from '../../../helpers/nojorono.helpers';
 import { CreateCallPlanDto, UpdateCallPlanDto } from '../dtos/callplan.dtos';
 
@@ -123,6 +122,7 @@ export class CallPlanRepository {
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
+    filter: { area: string[]; region: string },
   ) {
     const db = this.drizzleService['db'];
 
@@ -144,6 +144,16 @@ export class CallPlanRepository {
       countQuery.where(searchCondition);
     }
 
+    // Apply region filter if provided
+    if (filter.region) {
+      countQuery.where(eq(CallPlan.region, filter.region));
+    }
+
+    // Apply area filter if provided (assuming 'area' is an array in filter)
+    if (Array.isArray(filter.area) && filter.area.length > 0) {
+      countQuery.where(inArray(CallPlan.area, filter.area));
+    }
+
     const totalRecordsResult = await countQuery;
     const totalRecords = totalRecordsResult[0]?.count ?? 0;
     // Query for paginated and filtered results
@@ -159,9 +169,19 @@ export class CallPlanRepository {
       .limit(limit)
       .offset((page - 1) * limit);
 
+    // Apply search, region, and area conditions to the paginated query
     if (searchCondition) {
       paginatedQuery = paginatedQuery.where(searchCondition);
     }
+    if (filter.region) {
+      paginatedQuery = paginatedQuery.where(eq(CallPlan.region, filter.region));
+    }
+    if (Array.isArray(filter.area) && filter.area.length > 0) {
+      paginatedQuery = paginatedQuery.where(
+        inArray(CallPlan.area, filter.area),
+      );
+    }
+
     const result = await paginatedQuery;
 
     const encryptedResult = await Promise.all(
