@@ -37,14 +37,14 @@ export class CallPlanRepository {
   }
 
   // Create
-  async createData(createCallPlanDto: CreateCallPlanDto) {
+  async createData(createCallPlanDto: CreateCallPlanDto, userEmail: string) {
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
 
-    const { area, region, code_batch, created_by } = createCallPlanDto;
+    const { area, region, code_batch } = createCallPlanDto;
 
     return await db
       .insert(CallPlan)
@@ -52,25 +52,29 @@ export class CallPlanRepository {
         code_batch,
         area,
         region,
-        created_by,
+        created_by: userEmail,
         created_at: new Date(),
       })
       .returning();
   }
 
   // Update by ID
-  async updateData(id: string, updateCallPlanDto: UpdateCallPlanDto) {
+  async updateData(
+    id: string,
+    updateCallPlanDto: UpdateCallPlanDto,
+    userEmail: string,
+  ) {
     const idDecrypted = await this.decryptId(id);
     const db = this.drizzleService['db'];
-    const { code_batch, area, region, updated_by } = updateCallPlanDto;
+    const { code_batch, area, region } = updateCallPlanDto;
     return await db
       .update(CallPlan)
       .set({
         code_batch,
         area,
         region,
-        updated_by,
-        created_at: new Date(),
+        updated_by: userEmail,
+        updated_at: new Date(),
       })
       .where(eq(CallPlan.id, idDecrypted))
       .execute();
@@ -103,7 +107,7 @@ export class CallPlanRepository {
     return await db.query.CallPlan.findMany();
   }
 
-  async deleteById(id: string) {
+  async deleteById(id: string, userEmail: string) {
     const db = this.drizzleService['db'];
     const idDecrypted = await this.decryptId(id);
 
@@ -113,7 +117,7 @@ export class CallPlanRepository {
 
     return await db
       .update(CallPlan)
-      .set({ updated_at: new Date(), deleted_at: new Date() })
+      .set({ updated_at: new Date(), deleted_at: new Date(), deleted_by: userEmail })
       .where(eq(CallPlan.id, idDecrypted))
       .returning();
   }

@@ -11,9 +11,13 @@ export class CallPlanService {
     private readonly userRepository: UserRepo,
   ) {}
 
-  async createCallPlan(createCallPlanDto: CreateCallPlanDto) {
+  async createCallPlan(
+    createCallPlanDto: CreateCallPlanDto,
+    accessToken: string,
+  ) {
     try {
-      return this.callPlanRepository.createData(createCallPlanDto);
+      const user = await this.userRepository.findByToken(accessToken);
+      return this.callPlanRepository.createData(createCallPlanDto, user.email);
     } catch (e) {
       logger.error(e);
       return e;
@@ -24,16 +28,26 @@ export class CallPlanService {
     return this.callPlanRepository.getById(id);
   }
 
-  async updateCallPlan(id: string, updateCallPlanDto: UpdateCallPlanDto) {
-    return this.callPlanRepository.updateData(id, updateCallPlanDto);
+  async updateCallPlan(
+    id: string,
+    updateCallPlanDto: UpdateCallPlanDto,
+    accessToken: string,
+  ) {
+    const user = await this.userRepository.findByToken(accessToken);
+    return this.callPlanRepository.updateData(
+      id,
+      updateCallPlanDto,
+      user.email,
+    );
   }
 
-  async deleteCallPlan(id: string) {
-    return this.callPlanRepository.deleteById(id);
+  async deleteCallPlan(id: string, accessToken: string) {
+    const user = await this.userRepository.findByToken(accessToken);
+    return this.callPlanRepository.deleteById(id, user.email);
   }
 
   async getAll(
-    accessToken,
+    accessToken: string,
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
