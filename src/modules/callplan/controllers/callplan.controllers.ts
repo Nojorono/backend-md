@@ -25,8 +25,12 @@ export class CallPlanControllers {
 
   @ApiBearerAuth('accessToken')
   @Post()
-  async create(@Body() createCallPlanDto: CreateCallPlanDto) {
-    return this.callPlanService.createCallPlan(createCallPlanDto);
+  async create(
+    @Body() createCallPlanDto: CreateCallPlanDto,
+    @Req() request: Request,
+  ) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.callPlanService.createCallPlan(createCallPlanDto, accessToken);
   }
 
   @ApiBearerAuth('accessToken')
@@ -40,14 +44,21 @@ export class CallPlanControllers {
   async update(
     @Param('id') id: string,
     @Body() updateCallPlanDto: UpdateCallPlanDto,
+    @Req() request: Request,
   ) {
-    return this.callPlanService.updateCallPlan(id, updateCallPlanDto);
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.callPlanService.updateCallPlan(
+      id,
+      updateCallPlanDto,
+      accessToken,
+    );
   }
 
   @ApiBearerAuth('accessToken')
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.callPlanService.deleteCallPlan(id);
+  async remove(@Param('id') id: string, @Req() request: Request) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.callPlanService.deleteCallPlan(id, accessToken);
   }
 
   @ApiBearerAuth('accessToken')
