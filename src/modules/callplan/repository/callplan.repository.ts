@@ -22,6 +22,22 @@ export class CallPlanRepository {
     return encrypt(id.toString());
   }
 
+  async validateCreate(data: any) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db
+      .select()
+      .from(CallPlan)
+      .where(
+        eq(CallPlan.code_batch, data.code_batch),
+        eq(CallPlan.area, data.area),
+        eq(CallPlan.region, data.region),
+      )
+      .limit(1);
+  }
+
   async findLastId() {
     const db = this.drizzleService['db'];
     if (!db) {
@@ -117,7 +133,11 @@ export class CallPlanRepository {
 
     return await db
       .update(CallPlan)
-      .set({ updated_at: new Date(), deleted_at: new Date(), deleted_by: userEmail })
+      .set({
+        updated_at: new Date(),
+        deleted_at: new Date(),
+        deleted_by: userEmail,
+      })
       .where(eq(CallPlan.id, idDecrypted))
       .returning();
   }
@@ -139,10 +159,7 @@ export class CallPlanRepository {
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
     // Count query for total records
-    const countQuery = db
-      .select({ count: count() })
-      .from(CallPlan)
-      .where(isNull(CallPlan.deleted_at));
+    const countQuery = db.select({ count: count() }).from(CallPlan);
 
     if (searchCondition) {
       countQuery.where(searchCondition);
@@ -158,6 +175,8 @@ export class CallPlanRepository {
       countQuery.where(inArray(CallPlan.area, filter.area));
     }
 
+    // Try direct null check with .isNull() or eq
+    countQuery.where(isNull(CallPlan.deleted_at));
     const totalRecordsResult = await countQuery;
     const totalRecords = totalRecordsResult[0]?.count ?? 0;
     // Query for paginated and filtered results
@@ -169,7 +188,6 @@ export class CallPlanRepository {
         region: CallPlan.region,
       })
       .from(CallPlan)
-      .where(isNull(CallPlan.deleted_at))
       .limit(limit)
       .offset((page - 1) * limit);
 
@@ -186,6 +204,7 @@ export class CallPlanRepository {
       );
     }
 
+    paginatedQuery.where(isNull(CallPlan.deleted_at));
     const result = await paginatedQuery;
 
     const encryptedResult = await Promise.all(

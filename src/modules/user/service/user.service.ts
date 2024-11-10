@@ -20,7 +20,7 @@ export class UserService {
       if (!user) {
         // Throw an unauthorized error if the token is invalid or user is not found
         throw new HttpException(
-          'Invalid access token',
+          'accessTokenUnauthorized',
           HttpStatus.UNAUTHORIZED,
         );
       }
@@ -28,7 +28,7 @@ export class UserService {
       const findExist = await this.userRepo.getUserByEmail(createUserDto.email);
       if (findExist) {
         // Throw a conflict error if the email is already taken
-        throw new HttpException('Email is already taken', HttpStatus.CONFLICT);
+        throw new HttpException('userExists', HttpStatus.CONFLICT);
       }
       // Create and return the new user
       return await this.userRepo.createUser(createUserDto, user.email);
@@ -44,7 +44,7 @@ export class UserService {
       const user = await this.userRepo.findByToken(accessToken);
       if (!user) {
         throw new HttpException(
-          'Invalid access token',
+          'accessTokenUnauthorized',
           HttpStatus.UNAUTHORIZED,
         );
       }
@@ -55,10 +55,7 @@ export class UserService {
         );
         if (findExist) {
           // Throw a conflict error if the email is already taken
-          throw new HttpException(
-            'Email is already taken',
-            HttpStatus.CONFLICT,
-          );
+          throw new HttpException('userExists', HttpStatus.CONFLICT);
         }
       }
       return await this.userRepo.updateUser(id, {

@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateCallPlanDto, UpdateCallPlanDto } from '../dtos/callplan.dtos';
 import { CallPlanRepository } from '../repository/callplan.repository';
 import { logger } from 'nestjs-i18n';
@@ -16,11 +21,20 @@ export class CallPlanService {
     accessToken: string,
   ) {
     try {
+      const check =
+        await this.callPlanRepository.validateCreate(createCallPlanDto);
+      if (check) {
+        throw new HttpException('DataExists', HttpStatus.BAD_REQUEST);
+      }
       const user = await this.userRepository.findByToken(accessToken);
       return this.callPlanRepository.createData(createCallPlanDto, user.email);
     } catch (e) {
-      logger.error(e);
-      return e;
+      // Log the error and its stack trace for more insight
+      logger.error('Error in createCallPlan:', e.message, e.stack);
+      if (e instanceof HttpException) {
+        throw e;
+      }
+      throw new InternalServerErrorException('Failed to create call plan');
     }
   }
 
@@ -48,10 +62,12 @@ export class CallPlanService {
 
   async getAll(
     accessToken: string,
-    page: number = 1,
-    limit: number = 10,
+    page: string = '1',
+    limit: string = '10',
     searchTerm: string = '',
   ) {
+    const pageInt = parseInt(page, 10);
+    const limitInt = parseInt(limit, 10);
     const user = await this.userRepository.findByToken(accessToken);
     // Extract area and region from the user object to pass as filters
     const filter = {
@@ -59,8 +75,8 @@ export class CallPlanService {
       region: user.region || '',
     };
     return this.callPlanRepository.getAllCallPlan(
-      page,
-      limit,
+      pageInt,
+      limitInt,
       searchTerm,
       filter,
     );

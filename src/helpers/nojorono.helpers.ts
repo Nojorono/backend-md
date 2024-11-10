@@ -54,23 +54,28 @@ export function buildSearchQuery(searchTerm: string, searchColumns: string[]) {
 
 export function buildSearchORM(
   searchTerm: string,
-  searchColumns: string[] = [],
+  searchColumns: { column: string; type: string }[],
 ) {
-  if (
-    !searchTerm ||
-    !Array.isArray(searchColumns) ||
-    searchColumns.length === 0
-  ) {
-    return null; // Return null if searchTerm is empty or searchColumns is invalid
-  }
+  if (!searchTerm) return null;
 
-  console.log(searchColumns, searchTerm);
-
-  const searchCondition = searchColumns?.map((column) => {
-    return sql`${sql.identifier(column)} ILIKE ${`%${searchTerm}%`}`;
+  // Create search conditions for each column
+  const searchConditions = searchColumns.map(({ column, type }) => {
+    if (type === 'date') {
+      // If the column is a date, use exact match or range comparison
+      return sql`${sql.raw(column)} = ${searchTerm}`; // Exact match for date
+      // Alternatively, for a date range (if needed, use this pattern)
+      // return sql`${sql.raw(column)} >= ${startDate} AND ${sql.raw(column)} <= ${endDate}`;
+    } else {
+      // If it's a string, use ILIKE for case-insensitive search
+      return sql`${sql.raw(column)} ILIKE ${`%${searchTerm}%`}`;
+    }
   });
 
-  return sql.join(searchCondition, sql` OR `);
+  // Combine conditions using OR
+  const combinedConditions = sql.join(searchConditions, sql` OR `);
+
+  // Return the complete search condition wrapped in parentheses
+  return sql`(${combinedConditions})`;
 }
 
 // pagination.helper.ts
