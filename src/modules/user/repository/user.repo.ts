@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { and, arrayContained, eq, inArray, isNull } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import {
   buildSearchQuery,
@@ -238,10 +238,9 @@ export class UserRepo {
       conditions.push(eq(mUser.region, region));
     }
 
-    // if (area && Array.isArray(area) && area.length > 0) {
-    //   console.log(area);
-    //   conditions.push(inArray(mUser.area, ['SEMARANG']));
-    // }
+    if (area && Array.isArray(area) && area.length > 0) {
+      conditions.push(arrayContained(mUser.area, ['SEMARANG']));
+    }
 
     return await db
       .select({

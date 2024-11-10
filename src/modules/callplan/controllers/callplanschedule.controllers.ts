@@ -56,7 +56,7 @@ export class CallPlanScheduleControllers {
 
   @ApiBearerAuth('accessToken')
   @Delete(':id')
-  async removeSchedule(@Param('id') id: number, @Req() request: Request) {
+  async removeSchedule(@Param('id') id: string, @Req() request: Request) {
     const accessToken = request.headers.authorization?.split(' ')[1];
     return this.callPlanService.deleteCallPlanSchedule(id, accessToken);
   }
@@ -65,8 +65,8 @@ export class CallPlanScheduleControllers {
   @Get(':id')
   async findListSchedule(
     @Param('id') id: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
   ) {
     return this.callPlanService.getSchedules(id, page, limit, searchTerm);

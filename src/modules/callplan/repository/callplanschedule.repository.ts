@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { CallPlanSchedule, mOutlets, mUser } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
+  buildSearchORM,
   buildSearchQuery,
   decrypt,
   encrypt,
@@ -118,10 +119,13 @@ export class CallPlanScheduleRepository {
       .from(CallPlanSchedule)
       .innerJoin(mOutlets, eq(CallPlanSchedule.outlet_id, mOutlets.id))
       .innerJoin(mUser, eq(CallPlanSchedule.user_id, mUser.id))
-      .where(eq(CallPlanSchedule.call_plan_id, idDecrypted));
+      .where(
+        and(eq(CallPlanSchedule.call_plan_id, idDecrypted)),
+        isNull(CallPlanSchedule.deleted_at),
+      );
 
     // Build search query
-    const searchColumns = ['email', 'username', 'phone'];
+    const searchColumns = ['code_call_plan'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
     // Apply search condition if available
     if (searchCondition) {
@@ -188,8 +192,9 @@ export class CallPlanScheduleRepository {
     });
   }
 
-  async deleteById(id: number, userEmail: string) {
+  async deleteById(id: string, userEmail: string) {
     const db = this.drizzleService['db'];
+    const idDecrypted = await this.decryptId(id);
 
     if (!db) {
       throw new Error('Database not initialized');
@@ -202,7 +207,7 @@ export class CallPlanScheduleRepository {
         deleted_at: new Date(),
         deleted_by: userEmail,
       })
-      .where(eq(CallPlanSchedule.id, id))
+      .where(eq(CallPlanSchedule.id, idDecrypted))
       .returning();
   }
 }

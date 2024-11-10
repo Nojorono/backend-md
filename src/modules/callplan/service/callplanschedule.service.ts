@@ -68,21 +68,23 @@ export class CallPlanScheduleService {
     }
   }
 
-  async deleteCallPlanSchedule(id: number, accessToken) {
+  async deleteCallPlanSchedule(id: string, accessToken) {
     const userCreate = await this.userRepository.findByToken(accessToken);
     return this.callPlanScheduleRepository.deleteById(id, userCreate.email);
   }
 
   async getSchedules(
     id: string,
-    page: number = 1,
-    limit: number = 10,
+    page: string = '1',
+    limit: string = '10',
     searchTerm: string = '',
   ) {
+    const pageInt = parseInt(page, 10);
+    const limitInt = parseInt(limit, 10);
     return this.callPlanScheduleRepository.getByIdCallPlan(
       id,
-      page,
-      limit,
+      pageInt,
+      limitInt,
       searchTerm,
     );
   }
