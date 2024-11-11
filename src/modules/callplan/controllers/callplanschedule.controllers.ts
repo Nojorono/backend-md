@@ -68,8 +68,15 @@ export class CallPlanScheduleControllers {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
+    @Query('userId') userId: number = null,
   ) {
-    return this.callPlanService.getSchedules(id, page, limit, searchTerm);
+    return this.callPlanService.getSchedules(
+      id,
+      page,
+      limit,
+      searchTerm,
+      userId,
+    );
   }
 
   @ApiBearerAuth('accessToken')

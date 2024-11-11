@@ -79,15 +79,54 @@ export class RolesRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    if (roles.name !== 'SUPER-ADMIN' || roles.name !== 'ADMIN') {
+    if (roles.name == 'SUPER-ADMIN' || roles.name == 'ADMIN') {
       const excludedRoles = ['SUPER-ADMIN', 'ADMIN'];
       return await db
         .select()
         .from(mUserRoles)
         .where(notInArray(mUserRoles.name, excludedRoles))
         .execute();
-    } else {
-      return await db.select().from(mUserRoles).execute();
+    } else if (roles.name == 'NASIONAL') {
+      const excludedRoles = ['SUPER-ADMIN', 'ADMIN', 'NASIONAL'];
+      return await db
+        .select()
+        .from(mUserRoles)
+        .where(notInArray(mUserRoles.name, excludedRoles))
+        .execute();
+    } else if (roles.name == 'REGIONAL') {
+      const excludedRoles = ['SUPER-ADMIN', 'ADMIN', 'NASIONAL', 'REGIONAL'];
+      return await db
+        .select()
+        .from(mUserRoles)
+        .where(notInArray(mUserRoles.name, excludedRoles))
+        .execute();
+    } else if (roles.name == 'AMO') {
+      const excludedRoles = [
+        'SUPER-ADMIN',
+        'ADMIN',
+        'NASIONAL',
+        'REGIONAL',
+        'AMO',
+      ];
+      return await db
+        .select()
+        .from(mUserRoles)
+        .where(notInArray(mUserRoles.name, excludedRoles))
+        .execute();
+    } else if (roles.name == 'TL') {
+      const excludedRoles = [
+        'SUPER-ADMIN',
+        'ADMIN',
+        'NASIONAL',
+        'REGIONAL',
+        'AMO',
+        'TL',
+      ];
+      return await db
+        .select()
+        .from(mUserRoles)
+        .where(notInArray(mUserRoles.name, excludedRoles))
+        .execute();
     }
   }
 

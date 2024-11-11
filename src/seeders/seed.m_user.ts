@@ -25,17 +25,17 @@ async function seedUsers() {
         valid_from: new Date(),
         valid_to: new Date(
           new Date().setFullYear(new Date().getFullYear() + 1),
-        ), // Valid for 1 year
+        ),
         remember_token: null,
         last_login: null,
         created_by: 'system',
         updated_by: 'system',
       },
       {
-        username: 'regular_admin',
-        user_role_id: 2, // Ensure this role exists in your m_user_roles table
+        username: 'admin',
+        user_role_id: 2,
         fullname: 'Regular Admin',
-        password: await bcrypt.hash('123123', 10), // Hash the password
+        password: await bcrypt.hash('123123', 10),
         email: 'admin@nna.1',
         phone: '0987654321',
         tipe_md: 'N',
@@ -45,87 +45,7 @@ async function seedUsers() {
         valid_from: new Date(),
         valid_to: new Date(
           new Date().setFullYear(new Date().getFullYear() + 1),
-        ), // Valid for 1 year
-        remember_token: null,
-        last_login: null,
-        created_by: 'system',
-        updated_by: 'system',
-      },
-      {
-        username: 'regular_user_tl_1',
-        user_role_id: 3, // Ensure this role exists in your m_user_roles table
-        fullname: 'Regular User',
-        password: await bcrypt.hash('123123', 10), // Hash the password
-        email: 'tl@nna.1',
-        phone: '0987654321',
-        tipe_md: 'MOTOR',
-        area: [],
-        region: 'JAWA TENGAH',
-        is_active: 1,
-        valid_from: new Date(),
-        valid_to: new Date(
-          new Date().setFullYear(new Date().getFullYear() + 1),
-        ), // Valid for 1 year
-        remember_token: null,
-        last_login: null,
-        created_by: 'system',
-        updated_by: 'system',
-      },
-      {
-        username: 'regular_user_tl_2',
-        user_role_id: 3, // Ensure this role exists in your m_user_roles table
-        fullname: 'Regular User',
-        password: await bcrypt.hash('123123', 10), // Hash the password
-        email: 'tl@nna.2',
-        phone: '0987654321',
-        tipe_md: 'MOTOR',
-        area: ['SEMARANG'],
-        region: 'JAWA TENGAH',
-        is_active: 1,
-        valid_from: new Date(),
-        valid_to: new Date(
-          new Date().setFullYear(new Date().getFullYear() + 1),
-        ), // Valid for 1 year
-        remember_token: null,
-        last_login: null,
-        created_by: 'system',
-        updated_by: 'system',
-      },
-      {
-        username: 'regular_user_md_1',
-        user_role_id: 4, // Ensure this role exists in your m_user_roles table
-        fullname: 'Regular User',
-        password: await bcrypt.hash('123123', 10), // Hash the password
-        email: 'md@nna.1',
-        phone: '0987654321',
-        tipe_md: 'MOTOR',
-        area: ['SEMARANG'],
-        region: 'JAWA TENGAH',
-        is_active: 1,
-        valid_from: new Date(),
-        valid_to: new Date(
-          new Date().setFullYear(new Date().getFullYear() + 1),
-        ), // Valid for 1 year
-        remember_token: null,
-        last_login: null,
-        created_by: 'system',
-        updated_by: 'system',
-      },
-      {
-        username: 'regular_user_md_2',
-        user_role_id: 4, // Ensure this role exists in your m_user_roles table
-        fullname: 'Regular User',
-        password: await bcrypt.hash('123123', 10), // Hash the password
-        email: 'md@nna.2',
-        phone: '0987654321',
-        tipe_md: 'MOBIL',
-        area: ['YOGYAKARTA'],
-        region: 'JAWA TENGAH',
-        is_active: 1,
-        valid_from: new Date(),
-        valid_to: new Date(
-          new Date().setFullYear(new Date().getFullYear() + 1),
-        ), // Valid for 1 year
+        ),
         remember_token: null,
         last_login: null,
         created_by: 'system',

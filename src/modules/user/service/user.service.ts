@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import { UserRepo } from '../repository/user.repo';
+import { logger } from 'nestjs-i18n';
 
 @Injectable()
 export class UserService {
@@ -33,8 +34,12 @@ export class UserService {
       // Create and return the new user
       return await this.userRepo.createUser(createUserDto, user.email);
     } catch (e) {
-      // Throw an internal server error with the original error message
-      throw new InternalServerErrorException(e.message);
+      // Log the error and its stack trace for more insight
+      logger.error('Error in create user:', e.message, e.stack);
+      if (e instanceof HttpException) {
+        throw e;
+      }
+      throw new InternalServerErrorException('Failed to create user');
     }
   }
 
@@ -73,17 +78,24 @@ export class UserService {
         updated_by: user.email,
       });
     } catch (e) {
-      throw new InternalServerErrorException(e.message);
+      // Log the error and its stack trace for more insight
+      logger.error('Error in create user:', e.message, e.stack);
+      if (e instanceof HttpException) {
+        throw e;
+      }
+      throw new InternalServerErrorException('Failed to create user');
     }
   }
 
   async getAllWithPaginate(
-    page: number = 1,
-    limit: number = 10,
+    page: string = '1',
+    limit: string = '10',
     searchTerm: string = '',
     accessToken,
   ) {
+    const pageInt = parseInt(page, 10);
+    const limitInt = parseInt(limit, 10);
     const user = await this.userRepo.findByToken(accessToken);
-    return this.userRepo.getAllPagination(page, limit, searchTerm, user);
+    return this.userRepo.getAllPagination(pageInt, limitInt, searchTerm, user);
   }
 }

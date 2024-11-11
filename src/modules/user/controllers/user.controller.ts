@@ -31,7 +31,7 @@ export class UserController {
   @ApiBearerAuth('accessToken')
   @ApiQuery({ name: 'region', required: false, type: String })
   @ApiQuery({ name: 'area', required: false, type: String })
-  @Get('get-role')
+  @Get('get-md')
   public async getUserWithRole(
     @Query('region') region?: string,
     @Query('area') area?: any,
@@ -48,8 +48,8 @@ export class UserController {
   @ApiBearerAuth('accessToken')
   @Get()
   public async getAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
     @Req() request: Request,
   ) {
