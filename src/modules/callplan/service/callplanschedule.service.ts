@@ -78,6 +78,7 @@ export class CallPlanScheduleService {
     page: string = '1',
     limit: string = '10',
     searchTerm: string = '',
+    userId: number = null,
   ) {
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
@@ -86,6 +87,7 @@ export class CallPlanScheduleService {
       pageInt,
       limitInt,
       searchTerm,
+      userId,
     );
   }
 

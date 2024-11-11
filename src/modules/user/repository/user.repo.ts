@@ -37,14 +37,28 @@ export class UserRepo {
       throw new Error('Database not initialized');
     }
 
-    let getRoles = ['MD', 'TL', 'SUPER-ADMIN', 'ADMIN'];
+    const conditions = [];
+
+    let getRoles = ['MD', 'TL', 'AMO', 'REGIONAL'];
 
     if (user.Roles.name == 'TL') {
       getRoles = ['MD'];
     }
 
-    if (user.Roles.name == 'ADMIN') {
+    if (user.Roles.name == 'AMO') {
       getRoles = ['MD', 'TL'];
+    }
+
+    if (user.Roles.name == 'REGIONAL') {
+      getRoles = ['MD', 'TL', 'AMO'];
+    }
+
+    if (user.region) {
+      conditions.push(eq(mUser.region, user.region));
+    }
+
+    if (user.area && Array.isArray(user.area) && user.area.length > 0) {
+      conditions.push(arrayContained(mUser.area, user.area));
     }
 
     // Query for paginated and filtered results
@@ -72,6 +86,7 @@ export class UserRepo {
           eq(mUser.is_active, 1),
           inArray(mUserRoles.name, getRoles),
           isNull(mUser.deleted_at),
+          ...conditions,
         ),
       )
       .orderBy(mUser.updated_at, 'desc');
@@ -127,8 +142,6 @@ export class UserRepo {
         valid_to: new Date(createUserDto.valid_to),
         created_at: new Date(),
         created_by: userEmail,
-        updated_at: new Date(),
-        updated_by: userEmail,
       })
       .execute();
   }
@@ -234,12 +247,12 @@ export class UserRepo {
     const db = this.drizzleService['db'];
     const conditions = [];
 
-    if (region && region !== 'ALL') {
+    if (region) {
       conditions.push(eq(mUser.region, region));
     }
 
     if (area && Array.isArray(area) && area.length > 0) {
-      conditions.push(arrayContained(mUser.area, ['SEMARANG']));
+      conditions.push(arrayContained(mUser.area, area));
     }
 
     return await db

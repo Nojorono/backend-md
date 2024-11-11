@@ -3,7 +3,6 @@ import { and, desc, eq, isNull } from 'drizzle-orm';
 import { CallPlanSchedule, mOutlets, mUser } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
-  buildSearchORM,
   buildSearchQuery,
   decrypt,
   encrypt,
@@ -99,6 +98,7 @@ export class CallPlanScheduleRepository {
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
+    userId: number = null,
   ) {
     const db = this.drizzleService['db'];
 
@@ -130,6 +130,9 @@ export class CallPlanScheduleRepository {
     // Apply search condition if available
     if (searchCondition) {
       query.where(searchCondition);
+    }
+    if (userId) {
+      query.where(eq(CallPlanSchedule.user_id, userId));
     }
     const records = await query.execute();
     const totalRecords = parseInt(records.length) || 0;
