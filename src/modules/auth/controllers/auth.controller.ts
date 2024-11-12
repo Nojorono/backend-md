@@ -49,4 +49,14 @@ export class AuthController {
   ): Promise<void> {
     await this.authService.forgotPassword(forgotPasswordDto.email);
   }
+
+  @Public()
+  @Post('reset-password')
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ): Promise<void> {
+    console.log(token, newPassword);
+    await this.authService.resetPassword(token, newPassword);
+  }
 }

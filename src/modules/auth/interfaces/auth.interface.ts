@@ -6,7 +6,7 @@ export interface ITokenResponse {
 }
 
 export interface IAuthPayload {
-  id: number;
+  id: string;
   user_role_id: string;
   username: string;
   email: string;
