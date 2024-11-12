@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq, sql } from 'drizzle-orm';
-import { Mbatch } from '../../../schema';
+import { desc, eq, isNull, sql } from 'drizzle-orm';
+import { Mbatch, MbatchTarget } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
   buildSearchQuery,
@@ -80,18 +80,27 @@ export class BatchRepository {
     return await db.select().from(Mbatch).execute();
   }
 
-  // Delete an Roles (soft delete by updating is_deleted field)
   async delete(id: string, userBy: string) {
     const idDecrypted = await this.decryptId(id);
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
     }
-    return await db
-      .update(Mbatch)
-      .set({ updated_at: new Date(), updated_by: userBy, is_active: 0 }) // assuming these fields exist
-      .where(eq(Mbatch.id, idDecrypted))
-      .returning();
+    return await db.transaction(async (tx) => {
+      // Soft delete the main batch
+      const deleteBatchResult = await tx
+        .update(Mbatch)
+        .set({ deleted_at: new Date(), deleted_by: userBy })
+        .where(eq(Mbatch.id, idDecrypted))
+        .returning();
+
+      await tx
+        .update(MbatchTarget)
+        .set({ deleted_at: new Date(), deleted_by: userBy })
+        .where(eq(MbatchTarget.batch_id, idDecrypted));
+
+      return deleteBatchResult;
+    });
   }
 
   // List all active Roles with pagination and search
@@ -116,7 +125,7 @@ export class BatchRepository {
     const { offset } = paginate(totalRecords, page, limit);
 
     // Build search query
-    const searchColumns = ['name', 'description'];
+    const searchColumns = ['code_batch'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
     // Query for paginated and filtered results
@@ -128,6 +137,7 @@ export class BatchRepository {
         end_plan: Mbatch.end_plan,
       })
       .from(Mbatch)
+      .where(isNull(Mbatch.deleted_at))
       .limit(limit) // Specify your limit
       .offset(offset); // Specify your offset
 

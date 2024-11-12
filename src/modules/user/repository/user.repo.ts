@@ -39,28 +39,6 @@ export class UserRepo {
 
     const conditions = [];
 
-    let getRoles = ['MD', 'TL', 'AMO', 'REGIONAL'];
-
-    if (user.Roles.name == 'TL') {
-      getRoles = ['MD'];
-    }
-
-    if (user.Roles.name == 'AMO') {
-      getRoles = ['MD', 'TL'];
-    }
-
-    if (user.Roles.name == 'REGIONAL') {
-      getRoles = ['MD', 'TL', 'AMO'];
-    }
-
-    if (user.region) {
-      conditions.push(eq(mUser.region, user.region));
-    }
-
-    if (user.area && Array.isArray(user.area) && user.area.length > 0) {
-      conditions.push(arrayContained(mUser.area, user.area));
-    }
-
     // Query for paginated and filtered results
     const query = db
       .select({
@@ -82,12 +60,7 @@ export class UserRepo {
       .from(mUser)
       .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id))
       .where(
-        and(
-          eq(mUser.is_active, 1),
-          inArray(mUserRoles.name, getRoles),
-          isNull(mUser.deleted_at),
-          ...conditions,
-        ),
+        and(eq(mUser.is_active, 1), isNull(mUser.deleted_at), ...conditions),
       )
       .orderBy(mUser.updated_at, 'desc');
 
@@ -98,6 +71,35 @@ export class UserRepo {
     if (searchCondition) {
       query.where(searchCondition);
     }
+
+    let getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'ADMIN'];
+
+    if (user.Roles.name == 'TL') {
+      getRoles = ['MD'];
+    }
+
+    if (user.Roles.name == 'AMO') {
+      getRoles = ['MD', 'TL'];
+    }
+
+    if (user.Roles.name == 'REGIONAL') {
+      getRoles = ['MD', 'TL', 'AMO'];
+    }
+
+    if (user.Roles.name == 'ADMIN') {
+      getRoles = ['MD', 'TL', 'AMO', 'REGIONAL'];
+    }
+
+    if (user.region) {
+      conditions.push(eq(mUser.region, user.region));
+    }
+
+    if (user.area && Array.isArray(user.area) && user.area.length > 0) {
+      conditions.push(arrayContained(mUser.area, user.area));
+    }
+
+    query.where(inArray(mUserRoles.name, getRoles));
+
     const records = await query.execute();
     const totalRecords = parseInt(records.length) || 0;
     const { offset } = paginate(totalRecords, page, limit);
