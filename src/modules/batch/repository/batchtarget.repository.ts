@@ -1,13 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq, sql } from 'drizzle-orm';
-import { Mbatch, MbatchTarget } from '../../../schema';
+import { desc, eq } from 'drizzle-orm';
+import { MbatchTarget } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
-import {
-  buildSearchQuery,
-  decrypt,
-  encrypt,
-  paginate,
-} from '../../../helpers/nojorono.helpers';
+import { decrypt, encrypt } from '../../../helpers/nojorono.helpers';
 import {
   CreateBatchTargetDto,
   UpdateBatchTargetDto,
@@ -69,7 +64,10 @@ export class BatchTargetRepository {
       throw new Error('Database not initialized');
     }
 
-    const result = await db.select().from(MbatchTarget).where(eq(MbatchTarget.id, id));
+    const result = await db
+      .select()
+      .from(MbatchTarget)
+      .where(eq(MbatchTarget.id, id));
     return result[0]; // Return the first (and expectedly only) result
   }
 
@@ -91,69 +89,39 @@ export class BatchTargetRepository {
     }
     return await db
       .update(MbatchTarget)
-      .set({ updated_at: new Date(), updated_by: userBy, is_active: 0 }) // assuming these fields exist
+      .set({ updated_at: new Date(), updated_by: userBy, is_active: 0 })
       .where(eq(MbatchTarget.id, idDecrypted))
       .returning();
   }
 
   // List all active Roles with pagination and search
-  async getAllPagination(
-    page: number = 1,
-    limit: number = 10,
-    searchTerm: string = '',
-  ) {
+  async getAll(batchId: string) {
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
 
-    // Apply pagination logic
-    const totalRecordsQuery = await db
-      .select({ count: sql`COUNT(*)` })
-      .from(Mbatch)
-      .execute();
-    const totalRecords = parseInt(totalRecordsQuery[0]?.count) || 0;
+    const idDecrypted = await this.decryptId(batchId);
 
-    const { offset } = paginate(totalRecords, page, limit);
-
-    // Build search query
-    const searchColumns = ['name', 'description'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
-
-    // Query for paginated and filtered results
-    const query = db
+    const query = await db
       .select({
-        id: Mbatch.id,
-        code_batch: Mbatch.code_batch,
-        start_plan: Mbatch.start_plan,
-        end_plan: Mbatch.end_plan,
+        id: MbatchTarget.id,
+        batch_id: MbatchTarget.batch_id,
+        regional: MbatchTarget.regional,
+        amo: MbatchTarget.amo,
+        brand_type_sio: MbatchTarget.brand_type_sio,
+        amo_brand_type: MbatchTarget.amo_brand_type,
+        allocation_ho: MbatchTarget.allocation_ho,
       })
-      .from(Mbatch)
-      .limit(limit) // Specify your limit
-      .offset(offset); // Specify your offset
+      .from(MbatchTarget)
+      .where(eq(MbatchTarget.batch_id, idDecrypted));
 
-    // Apply search condition if available
-    if (searchCondition) {
-      query.where(searchCondition);
-    }
+    const totalRecords = parseInt(query.length) || 0;
 
-    const result = await query;
-
-    // Encrypt IDs for the returned data
-    const encryptedResult = await Promise.all(
-      result.map(async (item: { id: number }) => {
-        return {
-          ...item,
-          id: await this.encryptedId(item.id),
-        };
-      }),
-    );
-
-    // Return data with pagination metadata
     return {
-      data: encryptedResult,
-      ...paginate(totalRecords, page, limit),
+      data: query,
+      totalRecords: totalRecords,
     };
   }
 }

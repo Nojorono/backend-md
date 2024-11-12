@@ -1,5 +1,5 @@
 {
-  "id": "1470905f-81e0-4972-ae1f-aca10ded822c",
+  "id": "baa80a1e-2763-435c-a153-7b239a3406d7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -20,6 +20,24 @@
           "primaryKey": false,
           "notNull": false
         },
+        "call_plan_id": {
+          "name": "call_plan_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "call_plan_schedule_id": {
+          "name": "call_plan_schedule_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "outlet_id": {
+          "name": "outlet_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "code_outlet": {
           "name": "code_outlet",
           "type": "varchar(20)",
@@ -34,8 +52,7 @@
         },
         "status": {
           "name": "status",
-          "type": "activity_status",
-          "typeSchema": "public",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -135,6 +152,45 @@
           "tableTo": "m_user",
           "columnsFrom": [
             "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "activity_md_call_plan_id_call_plan_id_fk": {
+          "name": "activity_md_call_plan_id_call_plan_id_fk",
+          "tableFrom": "activity_md",
+          "tableTo": "call_plan",
+          "columnsFrom": [
+            "call_plan_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "activity_md_call_plan_schedule_id_call_plan_schedule_id_fk": {
+          "name": "activity_md_call_plan_schedule_id_call_plan_schedule_id_fk",
+          "tableFrom": "activity_md",
+          "tableTo": "call_plan_schedule",
+          "columnsFrom": [
+            "call_plan_schedule_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "activity_md_outlet_id_m_outlet_id_fk": {
+          "name": "activity_md_outlet_id_m_outlet_id_fk",
+          "tableFrom": "activity_md",
+          "tableTo": "m_outlet",
+          "columnsFrom": [
+            "outlet_id"
           ],
           "columnsTo": [
             "id"
@@ -273,18 +329,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "start_plan": {
-          "name": "start_plan",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_plan": {
-          "name": "end_plan",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
         "created_by": {
           "name": "created_by",
           "type": "varchar(50)",
@@ -378,14 +422,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "start_plan": {
-          "name": "start_plan",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_plan": {
-          "name": "end_plan",
+        "day_plan": {
+          "name": "day_plan",
           "type": "date",
           "primaryKey": false,
           "notNull": true
@@ -569,6 +607,112 @@
         }
       }
     },
+    "public.m_batch_target": {
+      "name": "m_batch_target",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "batch_id": {
+          "name": "batch_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "regional": {
+          "name": "regional",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amo": {
+          "name": "amo",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "brand_type_sio": {
+          "name": "brand_type_sio",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amo_brand_type": {
+          "name": "amo_brand_type",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "allocation_ho": {
+          "name": "allocation_ho",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "m_batch_target_batch_id_m_batch_id_fk": {
+          "name": "m_batch_target_batch_id_m_batch_id_fk",
+          "tableFrom": "m_batch_target",
+          "tableTo": "m_batch",
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "public.m_outlet": {
       "name": "m_outlet",
       "schema": "",
@@ -699,10 +843,10 @@
         },
         "photos": {
           "name": "photos",
-          "type": "json",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false,
-          "default": "'[]'"
+          "default": "'[]'::jsonb"
         },
         "remarks": {
           "name": "remarks",
@@ -710,6 +854,55 @@
           "primaryKey": false,
           "notNull": false,
           "default": "''"
+        },
+        "range_health_facilities": {
+          "name": "range_health_facilities",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "range_work_place": {
+          "name": "range_work_place",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "range_public_transportation_facilities": {
+          "name": "range_public_transportation_facilities",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "range_worship_facilities": {
+          "name": "range_worship_facilities",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "range_playground_facilities": {
+          "name": "range_playground_facilities",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "range_educational_facilities": {
+          "name": "range_educational_facilities",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "range_faskes": {
+          "name": "range_faskes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         },
         "created_by": {
           "name": "created_by",
@@ -816,10 +1009,10 @@
         },
         "area": {
           "name": "area",
-          "type": "json",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false,
-          "default": "'[]'"
+          "default": "'[]'::jsonb"
         },
         "region": {
           "name": "region",
@@ -849,6 +1042,12 @@
         },
         "remember_token": {
           "name": "remember_token",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "refresh_token": {
+          "name": "refresh_token",
           "type": "varchar(500)",
           "primaryKey": false,
           "notNull": false
@@ -986,6 +1185,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0
+        },
+        "menus": {
+          "name": "menus",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[]'::json"
         }
       },
       "indexes": {},

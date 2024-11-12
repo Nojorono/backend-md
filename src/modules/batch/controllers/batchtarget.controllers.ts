@@ -32,11 +32,6 @@ export class BatchTargetControllers {
     return this.batchTargetService.createData(createBatchTargetDto);
   }
   @ApiBearerAuth('accessToken')
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return this.batchTargetService.getDataById(id);
-  }
-  @ApiBearerAuth('accessToken')
   @Post(':id')
   async update(
     @Param('id') id: string,
@@ -51,12 +46,9 @@ export class BatchTargetControllers {
     return this.batchTargetService.deleteData(id, accessToken);
   }
   @ApiBearerAuth('accessToken')
-  @Get()
-  async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Query('searchTerm') searchTerm: string = '',
-  ) {
-    return this.batchTargetService.getAllPaginate(page, limit, searchTerm);
+  @Get(':batchId')
+  async findAll(@Param('batchId') batchId: string = '') {
+    console.log(batchId);
+    return this.batchTargetService.getAll(batchId);
   }
 }

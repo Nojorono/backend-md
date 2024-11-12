@@ -20,7 +20,7 @@ import { BatchRepository } from '../repository/batch.repository';
 })
 export class BatchControllers {
   constructor(
-    private readonly rolesService: BatchService,
+    private readonly batchService: BatchService,
     private readonly batchRepo: BatchRepository,
   ) {}
   @ApiBearerAuth('accessToken')
@@ -30,27 +30,27 @@ export class BatchControllers {
   }
   @ApiBearerAuth('accessToken')
   @Post()
-  async create(@Body() createRolesDto: CreateBatchDto) {
-    return this.rolesService.createRoles(createRolesDto);
+  async create(@Body() createBatchDto: CreateBatchDto) {
+    return this.batchService.createData(createBatchDto);
   }
   @ApiBearerAuth('accessToken')
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.rolesService.getRolesById(id);
+    return this.batchService.getDataById(id);
   }
   @ApiBearerAuth('accessToken')
   @Post(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateRolesDto: UpdateBatchDto,
+    @Body() updateBatchDto: UpdateBatchDto,
   ) {
-    return this.rolesService.updateRoles(id, updateRolesDto);
+    return this.batchService.updateData(id, updateBatchDto);
   }
   @ApiBearerAuth('accessToken')
   @Delete(':id')
   async remove(@Param('id') id: string, @Req() request: Request) {
     const accessToken = request.headers.authorization?.split(' ')[1];
-    return this.rolesService.deleteRoles(id, accessToken);
+    return this.batchService.deleteData(id, accessToken);
   }
   @ApiBearerAuth('accessToken')
   @Get()
@@ -59,10 +59,6 @@ export class BatchControllers {
     @Query('limit') limit: number = 10,
     @Query('searchTerm') searchTerm: string = '',
   ) {
-    if (page) {
-      return this.rolesService.getAllActiveRoles(page, limit, searchTerm);
-    } else {
-      return this.rolesService.getAllRolesList();
-    }
+    return this.batchService.getAllActiveData(page, limit, searchTerm);
   }
 }

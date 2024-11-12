@@ -1,9 +1,12 @@
 CREATE TABLE IF NOT EXISTS "activity_md" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer,
+	"call_plan_id" integer NOT NULL,
+	"call_plan_schedule_id" integer NOT NULL,
+	"outlet_id" integer NOT NULL,
 	"code_outlet" varchar(20) NOT NULL,
 	"code_call_plan" varchar(20) NOT NULL,
-	"status" varchar(20) NOT NULL,
+	"status" varchar NOT NULL,
 	"area" varchar(20) NOT NULL,
 	"region" varchar(20) NOT NULL,
 	"brand" varchar(20) NOT NULL,
@@ -40,8 +43,6 @@ CREATE TABLE IF NOT EXISTS "call_plan" (
 	"code_batch" varchar,
 	"area" varchar(20) NOT NULL,
 	"region" varchar(20) NOT NULL,
-	"start_plan" date NOT NULL,
-	"end_plan" date NOT NULL,
 	"created_by" varchar(50),
 	"created_at" timestamp DEFAULT now(),
 	"updated_by" varchar(50),
@@ -56,8 +57,7 @@ CREATE TABLE IF NOT EXISTS "call_plan_schedule" (
 	"code_call_plan" varchar(20) NOT NULL,
 	"call_plan_id" integer NOT NULL,
 	"outlet_id" integer NOT NULL,
-	"start_plan" date NOT NULL,
-	"end_plan" date NOT NULL,
+	"day_plan" date NOT NULL,
 	"notes" varchar(255),
 	"status" varchar(20) DEFAULT 'ready',
 	"created_by" varchar(50),
@@ -82,6 +82,22 @@ CREATE TABLE IF NOT EXISTS "m_batch" (
 	CONSTRAINT "m_batch_code_batch_unique" UNIQUE("code_batch")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "m_batch_target" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"batch_id" integer,
+	"regional" varchar(100),
+	"amo" varchar(100),
+	"brand_type_sio" varchar(100),
+	"amo_brand_type" varchar(100),
+	"allocation_ho" integer DEFAULT 0,
+	"created_by" varchar(50),
+	"created_at" timestamp DEFAULT now(),
+	"updated_by" varchar(50),
+	"updated_at" timestamp DEFAULT now(),
+	"deleted_by" varchar(50),
+	"deleted_at" timestamp DEFAULT null
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "m_outlet" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"outlet_code" varchar(255) NOT NULL,
@@ -102,8 +118,15 @@ CREATE TABLE IF NOT EXISTS "m_outlet" (
 	"is_active" integer DEFAULT 1 NOT NULL,
 	"visit_day" varchar(50) NOT NULL,
 	"odd_even" varchar(20) NOT NULL,
-	"photos" json DEFAULT '[]',
+	"photos" jsonb DEFAULT '[]'::jsonb,
 	"remarks" text DEFAULT '',
+	"range_health_facilities" integer DEFAULT 0,
+	"range_work_place" integer DEFAULT 0,
+	"range_public_transportation_facilities" integer DEFAULT 0,
+	"range_worship_facilities" integer DEFAULT 0,
+	"range_playground_facilities" integer DEFAULT 0,
+	"range_educational_facilities" integer DEFAULT 0,
+	"range_faskes" integer DEFAULT 0,
 	"created_by" varchar(20),
 	"created_at" timestamp DEFAULT now(),
 	"updated_by" varchar(20),
@@ -122,12 +145,13 @@ CREATE TABLE IF NOT EXISTS "m_user" (
 	"phone" varchar(20),
 	"type_md" varchar(20),
 	"photo" varchar(255),
-	"area" json DEFAULT '[]',
+	"area" jsonb DEFAULT '[]'::jsonb,
 	"region" varchar(50) DEFAULT null,
 	"is_active" integer DEFAULT 1 NOT NULL,
 	"valid_from" timestamp,
 	"valid_to" timestamp,
 	"remember_token" varchar(500),
+	"refresh_token" varchar(500),
 	"last_login" timestamp,
 	"created_by" varchar(20),
 	"created_at" timestamp DEFAULT now(),
@@ -147,11 +171,30 @@ CREATE TABLE IF NOT EXISTS "m_user_role" (
 	"updated_at" timestamp DEFAULT now(),
 	"is_active" integer DEFAULT 1 NOT NULL,
 	"is_mobile" integer DEFAULT 0 NOT NULL,
-	"is_web" integer DEFAULT 0 NOT NULL
+	"is_web" integer DEFAULT 0 NOT NULL,
+	"menus" json DEFAULT '[]'::json
 );
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "activity_md" ADD CONSTRAINT "activity_md_user_id_m_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."m_user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "activity_md" ADD CONSTRAINT "activity_md_call_plan_id_call_plan_id_fk" FOREIGN KEY ("call_plan_id") REFERENCES "public"."call_plan"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "activity_md" ADD CONSTRAINT "activity_md_call_plan_schedule_id_call_plan_schedule_id_fk" FOREIGN KEY ("call_plan_schedule_id") REFERENCES "public"."call_plan_schedule"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "activity_md" ADD CONSTRAINT "activity_md_outlet_id_m_outlet_id_fk" FOREIGN KEY ("outlet_id") REFERENCES "public"."m_outlet"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -182,6 +225,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "call_plan_schedule" ADD CONSTRAINT "call_plan_schedule_outlet_id_m_outlet_id_fk" FOREIGN KEY ("outlet_id") REFERENCES "public"."m_outlet"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "m_batch_target" ADD CONSTRAINT "m_batch_target_batch_id_m_batch_id_fk" FOREIGN KEY ("batch_id") REFERENCES "public"."m_batch"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

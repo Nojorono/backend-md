@@ -27,11 +27,7 @@ export class BatchTargetService {
     return this.batchTargetRepository.delete(id, user.email);
   }
 
-  async getAllPaginate(
-    page: number = 1,
-    limit: number = 10,
-    searchTerm: string = '',
-  ) {
-    return this.batchTargetRepository.getAllPagination(page, limit, searchTerm);
+  async getAll(batchId: string = '') {
+    return this.batchTargetRepository.getAll(batchId);
   }
 }

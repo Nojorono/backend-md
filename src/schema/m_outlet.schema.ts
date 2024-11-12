@@ -5,7 +5,7 @@ import {
   integer,
   timestamp,
   text,
-  json,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 
 export const mOutlets = pgTable('m_outlet', {
@@ -28,8 +28,21 @@ export const mOutlets = pgTable('m_outlet', {
   is_active: integer('is_active').notNull().default(1),
   visit_day: varchar('visit_day', { length: 50 }).notNull(),
   odd_even: varchar('odd_even', { length: 20 }).notNull(),
-  photos: json('photos').default('[]'),
-  remarks: text('remarks').default(''), // Added 'remarks'
+  photos: jsonb('photos').default([]),
+  remarks: text('remarks').default(''),
+  range_health_facilities: integer('range_health_facilities').default(0),
+  range_work_place: integer('range_work_place').default(0),
+  range_public_transportation_facilities: integer(
+    'range_public_transportation_facilities',
+  ).default(0),
+  range_worship_facilities: integer('range_worship_facilities').default(0),
+  range_playground_facilities: integer('range_playground_facilities').default(
+    0,
+  ),
+  range_educational_facilities: integer('range_educational_facilities').default(
+    0,
+  ),
+  range_faskes: integer('range_faskes').default(0),
   created_by: varchar('created_by', { length: 20 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 20 }),
