@@ -18,7 +18,6 @@ import { RolesModule } from '../modules/roles/roles.module';
 import { CallPlanModule } from '../modules/callplan/callplan.module';
 import { BatchModule } from '../modules/batch/batch.module';
 import { S3Module } from '../modules/s3/s3.module';
-import { MailerModule } from '@nest-modules/mailer';
 
 @Module({
   imports: [

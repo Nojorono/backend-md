@@ -26,7 +26,7 @@ import { MailerModule } from '@nest-modules/mailer';
         },
       },
       defaults: {
-        from: `"MD Apps Customer Care" <noreply@gmail.com>`,
+        from: `"VTrack Assistants" <noreply@gmail.com>`,
       },
     }),
   ],
