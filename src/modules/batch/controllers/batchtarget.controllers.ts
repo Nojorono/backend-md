@@ -34,7 +34,7 @@ export class BatchTargetControllers {
   @ApiBearerAuth('accessToken')
   @Post(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateBatchTargetDto: UpdateBatchTargetDto,
   ) {
     return this.batchTargetService.updateData(id, updateBatchTargetDto);

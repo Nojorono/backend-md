@@ -62,7 +62,7 @@ export class OutletController {
 
   @ApiBearerAuth('accessToken')
   @Get(':id')
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: string) {
     return this.outletService.getOutletById(id);
   }
 

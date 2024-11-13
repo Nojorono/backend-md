@@ -1,7 +1,7 @@
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { Transport } from '@nestjs/microservices';
+// import { Transport } from '@nestjs/microservices';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app/app.module';
 import { setupSwagger } from './swagger';
@@ -53,17 +53,17 @@ async function bootstrap() {
       prefix: versioningPrefix,
     });
   }
-  setupSwagger(app);
-  app.connectMicroservice({
-    transport: Transport.RMQ,
-    options: {
-      urls: [`${configService.get('rmq.uri')}`],
-      queue: `${configService.get('rmq.auth')}`,
-      queueOptions: { durable: false },
-      prefetchCount: 1,
-    },
-  });
-  await app.startAllMicroservices();
+  await setupSwagger(app);
+  // app.connectMicroservice({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: [`${configService.get('rmq.uri')}`],
+  //     queue: `${configService.get('rmq.auth')}`,
+  //     queueOptions: { durable: false },
+  //     prefetchCount: 1,
+  //   },
+  // });
+  // await app.startAllMicroservices();
   await app.listen(port, host);
   logger.log(
     `🚀 ${configService.get(

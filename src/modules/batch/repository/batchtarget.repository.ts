@@ -32,13 +32,12 @@ export class BatchTargetRepository {
   }
 
   // Update Roles by ID
-  async update(id: string, updateBatchTargetDto: UpdateBatchTargetDto) {
+  async update(id: number, updateBatchTargetDto: UpdateBatchTargetDto) {
     const db = this.drizzleService['db'];
-    const idDecrypted = await this.decryptId(id);
     return await db
       .update(MbatchTarget)
       .set(updateBatchTargetDto)
-      .where(eq(MbatchTarget.id, idDecrypted))
+      .where(eq(MbatchTarget.id, id))
       .execute();
   }
 

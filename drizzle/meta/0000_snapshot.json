@@ -1,5 +1,5 @@
 {
-  "id": "baa80a1e-2763-435c-a153-7b239a3406d7",
+  "id": "4a3b6e0f-b4af-457d-bf1f-7a6a0282ef1a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -745,82 +745,74 @@
           "name": "unique_name",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "address_line": {
           "name": "address_line",
           "type": "varchar(300)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "sub_district": {
           "name": "sub_district",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "''"
+          "notNull": false
         },
         "district": {
           "name": "district",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "city_or_regency": {
           "name": "city_or_regency",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "''"
+          "notNull": false
         },
         "postal_code": {
           "name": "postal_code",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "default": 1
+          "default": 0
         },
         "latitude": {
           "name": "latitude",
           "type": "varchar(225)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "''"
+          "notNull": false
         },
         "longitude": {
           "name": "longitude",
           "type": "varchar(225)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "''"
+          "notNull": false
         },
         "outlet_type": {
           "name": "outlet_type",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "''"
+          "notNull": false
         },
         "region": {
           "name": "region",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "''"
+          "notNull": false
         },
         "area": {
           "name": "area",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "''"
+          "notNull": false
         },
         "cycle": {
           "name": "cycle",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "''"
+          "notNull": false
         },
         "is_active": {
           "name": "is_active",
@@ -833,13 +825,13 @@
           "name": "visit_day",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "odd_even": {
           "name": "odd_even",
           "type": "varchar(20)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "photos": {
           "name": "photos",
@@ -892,13 +884,6 @@
         },
         "range_educational_facilities": {
           "name": "range_educational_facilities",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "range_faskes": {
-          "name": "range_faskes",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
