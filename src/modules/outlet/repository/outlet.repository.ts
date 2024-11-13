@@ -3,7 +3,11 @@ import { count, eq, sql } from 'drizzle-orm';
 import { mOutlets } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
-import { buildSearchQuery, decrypt, encrypt } from '../../../helpers/nojorono.helpers';
+import {
+  buildSearchQuery,
+  decrypt,
+  encrypt,
+} from '../../../helpers/nojorono.helpers';
 
 @Injectable()
 export class OutletRepository {
@@ -68,15 +72,17 @@ export class OutletRepository {
       .execute();
   }
   // Get outlet by id
-  async getOutletById(id: number) {
+  async getOutletById(id: string) {
     const db = this.drizzleService['db'];
-
     if (!db) {
       throw new Error('Database not initialized');
     }
-
-    const result = await db.select().from(mOutlets).where(eq(mOutlets.id, id));
-    return result[0]; // Return the first (and expectedly only) result
+    const idDecrypted = await this.decryptId(id);
+    const result = await db
+      .select()
+      .from(mOutlets)
+      .where(eq(mOutlets.id, idDecrypted));
+    return result[0];
   }
   // Delete an outlet (soft delete by updating is_deleted field)
   async deleteOutlet(id: number) {

@@ -18,7 +18,7 @@ export class BatchTargetService {
     return this.batchTargetRepository.getById(id);
   }
 
-  async updateData(id: string, updateRolesDto: UpdateBatchDto) {
+  async updateData(id: number, updateRolesDto: UpdateBatchDto) {
     return this.batchTargetRepository.update(id, updateRolesDto);
   }
 

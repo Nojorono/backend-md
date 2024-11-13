@@ -23,7 +23,8 @@ export class CallPlanService {
     try {
       const check =
         await this.callPlanRepository.validateCreate(createCallPlanDto);
-      if (check) {
+      console.log(check);
+      if (check.length > 0) {
         throw new HttpException('DataExists', HttpStatus.BAD_REQUEST);
       }
       const user = await this.userRepository.findByToken(accessToken);
