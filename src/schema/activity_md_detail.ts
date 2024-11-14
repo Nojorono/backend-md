@@ -10,7 +10,9 @@ import { ActivityMd } from './activity_md';
 export const ActivityMdDetail = pgTable('activity_md_detail', {
   id: serial('id').primaryKey().notNull(),
   activity_md_id: integer('activity_id').references(() => ActivityMd.id),
-  name: varchar('name', { length: 30 }).notNull(),
+  type: varchar('type', { length: 50 }).notNull(),
+  name: varchar('name', { length: 50 }).notNull(),
+  value: varchar('value', { length: 255 }),
   description: varchar('description', { length: 255 }),
   notes: varchar('notes', { length: 255 }),
   photo: varchar('photo', { length: 255 }),

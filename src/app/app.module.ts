@@ -19,6 +19,8 @@ import { CallPlanModule } from '../modules/callplan/callplan.module';
 import { BatchModule } from '../modules/batch/batch.module';
 import { S3Module } from '../modules/s3/s3.module';
 import { BrandModule } from '../modules/brand/brand.module';
+import { ActivityMdModule } from '../modules/activitymd/activitymd.module';
+import { SioModule } from '../modules/sio/sio.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { BrandModule } from '../modules/brand/brand.module';
     RolesModule, // add new module
     CallPlanModule, // add new module
     BrandModule, // add new module
+    ActivityMdModule, // add new module
+    SioModule, // add new module
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
