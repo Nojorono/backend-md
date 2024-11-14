@@ -11,3 +11,4 @@ export {
 } from './call_plan_schedule';
 export { ActivityMd } from './activity_md';
 export { ActivityMdDetail } from './activity_md_detail';
+export { MBrand } from './m_brand_sog.schema';
