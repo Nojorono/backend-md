@@ -22,7 +22,9 @@ export const CallPlanSchedule = pgTable('call_plan_schedule', {
     .notNull(),
   day_plan: date('day_plan').notNull(),
   notes: varchar('notes', { length: 255 }),
-  status: varchar('status', { length: 20 }).default('ready'), // ready, progress, success, cancel
+  status: varchar('status', { length: 20 }).default('scheduled'), // scheduled, progress, success, cancel
+  time_start: timestamp('time_start').default(null),
+  time_end: timestamp('time_end').default(null),
   created_by: varchar('created_by', { length: 50 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 50 }),

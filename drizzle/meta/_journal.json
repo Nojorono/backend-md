@@ -15,6 +15,34 @@
       "when": 1731480410315,
       "tag": "0001_purple_lethal_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731551625073,
+      "tag": "0002_flat_tombstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731552132007,
+      "tag": "0003_superb_beast",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1731553315789,
+      "tag": "0004_robust_malcolm_colcord",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1731553890067,
+      "tag": "0005_round_devos",
+      "breakpoints": true
     }
   ]
 }

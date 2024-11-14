@@ -1,28 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { eq, isNull } from 'drizzle-orm';
-import { ActivityMd, MSioType } from '../../../schema';
+import { MSioType } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { buildSearchQuery, paginate } from '../../../helpers/nojorono.helpers';
-import {
-  CreateMdActivityDto,
-  UpdateMdActivityDto,
-} from '../dtos/activitymd.dtos';
+import { CreateSioDto, UpdateSioDto } from '../dtos/sio.dtos';
 
 @Injectable()
-export class ActivityMdRepository {
+export class SioRepository {
   constructor(private readonly drizzleService: DrizzleService) {}
 
-  async create(createDto: CreateMdActivityDto) {
+  async create(createDto: CreateSioDto) {
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
 
-    return await db.insert(ActivityMd).values(createDto).returning();
+    return await db.insert(MSioType).values(createDto).returning();
   }
 
-  async update(id: number, updateDto: UpdateMdActivityDto) {
+  async update(id: number, updateDto: UpdateSioDto) {
     const db = this.drizzleService['db'];
     return await db
       .update(MSioType)

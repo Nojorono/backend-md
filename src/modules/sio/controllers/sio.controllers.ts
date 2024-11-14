@@ -10,22 +10,19 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import {
-  CreateMdActivityDto,
-  UpdateMdActivityDto,
-} from '../dtos/activitymd.dtos';
-import { ActivityMdService } from '../service/activitymd.service';
-@ApiTags('activity')
+import { CreateSioDto, UpdateSioDto } from '../dtos/sio.dtos';
+import { SioService } from '../service/sio.service';
+@ApiTags('sio')
 @Controller({
   version: '1',
-  path: '/activity',
+  path: '/sio',
 })
-export class ActivityMdControllers {
-  constructor(private readonly service: ActivityMdService) {}
+export class SioControllers {
+  constructor(private readonly service: SioService) {}
 
   @ApiBearerAuth('accessToken')
   @Post()
-  async create(@Body() createDto: CreateMdActivityDto) {
+  async create(@Body() createDto: CreateSioDto) {
     return this.service.createData(createDto);
   }
   @ApiBearerAuth('accessToken')
@@ -35,10 +32,7 @@ export class ActivityMdControllers {
   }
   @ApiBearerAuth('accessToken')
   @Post(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() updateDto: UpdateMdActivityDto,
-  ) {
+  async update(@Param('id') id: number, @Body() updateDto: UpdateSioDto) {
     return this.service.updateData(id, updateDto);
   }
   @ApiBearerAuth('accessToken')
