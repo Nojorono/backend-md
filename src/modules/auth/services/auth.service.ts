@@ -1,6 +1,6 @@
 import {
-  BadRequestException,
-  Injectable,
+  BadRequestException, HttpException, HttpStatus,
+  Injectable, InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -18,6 +18,7 @@ import { AuthResponseDto } from '../dtos/auth.response.dto';
 import { UserRepo } from '../../user/repository/user.repo';
 import { MailerService } from '@nest-modules/mailer';
 import bcrypt from 'bcrypt';
+import { logger } from 'nestjs-i18n';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -125,14 +126,14 @@ export class AuthService implements IAuthService {
       const { email, password } = data;
       const userFind = await this.userRepo.getUserByEmail(email);
       if (!userFind) {
-        throw new NotFoundException('userNotFound');
+        throw new HttpException('userNotFound', HttpStatus.NOT_FOUND);
       }
       const match = await this.helperHashService.match(
         password,
         userFind.password,
       );
       if (!match) {
-        throw new NotFoundException('invalidPassword');
+        throw new HttpException('invalidPassword', HttpStatus.NOT_FOUND);
       }
       const { accessToken, refreshToken } = await this.generateTokens({
         id: userFind.id,
@@ -152,7 +153,11 @@ export class AuthService implements IAuthService {
         user,
       };
     } catch (e) {
-      throw e;
+      logger.error('Error login:', e.message, e.stack);
+      if (e instanceof HttpException) {
+        throw e;
+      }
+      throw new InternalServerErrorException('internalServerError');
     }
   }
 
