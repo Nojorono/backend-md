@@ -3,6 +3,7 @@
   "DataExists": "Data is already exists.",
   "userNotFound": "User not found.",
   "DataNotFound": "Data not found.",
+  "invalidPassword": "Invalid password.",
   "refreshTokenUnauthorized": "Refresh token is unauthorized.",
   "accessTokenUnauthorized": "Access token is not authorized.",
   "internalServerError": "Internal server error.",
