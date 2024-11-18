@@ -1,10 +1,5 @@
 // src/user/user.service.ts
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import { UserRepo } from '../repository/user.repo';
 import { logger } from 'nestjs-i18n';
@@ -50,9 +45,9 @@ export class UserService {
 
   // Update a new user
   async update(
+    accessToken: string,
     id: string,
     updateUserDto: UpdateUserDto,
-    accessToken: string,
     photo: Express.Multer.File,
   ) {
     try {
@@ -64,7 +59,9 @@ export class UserService {
         );
       }
       const dataUser = await this.userRepo.getUserById(id);
-      updateUserDto.email.toLowerCase();
+      if (updateUserDto.email) {
+        updateUserDto.email.toLowerCase();
+      }
       if (dataUser.email !== updateUserDto.email) {
         const findExist = await this.userRepo.getUserByEmail(
           updateUserDto.email,
@@ -75,25 +72,14 @@ export class UserService {
         }
       }
       if (photo) {
-        const photoUrl = this.s3Service.uploadCompressedImage('profile', photo);
-        console.log(photoUrl);
-        updateUserDto.photo = await photoUrl;
+        updateUserDto.photo = await this.s3Service.uploadCompressedImage(
+          'profile',
+          photo,
+        );
       }
-      return await this.userRepo.updateUser(id, {
-        username: updateUserDto.username,
-        user_role_id: updateUserDto.user_role_id,
-        fullname: updateUserDto.fullname,
-        email: updateUserDto.email,
-        phone: updateUserDto.phone,
-        area: updateUserDto.area,
-        region: updateUserDto.region,
-        type_md: updateUserDto.type_md,
-        photo: updateUserDto.photo,
-        valid_from: new Date(updateUserDto.valid_from),
-        valid_to: new Date(updateUserDto.valid_to),
-        updated_at: new Date(),
-        updated_by: user.email,
-      });
+      updateUserDto.updated_by = user.email;
+      updateUserDto.updated_at = new Date();
+      return await this.userRepo.updateUser(id, updateUserDto);
     } catch (e) {
       // Log the error and its stack trace for more insight
       logger.error('Error in create user:', e.message, e.stack);
