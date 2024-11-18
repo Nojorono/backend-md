@@ -9,10 +9,12 @@ import {
   Param,
   Post,
   Query,
-  Req, UploadedFile, UseInterceptors,
+  Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
-import { ApiBearerAuth, ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import { UserRepo } from '../repository/user.repo';
 import { MessagePattern } from '@nestjs/microservices';
@@ -79,15 +81,15 @@ export class UserController {
   }
   @ApiBearerAuth('accessToken')
   @Post(':id')
-  @UseInterceptors(FileInterceptor('photo'))
+  @UseInterceptors(FileInterceptor('file'))
   public async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() photo: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
     @Req() request: Request,
   ) {
     const accessToken = request.headers.authorization?.split(' ')[1];
-    return await this.userService.update(id, updateUserDto, accessToken, photo);
+    return await this.userService.update(accessToken, id, updateUserDto, file);
   }
   @ApiBearerAuth('accessToken')
   @Delete(':id')

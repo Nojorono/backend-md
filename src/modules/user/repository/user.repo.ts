@@ -165,6 +165,7 @@ export class UserRepo {
         type_md: mUser.type_md,
         is_active: mUser.is_active,
         last_login: mUser.last_login,
+        remember_token: mUser.remember_token,
         photo: mUser.photo,
         menus: mUserRoles.menus,
       })
@@ -227,6 +228,10 @@ export class UserRepo {
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
     const idDecrypted = await this.decryptId(id);
     const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    console.log(updateUserDto);
     return await db
       .update(mUser)
       .set(updateUserDto)

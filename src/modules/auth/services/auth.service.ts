@@ -149,7 +149,7 @@ export class AuthService implements IAuthService {
       });
       const user = await this.userRepo.getUserById(userFind.id);
       return {
-        accessToken,
+        accessToken: user.remember_token,
         refreshToken,
         user,
       };
