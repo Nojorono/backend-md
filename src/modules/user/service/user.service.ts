@@ -8,10 +8,14 @@ import {
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import { UserRepo } from '../repository/user.repo';
 import { logger } from 'nestjs-i18n';
+import { S3Service } from '../../s3/service/s3.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepo: UserRepo) {}
+  constructor(
+    private readonly userRepo: UserRepo,
+    private readonly s3Service: S3Service,
+  ) {}
 
   // Create a new user
   async store(createUserDto: CreateUserDto, accessToken: string) {
@@ -25,6 +29,7 @@ export class UserService {
           HttpStatus.UNAUTHORIZED,
         );
       }
+      createUserDto.email.toLowerCase();
       // Check if user with the provided email already exists
       const findExist = await this.userRepo.getUserByEmail(createUserDto.email);
       if (findExist) {
@@ -44,7 +49,12 @@ export class UserService {
   }
 
   // Update a new user
-  async update(id: string, updateUserDto: UpdateUserDto, accessToken: string) {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    accessToken: string,
+    photo: Express.Multer.File,
+  ) {
     try {
       const user = await this.userRepo.findByToken(accessToken);
       if (!user) {
@@ -54,6 +64,7 @@ export class UserService {
         );
       }
       const dataUser = await this.userRepo.getUserById(id);
+      updateUserDto.email.toLowerCase();
       if (dataUser.email !== updateUserDto.email) {
         const findExist = await this.userRepo.getUserByEmail(
           updateUserDto.email,
@@ -62,6 +73,11 @@ export class UserService {
           // Throw a conflict error if the email is already taken
           throw new HttpException('userExists', HttpStatus.CONFLICT);
         }
+      }
+      if (photo) {
+        const photoUrl = this.s3Service.uploadCompressedImage('profile', photo);
+        console.log(photoUrl);
+        updateUserDto.photo = await photoUrl;
       }
       return await this.userRepo.updateUser(id, {
         username: updateUserDto.username,
@@ -72,6 +88,7 @@ export class UserService {
         area: updateUserDto.area,
         region: updateUserDto.region,
         type_md: updateUserDto.type_md,
+        photo: updateUserDto.photo,
         valid_from: new Date(updateUserDto.valid_from),
         valid_to: new Date(updateUserDto.valid_to),
         updated_at: new Date(),

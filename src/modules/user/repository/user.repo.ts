@@ -165,6 +165,7 @@ export class UserRepo {
         type_md: mUser.type_md,
         is_active: mUser.is_active,
         last_login: mUser.last_login,
+        photo: mUser.photo,
         menus: mUserRoles.menus,
       })
       .from(mUser)
