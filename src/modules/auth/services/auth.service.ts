@@ -124,7 +124,8 @@ export class AuthService implements IAuthService {
   async login(data: UserLoginDto): Promise<AuthResponseDto> {
     try {
       const { email, password } = data;
-      const userFind = await this.userRepo.getUserByEmail(email);
+      const lowerCaseEmail = email.toLowerCase();
+      const userFind = await this.userRepo.getUserByEmail(lowerCaseEmail);
       if (!userFind) {
         throw new HttpException('userNotFound', HttpStatus.NOT_FOUND);
       }

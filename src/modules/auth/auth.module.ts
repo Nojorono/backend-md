@@ -10,6 +10,7 @@ import { DrizzleService } from '../../common/services/drizzle.service';
 import { UserService } from '../user/service/user.service';
 import { UserRepo } from '../user/repository/user.repo';
 import { MailerModule } from '@nest-modules/mailer';
+import { S3Service } from '../s3/service/s3.service';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { MailerModule } from '@nest-modules/mailer';
     UserRepo,
     UserService,
     DrizzleService,
+    S3Service,
   ],
   exports: [AuthService, HelperHashService],
 })

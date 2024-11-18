@@ -26,6 +26,7 @@ export class UpdateUserDto {
   area?: [];
   region?: string;
   phone?: string;
+  photo?: string;
   type_md?: string;
   is_active?: boolean;
   valid_from?: Date;
