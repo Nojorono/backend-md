@@ -82,6 +82,8 @@ export class UserService {
         );
         return await this.userRepo.updateUserReturn(id, updateUserDto);
       } else {
+        updateUserDto.valid_to = new Date(updateUserDto.valid_to);
+        updateUserDto.valid_from = new Date(updateUserDto.valid_from);
         return await this.userRepo.updateUser(id, updateUserDto);
       }
     } catch (e) {
