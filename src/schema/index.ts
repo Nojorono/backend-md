@@ -13,3 +13,5 @@ export { ActivityMd } from './activity_md';
 export { ActivityMdDetail } from './activity_md_detail';
 export { MBrand } from './m_brand_sog.schema';
 export { MSioType } from './m_sio_type.schema';
+export { MRegion } from './m_region.schema';
+export { MArea } from './m_area.schema';
