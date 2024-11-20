@@ -50,6 +50,13 @@
       "when": 1732083207639,
       "tag": "0006_fancy_spyke",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1732093477348,
+      "tag": "0007_dark_frightful_four",
+      "breakpoints": true
     }
   ]
 }
