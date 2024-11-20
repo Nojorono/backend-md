@@ -3,7 +3,12 @@ import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
 import { and, arrayContained, eq, inArray, isNull } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
-import { buildSearchQuery, decrypt, encrypt, paginate } from '../../../helpers/nojorono.helpers';
+import {
+  buildSearchQuery,
+  decrypt,
+  encrypt,
+  paginate,
+} from '../../../helpers/nojorono.helpers';
 import bcrypt from 'bcrypt';
 
 @Injectable()
@@ -54,20 +59,9 @@ export class UserRepo {
       })
       .from(mUser)
       .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id))
-      .where(
-        and(eq(mUser.is_active, 1), isNull(mUser.deleted_at), ...conditions),
-      )
-      .orderBy(mUser.updated_at, 'desc');
+      .where(...conditions);
 
-    // Build search query
-    const searchColumns = ['email', 'username', 'phone'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
-    // Apply search condition if available
-    if (searchCondition) {
-      query.where(searchCondition);
-    }
-
-    let getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'ADMIN'];
+    let getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'ADMIN', 'NASIONAL'];
 
     if (user.Roles.name == 'TL') {
       getRoles = ['MD'];
@@ -81,8 +75,12 @@ export class UserRepo {
       getRoles = ['MD', 'TL', 'AMO'];
     }
 
-    if (user.Roles.name == 'ADMIN') {
+    if (user.Roles.name == 'NASIONAL') {
       getRoles = ['MD', 'TL', 'AMO', 'REGIONAL'];
+    }
+
+    if (user.Roles.name == 'ADMIN') {
+      getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL'];
     }
 
     if (user.region) {
@@ -94,6 +92,15 @@ export class UserRepo {
     }
 
     query.where(inArray(mUserRoles.name, getRoles));
+    // Build search query
+    query.where(and(eq(mUser.is_active, 1), isNull(mUser.deleted_at)));
+
+    const searchColumns = ['email', 'username', 'phone'];
+    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
+    // Apply search condition if available
+    if (searchCondition) {
+      query.where(searchCondition);
+    }
 
     const records = await query.execute();
     const totalRecords = parseInt(records.length) || 0;
@@ -111,8 +118,6 @@ export class UserRepo {
         };
       }),
     );
-
-    // Return data with pagination metadata
     return {
       data: encryptedResult,
       ...paginate(totalRecords, page, limit),
@@ -138,7 +143,7 @@ export class UserRepo {
         valid_from: new Date(createUserDto.valid_from),
         valid_to: new Date(createUserDto.valid_to),
         created_at: new Date(),
-        // created_by: userEmail,
+        created_by: userEmail,
       })
       .execute();
   }
@@ -260,11 +265,10 @@ export class UserRepo {
   // Delete user by ID
   async softDeleteUser(id: string) {
     const idDecrypted = await this.decryptId(id);
-    console.log(idDecrypted);
     const db = this.drizzleService['db'];
     return await db
       .update(mUser)
-      .set({ deleted_at: new Date(), is_active: 0 })
+      .set({ deleted_at: new Date(), updated_at: new Date(), is_active: 0 })
       .where(eq(mUser.id, idDecrypted))
       .execute();
   }

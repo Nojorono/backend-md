@@ -29,8 +29,8 @@ export class UpdateUserDto {
   photo?: string;
   type_md?: string;
   is_active?: boolean;
-  // valid_from?: Date;
-  // valid_to?: Date;
+  valid_from?: Date;
+  valid_to?: Date;
   remember_token?: string;
   last_login?: Date;
   created_at?: Date;
