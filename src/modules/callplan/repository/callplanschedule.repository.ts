@@ -169,11 +169,11 @@ export class CallPlanScheduleRepository {
       where: (CallPlanSchedule, { eq, and }) =>
         and(
           eq(CallPlanSchedule.user_id, idDecrypted),
+          eq(CallPlanSchedule.status, 'scheduled'),
           isNull(CallPlanSchedule.deleted_at),
         ),
       with: {
         callPlanOutlet: true,
-        callPlanUser: true,
       },
     });
   }

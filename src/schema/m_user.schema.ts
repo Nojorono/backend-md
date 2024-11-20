@@ -17,7 +17,7 @@ export const mUser = pgTable('m_user', {
     .notNull(),
   fullname: varchar('fullname', { length: 50 }),
   password: varchar('password', { length: 100 }),
-  email: varchar('email', { length: 60 }),
+  email: varchar('email', { length: 100 }),
   phone: varchar('phone', { length: 20 }),
   type_md: varchar('type_md', { length: 20 }),
   photo: varchar('photo', { length: 255 }),
@@ -29,11 +29,11 @@ export const mUser = pgTable('m_user', {
   remember_token: varchar('remember_token', { length: 500 }),
   refresh_token: varchar('refresh_token', { length: 500 }),
   last_login: timestamp('last_login'),
-  created_by: varchar('created_by', { length: 20 }),
+  created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
-  updated_by: varchar('updated_by', { length: 20 }),
+  updated_by: varchar('updated_by', { length: 100 }),
   updated_at: timestamp('updated_at').defaultNow(),
-  deleted_by: varchar('deleted_by', { length: 20 }),
+  deleted_by: varchar('deleted_by', { length: 100 }),
   deleted_at: timestamp('deleted_at').default(null),
 });
 

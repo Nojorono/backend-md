@@ -24,7 +24,9 @@ export class UserService {
           HttpStatus.UNAUTHORIZED,
         );
       }
-      createUserDto.email.toLowerCase();
+      if (createUserDto.email) {
+        createUserDto.email.toLowerCase();
+      }
       // Check if user with the provided email already exists
       const findExist = await this.userRepo.getUserByEmail(createUserDto.email);
       if (findExist) {
@@ -71,15 +73,17 @@ export class UserService {
           throw new HttpException('userExists', HttpStatus.CONFLICT);
         }
       }
+      updateUserDto.updated_by = user.email;
+      updateUserDto.updated_at = new Date();
       if (photo) {
         updateUserDto.photo = await this.s3Service.uploadCompressedImage(
           'profile',
           photo,
         );
+        return await this.userRepo.updateUserReturn(id, updateUserDto);
+      } else {
+        return await this.userRepo.updateUser(id, updateUserDto);
       }
-      updateUserDto.updated_by = user.email;
-      updateUserDto.updated_at = new Date();
-      return await this.userRepo.updateUser(id, updateUserDto);
     } catch (e) {
       // Log the error and its stack trace for more insight
       logger.error('Error in create user:', e.message, e.stack);
