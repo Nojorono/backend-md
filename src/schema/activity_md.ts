@@ -32,10 +32,10 @@ export const ActivityMd = pgTable('activity_md', {
   amo_brand_type: varchar('amo_brand_type', { length: 80 }).notNull(),
   start_time: timestamp('start_time').notNull(),
   end_time: timestamp('end_time').notNull(),
-  created_by: varchar('created_by', { length: 50 }),
+  created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
-  updated_by: varchar('updated_by', { length: 50 }),
+  updated_by: varchar('updated_by', { length: 100 }),
   updated_at: timestamp('updated_at').defaultNow(),
-  deleted_by: varchar('deleted_by', { length: 50 }),
+  deleted_by: varchar('deleted_by', { length: 100 }),
   deleted_at: timestamp('deleted_at').default(null),
 });

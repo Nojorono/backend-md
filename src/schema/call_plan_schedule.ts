@@ -25,11 +25,11 @@ export const CallPlanSchedule = pgTable('call_plan_schedule', {
   status: varchar('status', { length: 20 }).default('scheduled'), // scheduled, progress, success, cancel
   time_start: timestamp('time_start').default(null),
   time_end: timestamp('time_end').default(null),
-  created_by: varchar('created_by', { length: 50 }),
+  created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
-  updated_by: varchar('updated_by', { length: 50 }),
+  updated_by: varchar('updated_by', { length: 100 }),
   updated_at: timestamp('updated_at').defaultNow(),
-  deleted_by: varchar('deleted_by', { length: 50 }),
+  deleted_by: varchar('deleted_by', { length: 100 }),
   deleted_at: timestamp('deleted_at').default(null),
 });
 

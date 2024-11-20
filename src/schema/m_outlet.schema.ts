@@ -42,10 +42,10 @@ export const mOutlets = pgTable('m_outlet', {
   range_educational_facilities: integer('range_educational_facilities').default(
     0,
   ),
-  created_by: varchar('created_by', { length: 20 }),
+  created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
-  updated_by: varchar('updated_by', { length: 20 }),
+  updated_by: varchar('updated_by', { length: 100 }),
   updated_at: timestamp('updated_at').defaultNow(),
-  deleted_by: varchar('deleted_by', { length: 20 }),
+  deleted_by: varchar('deleted_by', { length: 100 }),
   deleted_at: timestamp('deleted_at').default(null),
 });

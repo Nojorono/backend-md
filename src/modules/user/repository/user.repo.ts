@@ -3,12 +3,7 @@ import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
 import { and, arrayContained, eq, inArray, isNull } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
-import {
-  buildSearchQuery,
-  decrypt,
-  encrypt,
-  paginate,
-} from '../../../helpers/nojorono.helpers';
+import { buildSearchQuery, decrypt, encrypt, paginate } from '../../../helpers/nojorono.helpers';
 import bcrypt from 'bcrypt';
 
 @Injectable()
@@ -143,7 +138,7 @@ export class UserRepo {
         valid_from: new Date(createUserDto.valid_from),
         valid_to: new Date(createUserDto.valid_to),
         created_at: new Date(),
-        created_by: userEmail,
+        // created_by: userEmail,
       })
       .execute();
   }
@@ -231,12 +226,35 @@ export class UserRepo {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    console.log(updateUserDto);
     return await db
       .update(mUser)
       .set(updateUserDto)
       .where(eq(mUser.id, idDecrypted))
       .execute();
+  }
+
+  // Update user by ID
+  async updateUserReturn(id: string, updateUserDto: UpdateUserDto) {
+    const idDecrypted = await this.decryptId(id);
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    // Perform the update and return the updated fields
+    await db
+      .update(mUser)
+      .set(updateUserDto)
+      .where(eq(mUser.id, idDecrypted))
+      .execute();
+    // Fetch and return the updated record
+    const updatedUser = await db
+      .select()
+      .from(mUser)
+      .where(eq(mUser.id, idDecrypted))
+      .execute();
+    return updatedUser[0];
   }
 
   // Delete user by ID
