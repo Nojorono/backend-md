@@ -17,6 +17,7 @@ export class RegionService {
 
   async createData(createDto: CreateRegionDto) {
     try {
+      createDto.name = createDto.name.toUpperCase();
       return await this.RegionRepository.create(createDto);
     } catch (e) {
       logger.error('Error in create data:', e.message, e.stack);
@@ -31,11 +32,12 @@ export class RegionService {
     return this.RegionRepository.getById(id);
   }
 
-  async updateData(id: string, updateDto: UpdateRegionDto) {
+  async updateData(id: number, updateDto: UpdateRegionDto) {
+    updateDto.name = updateDto.name.toUpperCase();
     return this.RegionRepository.update(id, updateDto);
   }
 
-  async deleteData(id: string, accessToken: string): Promise<void> {
+  async deleteData(id: number, accessToken: string): Promise<void> {
     const user = await this.userRepository.findByToken(accessToken);
     return this.RegionRepository.delete(id, user.email);
   }

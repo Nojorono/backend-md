@@ -35,13 +35,13 @@ export class AreaControllers {
   }
   @ApiBearerAuth('accessToken')
   @Delete(':id')
-  async remove(@Param('id') id: string, @Req() request: Request) {
+  async remove(@Param('id') id: number, @Req() request: Request) {
     const accessToken = request.headers.authorization?.split(' ')[1];
     return this.AreaService.deleteData(id, accessToken);
   }
   @ApiBearerAuth('accessToken')
   @Get(':id')
-  async findAll(@Param('id') id: string = '') {
+  async findAll(@Param('id') id: number) {
     return this.AreaService.getAll(id);
   }
 }
