@@ -21,6 +21,11 @@ export class SioControllers {
   constructor(private readonly service: SioService) {}
 
   @ApiBearerAuth('accessToken')
+  @Get('all')
+  async getAll() {
+    return this.service.getAll();
+  }
+  @ApiBearerAuth('accessToken')
   @Post()
   async create(@Body() createDto: CreateSioDto) {
     return this.service.createData(createDto);
@@ -49,10 +54,5 @@ export class SioControllers {
     @Query('searchTerm') searchTerm: string = '',
   ) {
     return this.service.getAllActive(page, limit, searchTerm);
-  }
-  @ApiBearerAuth('accessToken')
-  @Get('all')
-  async getAll() {
-    return this.service.getAll();
   }
 }
