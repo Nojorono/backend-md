@@ -24,7 +24,6 @@ export class RegionRepository {
   // Create Roles
   async create(createDto: CreateRegionDto) {
     const db = this.drizzleService['db'];
-
     if (!db) {
       throw new Error('Database not initialized');
     }
@@ -35,13 +34,12 @@ export class RegionRepository {
   }
 
   // Update Roles by ID
-  async update(id: string, updateDto: UpdateRegionDto) {
+  async update(id: number, updateDto: UpdateRegionDto) {
     const db = this.drizzleService['db'];
-    const idDecrypted = await this.decryptId(id);
     return await db
       .update(MRegion)
       .set(updateDto)
-      .where(eq(MRegion.id, idDecrypted))
+      .where(eq(MRegion.id, id))
       .execute();
   }
 
@@ -80,8 +78,7 @@ export class RegionRepository {
     return await db.select().from(MRegion).execute();
   }
 
-  async delete(id: string, userBy: string) {
-    const idDecrypted = await this.decryptId(id);
+  async delete(id: number, userBy: string) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
@@ -91,13 +88,13 @@ export class RegionRepository {
       const deleteBatchResult = await tx
         .update(MRegion)
         .set({ deleted_at: new Date(), deleted_by: userBy })
-        .where(eq(MRegion.id, idDecrypted))
+        .where(eq(MRegion.id, id))
         .returning();
 
       await tx
         .update(MArea)
         .set({ deleted_at: new Date(), deleted_by: userBy })
-        .where(eq(MArea.region_id, idDecrypted));
+        .where(eq(MArea.region_id, id));
 
       return deleteBatchResult;
     });

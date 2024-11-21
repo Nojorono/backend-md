@@ -11,6 +11,7 @@ export class AreaService {
   ) {}
 
   async createData(CreateAreaDto: CreateAreaDto) {
+    CreateAreaDto.area = CreateAreaDto.area.toUpperCase();
     return this.AreaRepository.create(CreateAreaDto);
   }
 
@@ -19,15 +20,19 @@ export class AreaService {
   }
 
   async updateData(id: number, updateRolesDto: UpdateAreaDto) {
+    console.log(updateRolesDto);
+    updateRolesDto.area = updateRolesDto.area.toUpperCase();
+    updateRolesDto.created_at = new Date(updateRolesDto.created_at);
+    updateRolesDto.updated_at = new Date();
     return this.AreaRepository.update(id, updateRolesDto);
   }
 
-  async deleteData(id: string, accessToken: string): Promise<void> {
+  async deleteData(id: number, accessToken: string): Promise<void> {
     const user = await this.userRepository.findByToken(accessToken);
     return this.AreaRepository.delete(id, user.email);
   }
 
-  async getAll(batchId: string = '') {
-    return this.AreaRepository.getAll(batchId);
+  async getAll(id: number) {
+    return this.AreaRepository.getAll(id);
   }
 }

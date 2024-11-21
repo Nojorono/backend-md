@@ -21,6 +21,7 @@ import { S3Module } from '../modules/s3/s3.module';
 import { BrandModule } from '../modules/brand/brand.module';
 import { ActivityMdModule } from '../modules/activitymd/activitymd.module';
 import { SioModule } from '../modules/sio/sio.module';
+import { RegionAreaModule } from '../modules/regionarea/regionarea.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SioModule } from '../modules/sio/sio.module';
     BrandModule, // add new module
     ActivityMdModule, // add new module
     SioModule, // add new module
+    RegionAreaModule, // add new module
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',

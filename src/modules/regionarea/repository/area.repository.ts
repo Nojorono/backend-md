@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { MArea, MbatchTarget } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { decrypt, encrypt } from '../../../helpers/nojorono.helpers';
@@ -22,22 +22,19 @@ export class AreaRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    const idDecrypted = await this.decryptId(CreateAreaDto.region_id);
     return await db
       .insert(MArea)
       .values({
-        region_id: idDecrypted,
-        area: CreateAreaDto.area,
+        ...CreateAreaDto,
       })
       .returning();
   }
 
-  // Update Roles by ID
   async update(id: number, UpdateAreaDto: UpdateAreaDto) {
     const db = this.drizzleService['db'];
     return await db
       .update(MArea)
-      .set(UpdateAreaDto)
+      .set({ ...UpdateAreaDto })
       .where(eq(MArea.id, id))
       .execute();
   }
@@ -78,33 +75,30 @@ export class AreaRepository {
   }
 
   // Delete an Roles (soft delete by updating is_deleted field)
-  async delete(id: string, userBy: string) {
-    const idDecrypted = await this.decryptId(id);
+  async delete(id: number, userBy: string) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
     }
     return await db
       .update(MArea)
-      .set({ updated_at: new Date(), updated_by: userBy, is_active: 0 })
-      .where(eq(MArea.id, idDecrypted))
+      .set({ deleted_at: new Date(), deleted_by: userBy })
+      .where(eq(MArea.id, id))
       .returning();
   }
 
   // List all active Roles with pagination and search
-  async getAll(batchId: string) {
+  async getAll(id: number) {
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
 
-    const idDecrypted = await this.decryptId(batchId);
-
     const query = await db
       .select()
       .from(MArea)
-      .where(eq(MArea.region_id, idDecrypted));
+      .where(and(eq(MArea.region_id, id), isNull(MArea.deleted_at)));
 
     const totalRecords = parseInt(query.length) || 0;
 

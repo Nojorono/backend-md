@@ -45,13 +45,13 @@ export class RegionControllers {
 
   @ApiBearerAuth('accessToken')
   @Post(':id')
-  async update(@Param('id') id: string, @Body() updateDto: UpdateRegionDto) {
+  async update(@Param('id') id: number, @Body() updateDto: UpdateRegionDto) {
     return this.RegionService.updateData(id, updateDto);
   }
 
   @ApiBearerAuth('accessToken')
   @Delete(':id')
-  async remove(@Param('id') id: string, @Req() request: Request) {
+  async remove(@Param('id') id: number, @Req() request: Request) {
     const accessToken = request.headers.authorization?.split(' ')[1];
     return this.RegionService.deleteData(id, accessToken);
   }
