@@ -87,8 +87,14 @@ export class OutletController {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
+    @Query('isActive') isActive: number = 1,
   ) {
-    return this.outletService.getAllActiveOutlets(page, limit, searchTerm);
+    return this.outletService.getAllActiveOutlets(
+      page,
+      limit,
+      searchTerm,
+      isActive,
+    );
   }
 
   @ApiBearerAuth('accessToken')

@@ -24,10 +24,8 @@ export class ActivityMdService {
 
   async createData(createDto: CreateMdActivityDto) {
     try {
-      // Create
       return this.repository.create(createDto);
     } catch (e) {
-      // Log the error and its stack trace for more insight
       logger.error('Error in create user:', e.message, e.stack);
       if (e instanceof HttpException) {
         throw e;
