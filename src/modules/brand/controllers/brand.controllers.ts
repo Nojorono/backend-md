@@ -12,7 +12,7 @@ import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateBrandDto, UpdateBrandDto } from '../dtos/brand.dtos';
 import { BrandService } from '../service/brand.service';
-@ApiTags('roles')
+@ApiTags('brand')
 @Controller({
   version: '1',
   path: '/brand',
@@ -20,6 +20,11 @@ import { BrandService } from '../service/brand.service';
 export class BrandControllers {
   constructor(private readonly brandService: BrandService) {}
 
+  @ApiBearerAuth('accessToken')
+  @Get('all')
+  async getAll() {
+    return this.brandService.getAll();
+  }
   @ApiBearerAuth('accessToken')
   @Post()
   async create(@Body() createBrandDto: CreateBrandDto) {
@@ -52,10 +57,5 @@ export class BrandControllers {
     @Query('searchTerm') searchTerm: string = '',
   ) {
     return this.brandService.getAllActive(page, limit, searchTerm);
-  }
-  @ApiBearerAuth('accessToken')
-  @Get('all')
-  async getAll() {
-    return this.brandService.getAll();
   }
 }
