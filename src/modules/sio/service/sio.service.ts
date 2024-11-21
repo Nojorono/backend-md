@@ -34,4 +34,8 @@ export class SioService {
   ) {
     return this.repository.getAllActive(page, limit, searchTerm);
   }
+
+  async getAll() {
+    return this.repository.getAll();
+  }
 }

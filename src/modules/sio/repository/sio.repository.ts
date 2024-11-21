@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { MSioType } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { buildSearchQuery, paginate } from '../../../helpers/nojorono.helpers';
@@ -82,6 +82,26 @@ export class SioRepository {
     return {
       data: result,
       ...paginate(totalRecords, page, limit),
+    };
+  }
+
+  async getAll() {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const query = await db
+      .select()
+      .from(MSioType)
+      .where(and(isNull(MSioType.deleted_at)));
+
+    const totalRecords = parseInt(query.length) || 0;
+
+    return {
+      data: query,
+      totalRecords: totalRecords,
     };
   }
 }

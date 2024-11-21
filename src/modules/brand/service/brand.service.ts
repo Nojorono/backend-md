@@ -34,4 +34,8 @@ export class BrandService {
   ) {
     return this.brandRepository.getAllActive(page, limit, searchTerm);
   }
+
+  async getAll() {
+    return this.brandRepository.getAll();
+  }
 }

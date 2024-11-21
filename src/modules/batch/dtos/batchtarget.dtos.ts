@@ -7,6 +7,7 @@ export class CreateBatchTargetDto {
   allocation_ho?: number;
   created_by?: string;
   created_at?: Date;
+  type_sio?: string;
 }
 
 export class UpdateBatchTargetDto {

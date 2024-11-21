@@ -25,7 +25,7 @@ export class BatchService {
       const dummyTarget = await this.outletRepository.getOutletSummary();
       if (dummyTarget && newData) {
         for (const target of dummyTarget) {
-          await this.batchTargetRepository.create({
+          await this.batchTargetRepository.createDummy({
             batch_id: newData[0].id,
             regional: target.regional,
             amo: target.area,

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { MbatchTarget } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { decrypt, encrypt } from '../../../helpers/nojorono.helpers';
@@ -21,6 +21,17 @@ export class BatchTargetRepository {
   }
   // Create
   async create(createBatchTargetDto: CreateBatchTargetDto) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db
+      .insert(MbatchTarget)
+      .values({ ...createBatchTargetDto })
+      .returning();
+  }
+
+  async createDummy(createBatchTargetDto: CreateBatchTargetDto) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
@@ -80,16 +91,15 @@ export class BatchTargetRepository {
   }
 
   // Delete an Roles (soft delete by updating is_deleted field)
-  async delete(id: string, userBy: string) {
-    const idDecrypted = await this.decryptId(id);
+  async delete(id: number, userBy: string) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
     }
     return await db
       .update(MbatchTarget)
-      .set({ updated_at: new Date(), updated_by: userBy, is_active: 0 })
-      .where(eq(MbatchTarget.id, idDecrypted))
+      .set({ deleted_at: new Date(), deleted_by: userBy })
+      .where(eq(MbatchTarget.id, id))
       .returning();
   }
 
@@ -114,7 +124,12 @@ export class BatchTargetRepository {
         allocation_ho: MbatchTarget.allocation_ho,
       })
       .from(MbatchTarget)
-      .where(eq(MbatchTarget.batch_id, idDecrypted));
+      .where(
+        and(
+          eq(MbatchTarget.batch_id, idDecrypted),
+          isNull(MbatchTarget.deleted_at),
+        ),
+      );
 
     const totalRecords = parseInt(query.length) || 0;
 
