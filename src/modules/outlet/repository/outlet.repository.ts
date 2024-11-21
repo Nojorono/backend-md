@@ -103,6 +103,7 @@ export class OutletRepository {
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
+    isActive: number = 1,
   ) {
     const db = this.drizzleService['db'];
 
@@ -118,7 +119,7 @@ export class OutletRepository {
     const countQuery = db
       .select({ count: count() })
       .from(mOutlets)
-      .where(eq(mOutlets.is_active, 1));
+      .where(eq(mOutlets.is_active, isActive));
 
     if (searchCondition) {
       countQuery.where(searchCondition);
@@ -152,7 +153,7 @@ export class OutletRepository {
         remarks: mOutlets.remarks,
       })
       .from(mOutlets)
-      .where(eq(mOutlets.is_active, 1))
+      .where(eq(mOutlets.is_active, isActive))
       .limit(limit)
       .offset((page - 1) * limit);
 
