@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { MArea, MRegion } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
@@ -148,6 +148,26 @@ export class RegionRepository {
     return {
       data: result,
       ...paginate(totalRecords, page, limit),
+    };
+  }
+
+  async getAllData() {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const query = await db
+      .select()
+      .from(MRegion)
+      .where(and(isNull(MRegion.deleted_at)));
+
+    const totalRecords = parseInt(query.length) || 0;
+
+    return {
+      data: query,
+      totalRecords: totalRecords,
     };
   }
 }

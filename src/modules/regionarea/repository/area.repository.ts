@@ -87,7 +87,6 @@ export class AreaRepository {
       .returning();
   }
 
-  // List all active Roles with pagination and search
   async getAll(id: number) {
     const db = this.drizzleService['db'];
 
@@ -99,6 +98,26 @@ export class AreaRepository {
       .select()
       .from(MArea)
       .where(and(eq(MArea.region_id, id), isNull(MArea.deleted_at)));
+
+    const totalRecords = parseInt(query.length) || 0;
+
+    return {
+      data: query,
+      totalRecords: totalRecords,
+    };
+  }
+
+  async getAllData() {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const query = await db
+      .select()
+      .from(MArea)
+      .where(and(isNull(MArea.deleted_at)));
 
     const totalRecords = parseInt(query.length) || 0;
 

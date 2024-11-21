@@ -15,6 +15,10 @@ export class RegionService {
     private readonly userRepository: UserRepo,
   ) {}
 
+  async getAllData() {
+    return this.RegionRepository.getAllData();
+  }
+
   async createData(createDto: CreateRegionDto) {
     try {
       createDto.name = createDto.name.toUpperCase();

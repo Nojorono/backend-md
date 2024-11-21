@@ -24,6 +24,11 @@ export class AreaControllers {
     private readonly batchRepo: RegionRepository,
   ) {}
   @ApiBearerAuth('accessToken')
+  @Get('all')
+  async getAll() {
+    return this.AreaService.getAllData();
+  }
+  @ApiBearerAuth('accessToken')
   @Post()
   async create(@Body() CreateAreaDto: CreateAreaDto) {
     return this.AreaService.createData(CreateAreaDto);

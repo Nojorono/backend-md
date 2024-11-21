@@ -26,6 +26,12 @@ export class RegionControllers {
   ) {}
 
   @ApiBearerAuth('accessToken')
+  @Get('all')
+  async getAll() {
+    return this.RegionService.getAllData();
+  }
+
+  @ApiBearerAuth('accessToken')
   @Get('find-last')
   async findLast() {
     return this.RegionRepository.findLastInsert();
