@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepo } from '../../user/repository/user.repo';
-import { CreateBatchDto, UpdateBatchDto } from '../dtos/batch.dtos';
+import {
+  CreateBatchTargetDto,
+  UpdateBatchTargetDto,
+} from '../dtos/batchtarget.dtos';
 import { BatchTargetRepository } from '../repository/batchtarget.repository';
 
 @Injectable()
@@ -10,16 +13,16 @@ export class BatchTargetService {
     private readonly userRepository: UserRepo,
   ) {}
 
-  async createData(createRolesDto: CreateBatchDto) {
-    return this.batchTargetRepository.create(createRolesDto);
+  async createData(createDto: CreateBatchTargetDto) {
+    return this.batchTargetRepository.create(createDto);
   }
 
   async getDataById(id: number) {
     return this.batchTargetRepository.getById(id);
   }
 
-  async updateData(id: number, updateRolesDto: UpdateBatchDto) {
-    return this.batchTargetRepository.update(id, updateRolesDto);
+  async updateData(id: number, updateDto: UpdateBatchTargetDto) {
+    return this.batchTargetRepository.update(id, updateDto);
   }
 
   async deleteData(id: number, accessToken: string): Promise<void> {

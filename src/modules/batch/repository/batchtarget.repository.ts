@@ -25,9 +25,17 @@ export class BatchTargetRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
+    const idDecrypted = await this.decryptId(createBatchTargetDto.batch_id);
     return await db
       .insert(MbatchTarget)
-      .values({ ...createBatchTargetDto })
+      .values({
+        batch_id: idDecrypted,
+        regional: createBatchTargetDto.regional,
+        amo: createBatchTargetDto.amo,
+        brand_type_sio: createBatchTargetDto.brand_type_sio,
+        amo_brand_type: createBatchTargetDto.amo_brand_type,
+        allocation_ho: createBatchTargetDto.allocation_ho,
+      })
       .returning();
   }
 
