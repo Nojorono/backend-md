@@ -10,6 +10,10 @@ export class AreaService {
     private readonly userRepository: UserRepo,
   ) {}
 
+  async getAllData() {
+    return this.AreaRepository.getAllData();
+  }
+
   async createData(CreateAreaDto: CreateAreaDto) {
     CreateAreaDto.area = CreateAreaDto.area.toUpperCase();
     return this.AreaRepository.create(CreateAreaDto);
