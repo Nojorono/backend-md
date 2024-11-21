@@ -22,7 +22,7 @@ export class BatchTargetService {
     return this.batchTargetRepository.update(id, updateRolesDto);
   }
 
-  async deleteData(id: string, accessToken: string): Promise<void> {
+  async deleteData(id: number, accessToken: string): Promise<void> {
     const user = await this.userRepository.findByToken(accessToken);
     return this.batchTargetRepository.delete(id, user.email);
   }

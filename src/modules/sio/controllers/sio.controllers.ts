@@ -50,4 +50,9 @@ export class SioControllers {
   ) {
     return this.service.getAllActive(page, limit, searchTerm);
   }
+  @ApiBearerAuth('accessToken')
+  @Get('all')
+  async getAll() {
+    return this.service.getAll();
+  }
 }

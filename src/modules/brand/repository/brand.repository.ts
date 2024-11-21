@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { MBrand } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
@@ -96,6 +96,26 @@ export class BrandRepository {
     return {
       data: result,
       ...paginate(totalRecords, page, limit),
+    };
+  }
+
+  async getAll() {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const query = await db
+      .select()
+      .from(MBrand)
+      .where(and(isNull(MBrand.deleted_at)));
+
+    const totalRecords = parseInt(query.length) || 0;
+
+    return {
+      data: query,
+      totalRecords: totalRecords,
     };
   }
 }

@@ -53,4 +53,9 @@ export class BrandControllers {
   ) {
     return this.brandService.getAllActive(page, limit, searchTerm);
   }
+  @ApiBearerAuth('accessToken')
+  @Get('all')
+  async getAll() {
+    return this.brandService.getAll();
+  }
 }
