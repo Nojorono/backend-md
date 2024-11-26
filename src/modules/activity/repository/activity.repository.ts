@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { eq, isNull } from 'drizzle-orm';
-import { ActivityMd, MSioType } from '../../../schema';
+import { Activity } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { buildSearchQuery, paginate } from '../../../helpers/nojorono.helpers';
 import {
@@ -9,7 +9,7 @@ import {
 } from '../dtos/activitymd.dtos';
 
 @Injectable()
-export class ActivityMdRepository {
+export class ActivityRepository {
   constructor(private readonly drizzleService: DrizzleService) {}
 
   async create(createDto: CreateMdActivityDto) {
@@ -19,15 +19,15 @@ export class ActivityMdRepository {
       throw new Error('Database not initialized');
     }
 
-    return await db.insert(ActivityMd).values(createDto).returning();
+    return await db.insert(Activity).values(createDto).returning();
   }
 
   async update(id: number, updateDto: UpdateMdActivityDto) {
     const db = this.drizzleService['db'];
     return await db
-      .update(MSioType)
+      .update(Activity)
       .set(updateDto)
-      .where(eq(MSioType.id, id))
+      .where(eq(Activity.id, id))
       .execute();
   }
 
@@ -38,7 +38,7 @@ export class ActivityMdRepository {
       throw new Error('Database not initialized');
     }
 
-    const result = await db.select().from(MSioType).where(eq(MSioType.id, id));
+    const result = await db.select().from(Activity).where(eq(Activity.id, id));
     return result[0]; // Return the first (and expectedly only) result
   }
 
@@ -48,9 +48,9 @@ export class ActivityMdRepository {
       throw new Error('Database not initialized');
     }
     return await db
-      .update(MSioType)
+      .update(Activity)
       .set({ deleted_at: new Date(), deleted_by: userBy })
-      .where(eq(MSioType.id, id))
+      .where(eq(Activity.id, id))
       .returning();
   }
 
@@ -65,7 +65,7 @@ export class ActivityMdRepository {
       throw new Error('Database not initialized');
     }
 
-    const query = db.select().from(MSioType).where(isNull(MSioType.deleted_at));
+    const query = db.select().from(Activity).where(isNull(Activity.deleted_at));
 
     // Apply search condition if available
     const searchColumns = ['name'];

@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq, isNull, count, inArray } from 'drizzle-orm';
+import { desc, eq, isNull, inArray, and } from 'drizzle-orm';
 import { CallPlan } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
   buildSearchQuery,
   decrypt,
   encrypt,
+  paginate,
 } from '../../../helpers/nojorono.helpers';
 import { CreateCallPlanDto, UpdateCallPlanDto } from '../dtos/callplan.dtos';
 
@@ -31,9 +32,11 @@ export class CallPlanRepository {
       .select()
       .from(CallPlan)
       .where(
-        eq(CallPlan.code_batch, data.code_batch),
-        eq(CallPlan.area, data.area),
-        eq(CallPlan.region, data.region),
+        and(
+          eq(CallPlan.code_batch, data.code_batch),
+          eq(CallPlan.area, data.area),
+          eq(CallPlan.region, data.region),
+        ),
       )
       .limit(1);
   }
@@ -154,58 +157,32 @@ export class CallPlanRepository {
       throw new Error('Database not initialized');
     }
 
-    // Define the search columns and build search condition
-    const searchColumns = ['region', 'code_batch', 'area'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
-
-    // Count query for total records
-    const countQuery = db.select({ count: count() }).from(CallPlan);
-
-    if (searchCondition) {
-      countQuery.where(searchCondition);
-    }
+    const query = db.select().from(CallPlan).where(isNull(CallPlan.deleted_at));
 
     // Apply region filter if provided
     if (filter.region) {
-      countQuery.where(eq(CallPlan.region, filter.region));
+      query.where(eq(CallPlan.region, filter.region));
     }
 
     // Apply area filter if provided (assuming 'area' is an array in filter)
     if (Array.isArray(filter.area) && filter.area.length > 0) {
-      countQuery.where(inArray(CallPlan.area, filter.area));
+      query.where(inArray(CallPlan.area, filter.area));
     }
 
-    // Try direct null check with .isNull() or eq
-    countQuery.where(isNull(CallPlan.deleted_at));
-    const totalRecordsResult = await countQuery;
-    const totalRecords = totalRecordsResult[0]?.count ?? 0;
-    // Query for paginated and filtered results
-    let paginatedQuery = db
-      .select({
-        id: CallPlan.id,
-        code_batch: CallPlan.code_batch,
-        area: CallPlan.area,
-        region: CallPlan.region,
-      })
-      .from(CallPlan)
-      .limit(limit)
-      .offset((page - 1) * limit);
+    // Apply search condition if available
+    const searchColumns = ['region', 'code_batch', 'area'];
+    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
-    // Apply search, region, and area conditions to the paginated query
+    // Apply search condition if available
     if (searchCondition) {
-      paginatedQuery = paginatedQuery.where(searchCondition);
+      query.where(searchCondition);
     }
-    if (filter.region) {
-      paginatedQuery = paginatedQuery.where(eq(CallPlan.region, filter.region));
-    }
-    if (Array.isArray(filter.area) && filter.area.length > 0) {
-      paginatedQuery = paginatedQuery.where(
-        inArray(CallPlan.area, filter.area),
-      );
-    }
+    const records = await query.execute();
+    const totalRecords = parseInt(records.length) || 0;
+    const { offset } = paginate(totalRecords, page, limit);
+    query.limit(limit).offset(offset);
 
-    paginatedQuery.where(isNull(CallPlan.deleted_at));
-    const result = await paginatedQuery;
+    const result = await query;
 
     const encryptedResult = await Promise.all(
       result.map(async (item) => {
@@ -218,12 +195,9 @@ export class CallPlanRepository {
       }),
     );
 
-    // Return data with pagination metadata
     return {
       data: encryptedResult,
-      totalItems: totalRecords,
-      currentPage: page,
-      totalPages: Math.ceil(totalRecords / limit),
+      ...paginate(totalRecords, page, limit),
     };
   }
 }

@@ -7,14 +7,14 @@ import {
   text,
   jsonb,
 } from 'drizzle-orm/pg-core';
-import { Survey } from './survey.schema';
+import { mOutlets } from './m_outlet.schema';
 
-export const mOutlets = pgTable('m_outlet', {
+export const Survey = pgTable('survey', {
   id: serial('id').primaryKey(),
+  batch_code: varchar('batch_code', { length: 150 }),
   outlet_code: varchar('outlet_code', { length: 255 }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   brand: varchar('brand', { length: 255 }).notNull(),
-  unique_name: varchar('unique_name', { length: 255 }),
   address_line: varchar('address_line', { length: 300 }),
   sub_district: varchar('sub_district', { length: 255 }),
   district: varchar('district', { length: 255 }),
@@ -22,13 +22,12 @@ export const mOutlets = pgTable('m_outlet', {
   postal_code: integer('postal_code').default(0),
   latitude: varchar('latitude', { length: 225 }),
   longitude: varchar('longitude', { length: 225 }),
-  sio_type: varchar('sio_type', { length: 50 }),
-  region: varchar('region', { length: 50 }),
-  area: varchar('area', { length: 50 }),
-  cycle: varchar('cycle', { length: 50 }),
-  is_active: integer('is_active').notNull().default(1),
-  visit_day: varchar('visit_day', { length: 50 }),
-  odd_even: varchar('odd_even', { length: 20 }),
+  sio_type: varchar('sio_type', { length: 150 }),
+  region: varchar('region', { length: 150 }),
+  area: varchar('area', { length: 150 }),
+  cycle: varchar('cycle', { length: 150 }),
+  visit_day: varchar('visit_day', { length: 150 }),
+  odd_even: varchar('odd_even', { length: 50 }),
   photos: jsonb('photos').default([]),
   remarks: text('remarks').default(''),
   range_health_facilities: integer('range_health_facilities').default(0),
@@ -43,7 +42,9 @@ export const mOutlets = pgTable('m_outlet', {
   range_educational_facilities: integer('range_educational_facilities').default(
     0,
   ),
-  survey_outlet_id: integer('survey_outlet_id').references(() => Survey.id),
+  outlet_id: integer('outlet_id').references(() => mOutlets.id),
+  status: varchar('status', { length: 20 }),
+  is_approved: integer('is_approved').default(null),
   created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 100 }),

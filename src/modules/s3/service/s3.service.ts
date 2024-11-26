@@ -58,6 +58,26 @@ export class S3Service {
     };
 
     const result = await this.s3.upload(params).promise();
+    console.log(result);
     return result.Location; // Return the S3 URL of the uploaded image
+  }
+
+  // Method to delete an image from S3
+  async deleteImage(key: string): Promise<string> {
+    const bucketUrl =
+      'https://merchandise-nna.s3.ap-southeast-1.amazonaws.com/';
+    const s3Key = key.replace(bucketUrl, '');
+    const deleteParams = {
+      Bucket: this.bucketName,
+      Key: s3Key,
+    };
+
+    try {
+      // Perform the delete operation
+      await this.s3.deleteObject(deleteParams).promise();
+      return `Image with key ${key} has been deleted successfully.`;
+    } catch (error) {
+      throw new Error(`Failed to delete image: ${error.message}`);
+    }
   }
 }

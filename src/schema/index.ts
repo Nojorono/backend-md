@@ -9,9 +9,11 @@ export {
   CallPlanUserRelations,
   CallPlanOutletRelations,
 } from './call_plan_schedule';
-export { ActivityMd } from './activity_md';
-export { ActivityMdDetail } from './activity_md_detail';
+export { Activity } from './activity.schema';
+export { ActivitySog } from './activity_sog.schema';
+export { ActivitySio } from './activity_sio.schema';
 export { MBrand } from './m_brand_sog.schema';
 export { MSioType } from './m_sio_type.schema';
 export { MRegion } from './m_region.schema';
 export { MArea } from './m_area.schema';
+export { Survey } from './survey.schema';
