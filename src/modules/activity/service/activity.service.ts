@@ -8,15 +8,15 @@ import {
   CreateMdActivityDto,
   UpdateMdActivityDto,
 } from '../dtos/activitymd.dtos';
-import { ActivityMdRepository } from '../repository/activitymd.repository';
+import { ActivityRepository } from '../repository/activity.repository';
 import { logger } from 'nestjs-i18n';
 import { OutletRepository } from '../../outlet/repository/outlet.repository';
 import { CallPlanScheduleRepository } from '../../callplan/repository/callplanschedule.repository';
 
 @Injectable()
-export class ActivityMdService {
+export class ActivityService {
   constructor(
-    private readonly repository: ActivityMdRepository,
+    private readonly repository: ActivityRepository,
     private readonly userRepository: UserRepo,
     private readonly outletRepository: OutletRepository,
     private readonly scheduleRepository: CallPlanScheduleRepository,

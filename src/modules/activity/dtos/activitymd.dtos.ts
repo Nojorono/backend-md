@@ -14,18 +14,6 @@ export class CreateMdActivityDto {
   @IsInt()
   outlet_id: number;
 
-  @ApiProperty({ example: 'OUTLET001', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 20)
-  code_outlet?: string;
-
-  @ApiProperty({ example: 'CALLPLAN001', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 20)
-  code_call_plan?: string;
-
   @ApiProperty({ example: 'pending', required: false })
   @IsString()
   @IsOptional()
@@ -55,18 +43,6 @@ export class CreateMdActivityDto {
   @Length(1, 80)
   type_sio?: string;
 
-  @ApiProperty({ example: 'Brand Type A', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 80)
-  brand_type_sio?: string;
-
-  @ApiProperty({ example: 'AMO Brand Type', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 80)
-  amo_brand_type?: string;
-
   @ApiProperty({ example: '2023-01-01T10:00:00Z' })
   @IsDate()
   start_time: Date;
@@ -86,18 +62,6 @@ export class CreateMdActivityDto {
 }
 
 export class UpdateMdActivityDto {
-  @ApiProperty({ example: 'OUTLET001', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 20)
-  code_outlet?: string;
-
-  @ApiProperty({ example: 'CALLPLAN001', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 20)
-  code_call_plan?: string;
-
   @ApiProperty({ example: 'pending', required: false })
   @IsString()
   @IsOptional()
@@ -126,18 +90,6 @@ export class UpdateMdActivityDto {
   @IsOptional()
   @Length(1, 80)
   type_sio?: string;
-
-  @ApiProperty({ example: 'Brand Type B', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 80)
-  brand_type_sio?: string;
-
-  @ApiProperty({ example: 'AMO Brand Type B', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 80)
-  amo_brand_type?: string;
 
   @ApiProperty({ example: '2023-01-01T12:00:00Z', required: false })
   @IsDate()

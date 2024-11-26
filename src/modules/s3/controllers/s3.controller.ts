@@ -3,7 +3,10 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
-  Body, Get, Query,
+  Body,
+  Get,
+  Query,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from '../service/s3.service';
@@ -15,7 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-@ApiTags('Images') // Tag for Swagger grouping
+@ApiTags('images') // Tag for Swagger grouping
 @Controller('images')
 export class S3Controller {
   constructor(private readonly s3ImageService: S3Service) {}
@@ -60,5 +63,33 @@ export class S3Controller {
     }
     const signedUrl = await this.s3ImageService.generateSignedUrl(key);
     return { url: signedUrl };
+  }
+
+  // Endpoint to delete an image from S3
+  @ApiBearerAuth('accessToken')
+  @Delete('delete')
+  @ApiOperation({ summary: 'Delete an image from S3' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        key: {
+          type: 'string',
+          description: 'The key (path) of the image to be deleted',
+        },
+      },
+    },
+  })
+  async deleteImage(@Body('key') key: string) {
+    if (!key) {
+      return { error: 'Key parameter is required' };
+    }
+
+    try {
+      const result = await this.s3ImageService.deleteImage(key);
+      return { message: result };
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 }

@@ -14,14 +14,14 @@ import {
   CreateMdActivityDto,
   UpdateMdActivityDto,
 } from '../dtos/activitymd.dtos';
-import { ActivityMdService } from '../service/activitymd.service';
+import { ActivityService } from '../service/activity.service';
 @ApiTags('activity')
 @Controller({
   version: '1',
   path: '/activity',
 })
-export class ActivityMdControllers {
-  constructor(private readonly service: ActivityMdService) {}
+export class ActivityControllers {
+  constructor(private readonly service: ActivityService) {}
 
   @ApiBearerAuth('accessToken')
   @Post()

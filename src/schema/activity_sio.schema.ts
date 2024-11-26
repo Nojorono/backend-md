@@ -5,14 +5,12 @@ import {
   timestamp,
   integer,
 } from 'drizzle-orm/pg-core';
-import { ActivityMd } from './activity_md';
+import { Activity } from './activity.schema';
 
-export const ActivityMdDetail = pgTable('activity_md_detail', {
+export const ActivitySio = pgTable('activity_sio', {
   id: serial('id').primaryKey().notNull(),
-  activity_md_id: integer('activity_id').references(() => ActivityMd.id),
-  type: varchar('type', { length: 50 }).notNull(),
+  activity_id: integer('activity_id').references(() => Activity.id),
   name: varchar('name', { length: 50 }).notNull(),
-  value: varchar('value', { length: 255 }),
   description: varchar('description', { length: 255 }),
   notes: varchar('notes', { length: 255 }),
   photo: varchar('photo', { length: 255 }),

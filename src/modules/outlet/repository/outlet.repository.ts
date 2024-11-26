@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { count, eq, sql } from 'drizzle-orm';
-import { mOutlets } from '../../../schema';
+import { and, count, eq, isNull, sql } from 'drizzle-orm';
+import { mOutlets, MSioType } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateOutletDto, UpdateOutletDto } from '../dtos/outlet.dtos';
 import {
@@ -41,7 +41,7 @@ export class OutletRepository {
         postal_code: createOutletDto.postal_code,
         latitude: createOutletDto.latitude || '',
         longitude: createOutletDto.longitude || '',
-        outlet_type: createOutletDto.outlet_type || '',
+        sio_type: createOutletDto.sio_type || '',
         region: createOutletDto.region || '',
         area: createOutletDto.area || '',
         cycle: createOutletDto.cycle || '',
@@ -51,14 +51,14 @@ export class OutletRepository {
             : 1, // Defaulting to 1
         visit_day: createOutletDto.visit_day,
         odd_even: createOutletDto.odd_even,
-        photos: createOutletDto.photos || [], // Default to an empty array if undefined
-        remarks: createOutletDto.remarks || '', // Default to an empty string if undefined
+        photos: createOutletDto.photos || [],
+        remarks: createOutletDto.remarks || '',
         created_by: createOutletDto.created_by,
         updated_by: createOutletDto.updated_by,
         deleted_by: createOutletDto.deleted_by,
         deleted_at: createOutletDto.deleted_at,
-        created_at: createOutletDto.created_at || new Date(), // Default to current date
-        updated_at: createOutletDto.updated_at || new Date(), // Default to current date
+        created_at: createOutletDto.created_at || new Date(),
+        updated_at: createOutletDto.updated_at || new Date(),
       })
       .returning();
   }
@@ -142,7 +142,7 @@ export class OutletRepository {
         postal_code: mOutlets.postal_code,
         latitude: mOutlets.latitude,
         longitude: mOutlets.longitude,
-        outlet_type: mOutlets.outlet_type,
+        sio_type: mOutlets.sio_type,
         region: mOutlets.region,
         area: mOutlets.area,
         cycle: mOutlets.cycle,
@@ -254,5 +254,21 @@ export class OutletRepository {
       });
     }
     return await query;
+  }
+
+  async getAll() {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const data = await db
+      .select()
+      .from(mOutlets)
+      .where(and(eq(mOutlets.is_active, 0), isNull(mOutlets.survey_outlet_id)));
+    return {
+      data,
+    };
   }
 }

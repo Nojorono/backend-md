@@ -10,6 +10,8 @@ export interface IAuthPayload {
   user_role_id: string;
   username: string;
   email: string;
+  area: [];
+  region: string;
 }
 
 export interface IGetPermissionFromRolePayload {

@@ -1,6 +1,9 @@
 import {
-  BadRequestException, HttpException, HttpStatus,
-  Injectable, InternalServerErrorException,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -141,6 +144,8 @@ export class AuthService implements IAuthService {
         user_role_id: userFind.user_role_id,
         username: userFind.username,
         email: userFind.email,
+        area: userFind.area,
+        region: userFind.region,
       });
       await this.userRepo.updateUser(userFind.id, {
         remember_token: accessToken,
@@ -173,6 +178,8 @@ export class AuthService implements IAuthService {
       user_role_id: user.user_role_id,
       username: user.username,
       email: user.email,
+      area: user.area,
+      region: user.region,
     });
     // Send the reset email using the MailerService
     const resetUrl = `${frontendBaseUrl}/reset-password?token=${accessToken}`;
