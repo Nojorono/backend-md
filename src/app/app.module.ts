@@ -19,26 +19,26 @@ import { CallPlanModule } from '../modules/callplan/callplan.module';
 import { BatchModule } from '../modules/batch/batch.module';
 import { S3Module } from '../modules/s3/s3.module';
 import { BrandModule } from '../modules/brand/brand.module';
-import { ActivityMdModule } from '../modules/activitymd/activitymd.module';
+import { ActivityModule } from '../modules/activity/activity.module';
 import { SioModule } from '../modules/sio/sio.module';
 import { RegionAreaModule } from '../modules/regionarea/regionarea.module';
 import { SurveyModule } from '../modules/survey/survey.module';
 
 @Module({
   imports: [
-    CommonModule, // add new module
-    S3Module, // add new module
-    AuthModule, // add new module
-    BatchModule, // add new module
-    UserModule, // add new module
-    OutletModule, // add new module
-    RolesModule, // add new module
-    CallPlanModule, // add new module
-    BrandModule, // add new module
-    ActivityMdModule, // add new module
-    SioModule, // add new module
-    RegionAreaModule, // add new module
-    SurveyModule, // add new module
+    CommonModule,
+    S3Module,
+    AuthModule,
+    BatchModule,
+    UserModule,
+    OutletModule,
+    RolesModule,
+    CallPlanModule,
+    BrandModule,
+    ActivityModule,
+    SioModule,
+    RegionAreaModule,
+    SurveyModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
