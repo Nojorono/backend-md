@@ -7,6 +7,7 @@ import {
   UpdateCallPlanScheduleDto,
 } from '../dtos/callplanschedule.dtos';
 import { UserRepo } from '../../user/repository/user.repo';
+import { STATUS_ACTIVITY_MD_2 } from 'src/constants';
 
 @Injectable()
 export class CallPlanScheduleService {
@@ -53,6 +54,7 @@ export class CallPlanScheduleService {
           ...createCallPlaScheduleDto,
           outlet_id: outletId,
           code_call_plan,
+          status: STATUS_ACTIVITY_MD_2,
         };
 
         // Create data for each outlet

@@ -5,12 +5,10 @@ export class CreateCallPlanScheduleDto {
   user_id: number;
   day_plan: Date;
   notes?: string;
+  type?: number;
+  status?: number;
   created_by?: string;
   created_at?: Date;
-  updated_by?: string;
-  updated_at?: Date;
-  deleted_by?: string;
-  deleted_at?: Date | null;
 }
 
 export class UpdateCallPlanScheduleDto {
@@ -19,6 +17,8 @@ export class UpdateCallPlanScheduleDto {
   user_id: number;
   day_plan: Date;
   notes?: string;
+  type?: number;
+  status?: number;
   updated_by?: string;
   updated_at?: Date;
   deleted_by?: string;
