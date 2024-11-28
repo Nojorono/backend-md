@@ -1,34 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { eq, isNull } from 'drizzle-orm';
-import { Activity } from '../../../schema';
+import { and, eq, isNull } from 'drizzle-orm';
+import { ActivitySog } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { buildSearchQuery, paginate } from '../../../helpers/nojorono.helpers';
-import {
-  CreateMdActivityDto,
-  UpdateMdActivityDto,
-} from '../dtos/activitymd.dtos';
 
 @Injectable()
-export class ActivityRepository {
+export class ActivitySogRepository {
   constructor(private readonly drizzleService: DrizzleService) {}
 
-  async create(createDto: CreateMdActivityDto) {
+  async create(createDto: any) {
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
-    console.log(createDto);
 
-    return await db.insert(Activity).values(createDto).returning();
+    return await db.insert(ActivitySog).values(createDto).returning();
   }
 
-  async update(id: number, updateDto: UpdateMdActivityDto) {
+  async update(id: number, updateDto: any) {
     const db = this.drizzleService['db'];
     return await db
-      .update(Activity)
+      .update(ActivitySog)
       .set(updateDto)
-      .where(eq(Activity.id, id))
+      .where(eq(ActivitySog.id, id))
       .execute();
   }
 
@@ -39,8 +34,8 @@ export class ActivityRepository {
       throw new Error('Database not initialized');
     }
 
-    const result = await db.select().from(Activity).where(eq(Activity.id, id));
-    return result[0]; // Return the first (and expectedly only) result
+    const result = await db.select().from(ActivitySog).where(eq(ActivitySog.id, id));
+    return result[0];
   }
 
   async delete(id: number, userBy: string) {
@@ -49,10 +44,30 @@ export class ActivityRepository {
       throw new Error('Database not initialized');
     }
     return await db
-      .update(Activity)
+      .update(ActivitySog)
       .set({ deleted_at: new Date(), deleted_by: userBy })
-      .where(eq(Activity.id, id))
+      .where(eq(ActivitySog.id, id))
       .returning();
+  }
+
+  async getAll() {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const query = await db
+      .select()
+      .from(ActivitySog)
+      .where(and(isNull(ActivitySog.deleted_at)));
+
+    const totalRecords = parseInt(query.length) || 0;
+
+    return {
+      data: query,
+      totalRecords: totalRecords,
+    };
   }
 
   async getAllActive(
@@ -66,7 +81,7 @@ export class ActivityRepository {
       throw new Error('Database not initialized');
     }
 
-    const query = db.select().from(Activity).where(isNull(Activity.deleted_at));
+    const query = db.select().from(ActivitySog).where(isNull(ActivitySog.deleted_at));
 
     // Apply search condition if available
     const searchColumns = ['name'];

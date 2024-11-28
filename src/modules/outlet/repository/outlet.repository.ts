@@ -248,7 +248,7 @@ export class OutletRepository {
       query = query.where(eq(mOutlets.region, region));
     }
 
-    if (area && area.length > 0) {
+    if (area.length > 0) {
       area.map((a) => {
         query = query.where(eq(mOutlets.area, a));
       });

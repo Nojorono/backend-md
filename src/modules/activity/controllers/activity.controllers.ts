@@ -7,6 +7,7 @@ import {
   Body,
   Query,
   Req,
+  Put,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -34,7 +35,7 @@ export class ActivityControllers {
     return this.service.getDataById(id);
   }
   @ApiBearerAuth('accessToken')
-  @Post(':id')
+  @Put(':id')
   async update(
     @Param('id') id: number,
     @Body() updateDto: UpdateMdActivityDto,

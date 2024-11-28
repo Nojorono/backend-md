@@ -4,6 +4,7 @@ import {
   varchar,
   timestamp,
   integer,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { mUser } from './m_user.schema';
 import { CallPlan } from './call_plan';
@@ -21,11 +22,12 @@ export const Activity = pgTable('activity', {
     .notNull(),
   outlet_id: integer('outlet_id').references(() => mOutlets.id),
   survey_outlet_id: integer('survey_outlet_id').references(() => Survey.id),
-  status: varchar('status').notNull(),
+  status: integer('status'),
   area: varchar('area', { length: 100 }).notNull(),
   region: varchar('region', { length: 100 }).notNull(),
   brand: varchar('brand', { length: 100 }).notNull(),
   type_sio: varchar('type_sio', { length: 100 }).notNull(),
+  photos: jsonb('photos').default([]),
   start_time: timestamp('start_time').notNull(),
   end_time: timestamp('end_time').notNull(),
   created_by: varchar('created_by', { length: 100 }),

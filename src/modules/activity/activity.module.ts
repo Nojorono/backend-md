@@ -7,6 +7,8 @@ import { ActivityService } from './service/activity.service';
 import { ActivityControllers } from './controllers/activity.controllers';
 import { OutletRepository } from '../outlet/repository/outlet.repository';
 import { CallPlanScheduleRepository } from '../callplan/repository/callplanschedule.repository';
+import { ActivitySioRepository } from './repository/activity_sio.repository';
+import { ActivitySogRepository } from './repository/activity_sog.repository copy';
 
 @Module({
   controllers: [ActivityControllers],
@@ -14,11 +16,13 @@ import { CallPlanScheduleRepository } from '../callplan/repository/callplansched
   providers: [
     DrizzleService,
     ActivityRepository,
+    ActivitySioRepository,
+    ActivitySogRepository,
     ActivityService,
     UserRepo,
     OutletRepository,
     CallPlanScheduleRepository,
   ],
-  exports: [ActivityRepository, ActivityService],
+  exports: [ActivityRepository, ActivitySioRepository, ActivitySogRepository, ActivityService],
 })
 export class ActivityModule {}

@@ -12,6 +12,7 @@ import {
   CreateCallPlanScheduleDto,
   UpdateCallPlanScheduleDto,
 } from '../dtos/callplanschedule.dtos';
+import { STATUS_ACTIVITY_MD_2 } from 'src/constants';
 
 @Injectable()
 export class CallPlanScheduleRepository {
@@ -34,8 +35,16 @@ export class CallPlanScheduleRepository {
     );
 
     // Destructure values from the DTO
-    const { code_call_plan, outlet_id, notes, day_plan, created_by, user_id } =
-      createCallPlanScheduleDto;
+    const {
+      code_call_plan,
+      outlet_id,
+      notes,
+      day_plan,
+      created_by,
+      user_id,
+      type,
+      status,
+    } = createCallPlanScheduleDto;
 
     if (!db) {
       throw new Error('Database not initialized');
@@ -52,6 +61,8 @@ export class CallPlanScheduleRepository {
         day_plan,
         created_by,
         created_at: new Date(),
+        type,
+        status,
       })
       .returning();
   }
@@ -169,7 +180,7 @@ export class CallPlanScheduleRepository {
       where: (CallPlanSchedule, { eq, and }) =>
         and(
           eq(CallPlanSchedule.user_id, idDecrypted),
-          eq(CallPlanSchedule.status, 'scheduled'),
+          eq(CallPlanSchedule.status, STATUS_ACTIVITY_MD_2),
           isNull(CallPlanSchedule.deleted_at),
         ),
       with: {

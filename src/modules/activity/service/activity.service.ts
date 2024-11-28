@@ -10,23 +10,46 @@ import {
 } from '../dtos/activitymd.dtos';
 import { ActivityRepository } from '../repository/activity.repository';
 import { logger } from 'nestjs-i18n';
-import { OutletRepository } from '../../outlet/repository/outlet.repository';
-import { CallPlanScheduleRepository } from '../../callplan/repository/callplanschedule.repository';
+import { ActivitySioRepository } from '../repository/activity_sio.repository';
+import { ActivitySogRepository } from '../repository/activity_sog.repository copy';
 
 @Injectable()
 export class ActivityService {
   constructor(
     private readonly repository: ActivityRepository,
+    private readonly activitySioRepository: ActivitySioRepository,
+    private readonly activitySogRepository: ActivitySogRepository,
     private readonly userRepository: UserRepo,
-    private readonly outletRepository: OutletRepository,
-    private readonly scheduleRepository: CallPlanScheduleRepository,
   ) {}
 
   async createData(createDto: CreateMdActivityDto) {
     try {
-      return this.repository.create(createDto);
+      createDto.created_at = new Date();
+      createDto.start_time = new Date(createDto.start_time);
+      createDto.end_time = new Date(createDto.end_time);  
+      const data = await this.repository.create(createDto);
+
+      // Handle multiple entries for activity_sio
+      if (createDto.activity_sio && Array.isArray(createDto.activity_sio)) {
+        const sioEntries = createDto.activity_sio.map(sio => ({
+          ...sio,
+          activity_id: data[0].id,
+        }));
+        await this.activitySioRepository.create(sioEntries);
+      }
+
+      // Handle multiple entries for activity_sog
+      if (createDto.activity_sog && Array.isArray(createDto.activity_sog)) {
+        const sogEntries = createDto.activity_sog.map(sog => ({
+          ...sog,
+          activity_id: data[0].id,
+        }));
+        await this.activitySogRepository.create(sogEntries);
+      }
+
+      return data;
     } catch (e) {
-      logger.error('Error in create user:', e.message, e.stack);
+      logger.error('Error in create activity:', e.message, e.stack);
       if (e instanceof HttpException) {
         throw e;
       }
