@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { and, desc, eq, isNull } from 'drizzle-orm';
-import { CallPlanSchedule, mOutlets, mUser } from '../../../schema';
+import { CallPlanSchedule, mOutlets, mUser, Survey } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
   buildSearchQuery,
@@ -44,7 +44,10 @@ export class CallPlanScheduleRepository {
       user_id,
       type,
       status,
+      survey_outlet_id,
     } = createCallPlanScheduleDto;
+
+    console.log(createCallPlanScheduleDto)
 
     if (!db) {
       throw new Error('Database not initialized');
@@ -56,6 +59,7 @@ export class CallPlanScheduleRepository {
         call_plan_id: idDecrypted,
         code_call_plan,
         outlet_id,
+        survey_outlet_id,
         notes,
         user_id,
         day_plan,
@@ -126,10 +130,13 @@ export class CallPlanScheduleRepository {
         email: mUser.email,
         outlet_code: mOutlets.outlet_code,
         outlet_name: mOutlets.name,
+        survey_outlet_code: Survey.outlet_code,
+        survey_outlet_name: Survey.name,
       })
       .from(CallPlanSchedule)
-      .innerJoin(mOutlets, eq(CallPlanSchedule.outlet_id, mOutlets.id))
-      .innerJoin(mUser, eq(CallPlanSchedule.user_id, mUser.id))
+      .leftJoin(mOutlets, eq(CallPlanSchedule.outlet_id, mOutlets.id))
+      .leftJoin(Survey, eq(CallPlanSchedule.survey_outlet_id, Survey.id))
+      .leftJoin(mUser, eq(CallPlanSchedule.user_id, mUser.id))
       .where(
         and(eq(CallPlanSchedule.call_plan_id, idDecrypted)),
         isNull(CallPlanSchedule.deleted_at),

@@ -24,9 +24,12 @@ export class ActivityService {
 
   async createData(createDto: CreateMdActivityDto) {
     try {
+
+      const user = await this.userRepository.findById(createDto.user_id);
+      createDto.created_by = user.email;
       createDto.created_at = new Date();
       createDto.start_time = new Date(createDto.start_time);
-      createDto.end_time = new Date(createDto.end_time);  
+      createDto.end_time = new Date(createDto.end_time);
       const data = await this.repository.create(createDto);
 
       // Handle multiple entries for activity_sio

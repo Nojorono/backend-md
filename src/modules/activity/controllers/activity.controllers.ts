@@ -16,6 +16,7 @@ import {
   UpdateMdActivityDto,
 } from '../dtos/activitymd.dtos';
 import { ActivityService } from '../service/activity.service';
+import { Public } from 'src/decorators/public.decorator';
 @ApiTags('activity')
 @Controller({
   version: '1',
@@ -24,7 +25,7 @@ import { ActivityService } from '../service/activity.service';
 export class ActivityControllers {
   constructor(private readonly service: ActivityService) {}
 
-  @ApiBearerAuth('accessToken')
+  @Public()
   @Post()
   async create(@Body() createDto: CreateMdActivityDto) {
     return this.service.createData(createDto);
@@ -53,8 +54,8 @@ export class ActivityControllers {
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Query('searchTerm') searchTerm: string = '',
+    // @Query('searchTerm') searchTerm?: string,
   ) {
-    return this.service.getAllActive(page, limit, searchTerm);
+    return this.service.getAllActive(page, limit);
   }
 }

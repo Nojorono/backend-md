@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, IsDate, Length } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsDate, Length, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ActivitySioDto } from './activity_sio.dtos';
 import { ActivitySogDto } from './activity_sog.dtos';
@@ -20,10 +20,10 @@ export class CreateMdActivityDto {
   @IsInt()
   outlet_id: number;
 
-  @ApiProperty({ example: 'pending', required: false })
-  @IsString()
+  @ApiProperty({ example: 1, required: false })
+  @IsInt()
   @IsOptional()
-  status?: string;
+  status?: number;
 
   @ApiProperty({ example: 'Area A', required: false })
   @IsString()
@@ -56,6 +56,11 @@ export class CreateMdActivityDto {
   @ApiProperty({ example: '2023-01-01T11:00:00Z' })
   @IsOptional()
   end_time?: Date;
+
+  @ApiProperty({ example: ['photo_url.jpg'], required: false })
+  @IsArray()
+  @IsOptional()
+  photos?: string[];
 
   @ApiProperty({ example: 'user_creator' })
   @IsString()
@@ -97,11 +102,10 @@ export class UpdateMdActivityDto {
   @Length(1, 50)
   brand?: string;
 
-  @ApiProperty({ example: 'Type B', required: false })
-  @IsString()
+  @ApiProperty({ example: 1, required: false })
+  @IsInt()
   @IsOptional()
-  @Length(1, 80)
-  type_sio?: string;
+  type_sio?: number;
 
   @ApiProperty({ example: '2023-01-01T12:00:00Z', required: false })
   @IsOptional()
@@ -110,6 +114,11 @@ export class UpdateMdActivityDto {
   @ApiProperty({ example: '2023-01-01T13:00:00Z', required: false })
   @IsOptional()
   end_time?: Date;
+
+  @ApiProperty({ example: ['photo_url.jpg'], required: false })
+  @IsArray()
+  @IsOptional()
+  photos?: string[];
 
   @ApiProperty({ example: 'user_updater', required: false })
   @IsString()
