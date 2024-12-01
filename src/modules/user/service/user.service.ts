@@ -97,14 +97,15 @@ export class UserService {
   }
 
   async getAllWithPaginate(
+    accessToken: string,
     page: string = '1',
     limit: string = '10',
     searchTerm: string = '',
-    accessToken,
+    filter: { area: string; region: string },
   ) {
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
     const user = await this.userRepo.findByToken(accessToken);
-    return this.userRepo.getAllPagination(pageInt, limitInt, searchTerm, user);
+    return this.userRepo.getAllPagination(pageInt, limitInt, searchTerm, filter, user);
   }
 }

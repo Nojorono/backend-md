@@ -29,6 +29,7 @@ export class UserRepo {
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
+    filter: { area: string; region: string },
     user: any,
   ) {
     const db = this.drizzleService['db'];
@@ -58,8 +59,7 @@ export class UserRepo {
         valid_to: mUser.valid_to,
       })
       .from(mUser)
-      .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id))
-      .where(...conditions);
+      .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id));
 
     let getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'ADMIN', 'NASIONAL'];
 
@@ -83,16 +83,8 @@ export class UserRepo {
       getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL'];
     }
 
-    // if (user.region) {
-    //   conditions.push(eq(mUser.region, user.region));
-    // }
-
-    // if (user.area && Array.isArray(user.area) && user.area.length > 0) {
-    //   conditions.push(arrayContained(mUser.area, user.area));
-    // }
-
     query.where(inArray(mUserRoles.name, getRoles));
-    // Build search query
+
     query.where(and(eq(mUser.is_active, 1), isNull(mUser.deleted_at)));
 
     const searchColumns = ['email', 'username', 'phone'];
@@ -100,6 +92,14 @@ export class UserRepo {
     // Apply search condition if available
     if (searchCondition) {
       query.where(searchCondition);
+    }
+
+    if (filter.area && filter.area != '') {
+      query.where(arrayContained(mUser.area, [filter.area]));
+    }
+
+    if (filter.region && filter.region != '') {
+      query.where(eq(mUser.region, filter.region));
     }
 
     const records = await query.execute();
