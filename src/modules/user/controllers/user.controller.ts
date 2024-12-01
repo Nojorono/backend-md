@@ -54,14 +54,16 @@ export class UserController {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
+    @Query('filter') filter: { area: string; region: string } = { area: '', region: '' },
     @Req() request: Request,
   ) {
     const accessToken = request.headers.authorization?.split(' ')[1];
     return await this.userService.getAllWithPaginate(
+      accessToken,
       page,
       limit,
       searchTerm,
-      accessToken,
+      filter,
     );
   }
   @ApiBearerAuth('accessToken')
