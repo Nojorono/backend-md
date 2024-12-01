@@ -83,13 +83,13 @@ export class UserRepo {
       getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL'];
     }
 
-    if (user.region) {
-      conditions.push(eq(mUser.region, user.region));
-    }
+    // if (user.region) {
+    //   conditions.push(eq(mUser.region, user.region));
+    // }
 
-    if (user.area && Array.isArray(user.area) && user.area.length > 0) {
-      conditions.push(arrayContained(mUser.area, user.area));
-    }
+    // if (user.area && Array.isArray(user.area) && user.area.length > 0) {
+    //   conditions.push(arrayContained(mUser.area, user.area));
+    // }
 
     query.where(inArray(mUserRoles.name, getRoles));
     // Build search query

@@ -104,6 +104,7 @@ export class OutletRepository {
     limit: number = 10,
     searchTerm: string = '',
     isActive: number = 1,
+    filter: { area: string; region: string },
   ) {
     const db = this.drizzleService['db'];
 
@@ -112,7 +113,7 @@ export class OutletRepository {
     }
 
     // Define the search columns and build search condition
-    const searchColumns = ['name', 'brand', 'area', 'region'];
+    const searchColumns = ['name', 'brand', 'address_line'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
     // Count query for total records
@@ -159,6 +160,14 @@ export class OutletRepository {
 
     if (searchCondition) {
       paginatedQuery = paginatedQuery.where(searchCondition);
+    }
+
+    if (filter.region) {
+      paginatedQuery = paginatedQuery.where(eq(mOutlets.region, filter.region));
+    }
+
+    if (filter.area) {
+      paginatedQuery = paginatedQuery.where(eq(mOutlets.area, filter.area));
     }
 
     const paginatedResult = await paginatedQuery;
