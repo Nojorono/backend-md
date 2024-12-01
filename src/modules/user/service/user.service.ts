@@ -15,24 +15,27 @@ export class UserService {
   // Create a new user
   async store(createUserDto: CreateUserDto, accessToken: string) {
     try {
-      // Find the user associated with the provided token
       const user = await this.userRepo.findByToken(accessToken);
-      if (!user) {
-        // Throw an unauthorized error if the token is invalid or user is not found
-        throw new HttpException(
-          'accessTokenUnauthorized',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
       if (createUserDto.email) {
-        createUserDto.email.toLowerCase();
+        createUserDto.email = createUserDto.email.toLowerCase();
       }
+      // Validate input lengths
+      if (createUserDto.username && createUserDto.username.length > 50) {
+        throw new HttpException('Username must be 50 characters or less.', HttpStatus.BAD_REQUEST);
+      }
+      if (createUserDto.fullname && createUserDto.fullname.length > 50) {
+        throw new HttpException('Fullname must be 50 characters or less.', HttpStatus.BAD_REQUEST);
+      }
+      if (createUserDto.email && createUserDto.email.length > 100) {
+        throw new HttpException('Email must be 100 characters or less.', HttpStatus.BAD_REQUEST);
+      }      
       // Check if user with the provided email already exists
       const findExist = await this.userRepo.getUserByEmail(createUserDto.email);
       if (findExist) {
         // Throw a conflict error if the email is already taken
         throw new HttpException('userExists', HttpStatus.CONFLICT);
       }
+
       // Create and return the new user
       return await this.userRepo.createUser(createUserDto, user.email);
     } catch (e) {

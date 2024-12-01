@@ -11,18 +11,18 @@ import { relations } from 'drizzle-orm';
 
 export const mUser = pgTable('m_user', {
   id: serial('id').primaryKey().notNull(),
-  username: varchar('username', { length: 50 }).notNull(),
+  username: varchar('username', { length: 100 }).notNull(),
   user_role_id: integer('user_role_id')
     .references(() => mUserRoles.id)
     .notNull(),
-  fullname: varchar('fullname', { length: 50 }),
-  password: varchar('password', { length: 100 }),
-  email: varchar('email', { length: 100 }),
-  phone: varchar('phone', { length: 20 }),
-  type_md: varchar('type_md', { length: 20 }),
+  fullname: varchar('fullname', { length: 200 }),
+  password: varchar('password', { length: 200 }),
+  email: varchar('email', { length: 200 }),
+  phone: varchar('phone', { length: 50 }),
+  type_md: varchar('type_md', { length: 50 }),
   photo: varchar('photo', { length: 255 }),
   area: jsonb('area').default([]),
-  region: varchar('region', { length: 50 }).default(null),
+  region: varchar('region', { length: 200 }).default(null),
   is_active: integer('is_active').notNull().default(1),
   valid_from: timestamp('valid_from'),
   valid_to: timestamp('valid_to'),

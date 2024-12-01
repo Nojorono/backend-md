@@ -69,12 +69,7 @@ export class SurveyRepository {
       .returning();
   }
 
-  async getAll(
-    page: number = 1,
-    limit: number = 10,
-    searchTerm: string = '',
-    filter: { area: string[]; region: string },
-  ) {
+  async getSchedule(filter: { area: string[]; region: string }) {
     const db = this.drizzleService['db'];
 
     if (!db) {
@@ -87,14 +82,40 @@ export class SurveyRepository {
     if (filter.region) {
       query.where(eq(Survey.region, filter.region));
     }
-
-    // Apply area filter if provided (assuming 'area' is an array in filter)
-    if (Array.isArray(filter.area) && filter.area.length > 0) {
+    // Apply area filter if provided
+    if (filter.area) {
       query.where(inArray(Survey.area, filter.area));
     }
 
+    return await query.execute();
+  }
+
+  async getAll(
+    page: number = 1,
+    limit: number = 10,
+    searchTerm: string = '',
+    filter: { area: string; region: string },
+  ) {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const query = db.select().from(Survey).where(isNull(Survey.deleted_at));
+
+    // Apply region filter if provided
+    // if (filter.region) {
+    //   query.where(eq(Survey.region, filter.region));
+    // }
+
+    // Apply area filter if provided (assuming 'area' is an array in filter)
+    // if (filter.area) {
+    //   query.where(eq(Survey.area, filter.area));
+    // }
+
     // Apply search condition if available
-    const searchColumns = ['region', 'outlet_code', 'area'];
+    const searchColumns = ['name', 'outlet_code', 'address_line'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
     // Apply search condition if available
@@ -108,19 +129,8 @@ export class SurveyRepository {
 
     const result = await query;
 
-    const encryptedResult = await Promise.all(
-      result.map(async (item) => {
-        const encryptedId = await this.encryptedId(item.id);
-
-        return {
-          ...item,
-          id: encryptedId,
-        };
-      }),
-    );
-
     return {
-      data: encryptedResult,
+      data: result,
       ...paginate(totalRecords, page, limit),
     };
   }

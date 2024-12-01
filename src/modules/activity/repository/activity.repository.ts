@@ -67,14 +67,14 @@ export class ActivityRepository {
     }
 
     const query = db.select().from(Activity).where(isNull(Activity.deleted_at));
-
     // Apply search condition if available
-    const searchColumns = ['name'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
-
-    // Apply search condition if available
-    if (searchCondition) {
-      query.where(searchCondition);
+    if (searchTerm !== '') {
+      console.log(searchTerm);
+      const searchColumns = ['area', 'region'];
+      const searchCondition = buildSearchQuery(searchTerm, searchColumns);
+      if (searchCondition) {
+        query.where(searchCondition);
+      }
     }
     const records = await query.execute();
     const totalRecords = parseInt(records.length) || 0;

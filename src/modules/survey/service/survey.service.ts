@@ -44,9 +44,18 @@ export class SurveyService {
     const user = await this.userRepository.findByToken(accessToken);
     // Extract area and region from the user object to pass as filters
     const filter = {
-      area: user.area || [],
+      area: user.area || '',
       region: user.region || '',
     };
     return this.SurveyRepository.getAll(pageInt, limitInt, searchTerm, filter);
+  }
+
+  async getSchedule(accessToken: string) {
+    const user = await this.userRepository.findByToken(accessToken);
+    const filter = {
+      area: user.area || [],
+      region: user.region || '',
+    };
+    return this.SurveyRepository.getSchedule(filter);  
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, InternalServerErrorException } from '@nestjs/common';
 import { CallPlanScheduleRepository } from '../repository/callplanschedule.repository';
 import { generateCode } from '../../../helpers/nojorono.helpers';
 import { logger } from 'nestjs-i18n';
@@ -36,37 +36,51 @@ export class CallPlanScheduleService {
 
   async createCallPlanSchedule(
     createCallPlaScheduleDto: CreateCallPlanScheduleDto,
-    accessToken,
-  ) {
+    accessToken: string,
+  ): Promise<any[]> {
     try {
       const userCreate = await this.userRepository.findByToken(accessToken);
+      if (!userCreate) {
+        throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
+      }
+
       createCallPlaScheduleDto.created_by = userCreate.email;
 
       const lastId = await this.callPlanScheduleRepository.findLastId();
       let currentId = lastId ? lastId.id + 1 : 1;
 
       const results = [];
-      for (const outletId of createCallPlaScheduleDto.outlet_id) {
+      if (createCallPlaScheduleDto.survey_outlet_id) {
         const code_call_plan = generateCode('CL', currentId++);
-
-        // Clone the DTO and set the outlet-specific properties
         const newScheduleDto = {
           ...createCallPlaScheduleDto,
-          outlet_id: outletId,
+          survey_outlet_id: createCallPlaScheduleDto.survey_outlet_id,
+          outlet_id: null,
           code_call_plan,
           status: STATUS_ACTIVITY_MD_2,
         };
+        await this.callPlanScheduleRepository.createData(newScheduleDto);
+        results.push(newScheduleDto);
+      } else if (createCallPlaScheduleDto.outlet_id && createCallPlaScheduleDto.outlet_id.length > 0) {
+        for (const outletId of createCallPlaScheduleDto.outlet_id) {
+          const code_call_plan = generateCode('CL', currentId++);
+          const newScheduleDto = {
+            ...createCallPlaScheduleDto,
+            outlet_id: outletId,
+            code_call_plan,
+            status: STATUS_ACTIVITY_MD_2,
+          };
 
-        // Create data for each outlet
-        const result =
-          await this.callPlanScheduleRepository.createData(newScheduleDto);
-        results.push(result);
+          const result = await this.callPlanScheduleRepository.createData(newScheduleDto);
+          results.push(result);
+        }
+      } else {
+        throw new HttpException('Outlet ID is required', HttpStatus.BAD_REQUEST);
       }
-
       return results;
     } catch (e) {
-      logger.error(e);
-      return e;
+      logger.error('Error creating call plan schedule:', e.message, e.stack);
+      throw new InternalServerErrorException('Failed to create call plan schedule');
     }
   }
 

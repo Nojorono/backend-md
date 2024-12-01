@@ -24,6 +24,13 @@ export class UserRepo {
     return encrypt(id.toString());
   }
 
+  async findById(id: number) {
+    const db = this.drizzleService['db'];
+    return await db.query.mUser.findFirst({
+      where: (mUser, { eq }) => eq(mUser.id, id),
+    });
+  }
+
   // List all active with pagination and search
   async getAllPagination(
     page: number = 1,
@@ -133,15 +140,15 @@ export class UserRepo {
         username: createUserDto.username,
         user_role_id: createUserDto.user_role_id,
         fullname: createUserDto.fullname,
-        password: await bcrypt.hash('123456', 10), // Hash the password,
+        password: await bcrypt.hash('123456', 10),
         email: createUserDto.email,
         phone: createUserDto.phone,
         area: createUserDto.area,
         region: createUserDto.region,
         type_md: createUserDto.type_md,
         is_active: 1,
-        valid_from: new Date(createUserDto.valid_from),
-        valid_to: new Date(createUserDto.valid_to),
+        valid_from: createUserDto.valid_from ? new Date(createUserDto.valid_from) : null,
+        valid_to: createUserDto.valid_to ? new Date(createUserDto.valid_to) : null  ,
         created_at: new Date(),
         created_by: userEmail,
       })
