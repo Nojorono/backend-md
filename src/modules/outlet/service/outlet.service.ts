@@ -58,6 +58,7 @@ export class OutletService {
     limit: string = '10',
     searchTerm: string = '',
     isActive: number = 1,
+    filter: { area: string; region: string },
   ) {
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
@@ -66,6 +67,7 @@ export class OutletService {
       limitInt,
       searchTerm,
       isActive,
+      filter,
     );
   }
 
