@@ -4,7 +4,7 @@ import { ActivitySioDto } from './activity_sio.dtos';
 import { ActivitySogDto } from './activity_sog.dtos';
 
 export class CreateMdActivityDto {
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ example: 3 })
   @IsInt()
   user_id: number;
 
@@ -12,7 +12,7 @@ export class CreateMdActivityDto {
   @IsInt()
   call_plan_schedule_id: number;
   
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ example: 3 })
   @IsInt()
   call_plan_id: number;
 
@@ -20,30 +20,30 @@ export class CreateMdActivityDto {
   @IsInt()
   outlet_id: number;
 
-  @ApiProperty({ example: 1, required: false })
+  @ApiProperty({ example: 0, required: false })
   @IsInt()
   @IsOptional()
   status?: number;
 
-  @ApiProperty({ example: 'Area A', required: false })
+  @ApiProperty({ example: 'MAKASSAR', required: false })
   @IsString()
   @IsOptional()
   @Length(1, 50)
   area?: string;
 
-  @ApiProperty({ example: 'Region X', required: false })
+  @ApiProperty({ example: 'SULAWESI', required: false })
   @IsString()
   @IsOptional()
   @Length(1, 50)
   region?: string;
 
-  @ApiProperty({ example: 'Brand A', required: false })
+  @ApiProperty({ example: 'CLASMILD', required: false })
   @IsString()
   @IsOptional()
   @Length(1, 50)
   brand?: string;
 
-  @ApiProperty({ example: 'Type A', required: false })
+  @ApiProperty({ example: 'SIO GT STANDARD', required: false })
   @IsString()
   @IsOptional()
   @Length(1, 80)
@@ -57,7 +57,7 @@ export class CreateMdActivityDto {
   @IsOptional()
   end_time?: Date;
 
-  @ApiProperty({ example: ['photo_url.jpg'], required: false })
+  @ApiProperty({ example: ['https://via.placeholder.com/300.png/09f/fff?text=Test+Image'], required: false })
   @IsArray()
   @IsOptional()
   photos?: string[];

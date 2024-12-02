@@ -12,6 +12,7 @@ import { ActivityRepository } from '../repository/activity.repository';
 import { logger } from 'nestjs-i18n';
 import { ActivitySioRepository } from '../repository/activity_sio.repository';
 import { ActivitySogRepository } from '../repository/activity_sog.repository copy';
+import { S3Service } from 'src/modules/s3/service/s3.service';
 
 @Injectable()
 export class ActivityService {
@@ -20,6 +21,7 @@ export class ActivityService {
     private readonly activitySioRepository: ActivitySioRepository,
     private readonly activitySogRepository: ActivitySogRepository,
     private readonly userRepository: UserRepo,
+    private readonly s3Service: S3Service,
   ) {}
 
   async createData(createDto: CreateMdActivityDto) {
@@ -30,24 +32,30 @@ export class ActivityService {
       createDto.created_at = new Date();
       createDto.start_time = new Date(createDto.start_time);
       createDto.end_time = new Date(createDto.end_time);
-      const data = await this.repository.create(createDto);
 
+      if (createDto.photos && createDto.photos.length > 0) {
+        for (let i = 0; i < createDto.photos.length; i++) {
+          createDto.photos[i] = await this.s3Service.uploadImageFromUri(createDto.photos[i], 'activity');
+        }
+      }
+      const data = await this.repository.create(createDto);
       // Handle multiple entries for activity_sio
       if (createDto.activity_sio && Array.isArray(createDto.activity_sio)) {
-        const sioEntries = createDto.activity_sio.map(sio => ({
-          ...sio,
-          activity_id: data[0].id,
-        }));
-        await this.activitySioRepository.create(sioEntries);
+          const sioEntries = await Promise.all(createDto.activity_sio.map(async sio => ({
+            ...sio,
+            activity_id: data[0].id,
+            photo: sio.photo ? await this.s3Service.uploadImageFromUri(sio.photo, 'activity_sio') : null,
+          })));
+          await this.activitySioRepository.create(sioEntries);
       }
 
       // Handle multiple entries for activity_sog
       if (createDto.activity_sog && Array.isArray(createDto.activity_sog)) {
-        const sogEntries = createDto.activity_sog.map(sog => ({
-          ...sog,
-          activity_id: data[0].id,
-        }));
-        await this.activitySogRepository.create(sogEntries);
+          const sogEntries = await Promise.all(createDto.activity_sog.map(async sog => ({
+            ...sog,
+            activity_id: data[0].id,
+          })));
+          await this.activitySogRepository.create(sogEntries);
       }
 
       return data;

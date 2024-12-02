@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as AWS from 'aws-sdk';
+import path from 'path';
 import sharp from 'sharp';
 
 @Injectable()
@@ -58,8 +59,7 @@ export class S3Service {
     };
 
     const result = await this.s3.upload(params).promise();
-    console.log(result);
-    return result.Location; // Return the S3 URL of the uploaded image
+    return result.Location;
   }
 
   // Method to delete an image from S3
@@ -80,4 +80,40 @@ export class S3Service {
       throw new Error(`Failed to delete image: ${error.message}`);
     }
   }
+
+  async uploadImageFromUri(uri: string, keyDirectory: string) {
+    try {
+        let arrayBuffer: ArrayBuffer;
+        let originalName: string;
+
+        if (uri.startsWith('file://')) {
+            // Handle local file URIs
+            const filePath = uri.replace('file://', '');
+            const fileBuffer = require('fs').readFileSync(filePath);
+            arrayBuffer = fileBuffer.buffer;
+            originalName = path.basename(filePath);
+        } else {
+            // Handle remote URLs
+            const response = await fetch(uri);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            arrayBuffer = await response.arrayBuffer();
+            originalName = uri.split('/').pop() || 'unknown';
+        }
+
+        // Create a file object with the buffer and original name
+        const file = {
+            buffer: Buffer.from(arrayBuffer),
+            originalname: originalName,
+        } as Express.Multer.File;
+
+        // Upload the file (assuming you have this method implemented)
+        const imageUrl = await this.uploadCompressedImage(keyDirectory, file);
+        return imageUrl;
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        throw new Error(`Failed to upload image: ${error.message}`);
+    }
+}
 }
