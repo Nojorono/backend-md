@@ -11,6 +11,10 @@ import { CallPlan } from './call_plan';
 import { mOutlets } from './m_outlet.schema';
 import { CallPlanSchedule } from './call_plan_schedule';
 import { Survey } from './survey.schema';
+import { relations } from 'drizzle-orm';
+import { ActivitySio } from './activity_sio.schema';
+import { ActivitySog } from './activity_sog.schema';
+
 export const Activity = pgTable('activity', {
   id: serial('id').primaryKey().notNull(),
   user_id: integer('user_id').references(() => mUser.id),
@@ -37,3 +41,28 @@ export const Activity = pgTable('activity', {
   deleted_by: varchar('deleted_by', { length: 100 }),
   deleted_at: timestamp('deleted_at').default(null),
 });
+
+export const ActivityRelations = relations(Activity, ({ one, many }) => ({
+  callPlan: one(CallPlan, {
+      fields: [Activity.call_plan_id],
+      references: [CallPlan.id],
+  }),
+  callPlanSchedule: one(CallPlanSchedule, {
+    fields: [Activity.call_plan_schedule_id],
+    references: [CallPlanSchedule.id],
+  }),
+  surveyOutlet: one(Survey, {
+      fields: [Activity.survey_outlet_id],
+      references: [Survey.id],
+  }),
+  user: one(mUser, {
+      fields: [Activity.user_id],
+      references: [mUser.id],
+  }),
+  outlet: one(mOutlets, {
+      fields: [Activity.outlet_id],
+      references: [mOutlets.id],
+  }),
+  activitySios: many(ActivitySio),
+  activitySogs: many(ActivitySog),
+}));

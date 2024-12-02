@@ -193,7 +193,7 @@ export class OutletService {
                   ? data['kecamatan'].toUpperCase()
                   : '',
                 address_line: data['alamat'] || '',
-                outlet_type: data['tipe_outlet']
+                sio_type: data['tipe_outlet']
                   ? data['tipe_outlet'].toUpperCase()
                   : '',
                 longitude: data['long'] || '',

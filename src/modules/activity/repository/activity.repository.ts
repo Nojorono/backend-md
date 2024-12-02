@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { eq, isNull } from 'drizzle-orm';
-import { Activity } from '../../../schema';
+import { Activity, ActivityRelations } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { buildSearchQuery, paginate } from '../../../helpers/nojorono.helpers';
 import {
@@ -39,8 +39,20 @@ export class ActivityRepository {
       throw new Error('Database not initialized');
     }
 
-    const result = await db.select().from(Activity).where(eq(Activity.id, id));
-    return result[0]; // Return the first (and expectedly only) result
+    const activityWithRelations = await db.query.Activity.findFirst({
+      where: (Activity, { eq }) => eq(Activity.id, id),
+      with: {
+        callPlanSchedule: true,
+        surveyOutlet: true,
+        outlet: true,
+        user: true,
+        callPlan: true,
+        activitySios: true,
+        activitySogs: true,
+      },
+    });
+
+    return activityWithRelations;
   }
 
   async delete(id: number, userBy: string) {
@@ -84,7 +96,7 @@ export class ActivityRepository {
     const result = await query;
 
     return {
-      data: result,
+      result,
       ...paginate(totalRecords, page, limit),
     };
   }

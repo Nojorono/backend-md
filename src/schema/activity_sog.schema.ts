@@ -6,7 +6,7 @@ import {
   integer,
 } from 'drizzle-orm/pg-core';
 import { Activity } from './activity.schema';
-
+import { relations } from 'drizzle-orm';
 export const ActivitySog = pgTable('activity_sog', {
   id: serial('id').primaryKey().notNull(),
   activity_id: integer('activity_id').references(() => Activity.id),
@@ -20,3 +20,14 @@ export const ActivitySog = pgTable('activity_sog', {
   deleted_by: varchar('deleted_by', { length: 100 }),
   deleted_at: timestamp('deleted_at').default(null),
 });
+
+export const ActivitySogRelations = relations(ActivitySog, ({ one }) => ({
+  activity: one(Activity, {
+    fields: [ActivitySog.activity_id],
+    references: [Activity.id],
+  }),
+}));
+
+export const ActivityRelations = relations(Activity, ({ many }) => ({
+  activitySogs: many(ActivitySog),
+}));
