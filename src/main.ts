@@ -14,12 +14,7 @@ async function bootstrap() {
     AppModule,
     new ExpressAdapter(express()),
     {
-      cors: {
-        origin: '*',
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['*'],
-        credentials: false
-      },
+      cors: true,
     },
   );
   app.useLogger(['error', 'warn', 'log', 'debug', 'verbose']);
@@ -63,7 +58,21 @@ async function bootstrap() {
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginOpenerPolicy: false,
   }));
-  
+
+  app.enableCors({
+    origin: [
+      'http://localhost:8080',
+      'http://10.0.63.205:8080',
+      'http://127.0.0.1:8080',
+      'http://192.168.1.100:8080', // Add your local network IP
+      'http://0.0.0.0:8080'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    exposedHeaders: ['Authorization'],
+    credentials: true,
+    maxAge: 3600
+  });
   // app.connectMicroservice({
   //   transport: Transport.RMQ,
   //   options: {
@@ -74,7 +83,7 @@ async function bootstrap() {
   //   },
   // });
   // await app.startAllMicroservices();
-  await app.listen(port, host);
+  await app.listen(port, '0.0.0.0');
   logger.log(
     `🚀 ${configService.get(
       'app.name',

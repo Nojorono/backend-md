@@ -8,6 +8,8 @@ import {
   jsonb,
 } from 'drizzle-orm/pg-core';
 import { Survey } from './survey.schema';
+import { Activity } from './activity.schema';
+import { relations } from 'drizzle-orm';
 
 export const mOutlets = pgTable('m_outlet', {
   id: serial('id').primaryKey(),
@@ -51,3 +53,7 @@ export const mOutlets = pgTable('m_outlet', {
   deleted_by: varchar('deleted_by', { length: 100 }),
   deleted_at: timestamp('deleted_at').default(null),
 });
+
+export const outletRelations = relations(mOutlets, ({ many }) => ({
+  activities: many(Activity),
+}));

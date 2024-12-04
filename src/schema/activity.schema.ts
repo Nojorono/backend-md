@@ -42,6 +42,13 @@ export const Activity = pgTable('activity', {
   deleted_at: timestamp('deleted_at').default(null),
 });
 
+export const outletActivityRelations = relations(Activity, ({ one }) => ({
+  outlet: one(mOutlets, {
+    fields: [Activity.outlet_id],
+    references: [mOutlets.id],
+  }),
+}));
+
 export const ActivityRelations = relations(Activity, ({ one, many }) => ({
   callPlan: one(CallPlan, {
       fields: [Activity.call_plan_id],

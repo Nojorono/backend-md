@@ -1,6 +1,6 @@
 export { mUser, usersRelations } from './m_user.schema';
 export { mUserRoles } from './m_user_role.schema';
-export { mOutlets } from './m_outlet.schema';
+export { mOutlets, outletRelations } from './m_outlet.schema';
 export { CallPlan } from './call_plan';
 export { Mbatch } from './m_batch';
 export { MbatchTarget } from './m_batch_target';
@@ -9,7 +9,7 @@ export {
   CallPlanUserRelations,
   CallPlanOutletRelations,
 } from './call_plan_schedule';
-export { Activity, ActivityRelations } from './activity.schema';
+export { Activity, ActivityRelations, outletActivityRelations } from './activity.schema';
 export { ActivitySog, ActivitySogRelations } from './activity_sog.schema';
 export { ActivitySio, ActivitySioRelations } from './activity_sio.schema';
 export { MBrand } from './m_brand_sog.schema';
