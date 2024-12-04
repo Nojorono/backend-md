@@ -78,11 +78,15 @@ export class OutletRepository {
       throw new Error('Database not initialized');
     }
     const idDecrypted = await this.decryptId(id);
-    const result = await db
-      .select()
-      .from(mOutlets)
-      .where(eq(mOutlets.id, idDecrypted));
-    return result[0];
+    const result = await db.query.mOutlets.findFirst({
+      where: eq(mOutlets.id, idDecrypted),
+      with: {
+        activities: {
+          orderBy: (Activity, { desc }) => [desc(Activity.created_at)],
+        },
+      },
+    });
+    return result;
   }
   // Delete an outlet (soft delete by updating is_deleted field)
   async deleteOutlet(id: number) {
