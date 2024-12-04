@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app/app.module';
 import { setupSwagger } from './swagger';
-
 import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 
@@ -15,24 +14,17 @@ async function bootstrap() {
     AppModule,
     new ExpressAdapter(express()),
     {
-      cors: true,
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['*'],
+        credentials: false
+      },
     },
   );
-
+  app.useLogger(['error', 'warn', 'log', 'debug', 'verbose']);
   const configService = app.get(ConfigService);
   const expressApp = app.getHttpAdapter().getInstance();
-
-  // add root message
-  expressApp.get('/', (_req: Request, res: Response) => {
-    res.status(200).json({
-      status: 200,
-      message: `Message from ${configService.get('app.name')}`,
-      data: {
-        timestamp: new Date(),
-      },
-    });
-  });
-
   const port: number = configService.get<number>('app.http.port');
   const host: string = configService.get<string>('app.http.host');
   const globalPrefix: string = configService.get<string>('app.globalPrefix');
@@ -43,7 +35,18 @@ async function bootstrap() {
   const versionEnable: string = configService.get<string>(
     'app.versioning.enable',
   );
-  app.use(helmet());
+
+  expressApp.get('/', (_req: Request, res: Response) => {
+    res.status(200).json({
+      status: 200,
+      message: `Message from ${configService.get('app.name')}`,
+      data: {
+        timestamp: new Date(),
+      },
+    });
+  });
+
+  // Move helmet after WebSocket setup to avoid interfering with WS upgrade
   app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix(globalPrefix);
   if (versionEnable) {
@@ -54,6 +57,13 @@ async function bootstrap() {
     });
   }
   await setupSwagger(app);
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: false,
+  }));
+  
   // app.connectMicroservice({
   //   transport: Transport.RMQ,
   //   options: {

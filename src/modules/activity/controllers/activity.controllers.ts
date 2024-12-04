@@ -64,10 +64,8 @@ export class ActivityControllers {
   @Post()
   async create(@Body() createDto: CreateMdActivityDto) {
     try {
-      console.log(createDto);
       return this.service.createData(createDto);
     } catch (error) {
-      console.log(error);
       if (error instanceof BadRequestException) {
         console.error('Validation failed:', error.message);
       }

@@ -10,10 +10,12 @@ export {
   CallPlanOutletRelations,
 } from './call_plan_schedule';
 export { Activity, ActivityRelations } from './activity.schema';
-export { ActivitySog, ActivitySogRelations } from './activity_sog.schema';
-export { ActivitySio, ActivitySioRelations } from './activity_sio.schema';
+export { ActivitySog } from './activity_sog.schema';
+export { ActivitySio } from './activity_sio.schema';
 export { MBrand } from './m_brand_sog.schema';
 export { MSioType } from './m_sio_type.schema';
 export { MRegion } from './m_region.schema';
 export { MArea } from './m_area.schema';
 export { Survey } from './survey.schema';
+export { Notifications } from './notification.schema';
+export { Comments } from './comment.schema';

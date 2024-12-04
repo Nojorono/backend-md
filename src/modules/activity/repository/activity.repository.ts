@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { eq, isNull } from 'drizzle-orm';
-import { Activity, ActivityRelations } from '../../../schema';
+import { Activity } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { buildSearchQuery, paginate } from '../../../helpers/nojorono.helpers';
 import {
@@ -18,7 +18,6 @@ export class ActivityRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    console.log(createDto);
 
     return await db.insert(Activity).values(createDto).returning();
   }
@@ -81,7 +80,6 @@ export class ActivityRepository {
     const query = db.select().from(Activity).where(isNull(Activity.deleted_at));
     // Apply search condition if available
     if (searchTerm !== '') {
-      console.log(searchTerm);
       const searchColumns = ['area', 'region'];
       const searchCondition = buildSearchQuery(searchTerm, searchColumns);
       if (searchCondition) {

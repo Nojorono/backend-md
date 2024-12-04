@@ -54,7 +54,6 @@ async function seedUsers() {
     ];
 
     await db.insert(mUser).values(users);
-    console.log('Users seeded successfully');
   } catch (error) {
     console.error('Error seeding users:', error);
   } finally {

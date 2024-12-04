@@ -23,10 +23,6 @@ export const ActivitySio = pgTable('activity_sio', {
   deleted_at: timestamp('deleted_at').default(null),
 });
 
-export const ActivityRelations = relations(Activity, ({ many }) => ({
-  activitySios: many(ActivitySio),
-}));
-
 export const ActivitySioRelations = relations(ActivitySio, ({ one }) => ({
   activity: one(Activity, {
     fields: [ActivitySio.activity_id],

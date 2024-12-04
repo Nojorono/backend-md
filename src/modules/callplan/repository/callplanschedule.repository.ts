@@ -47,8 +47,6 @@ export class CallPlanScheduleRepository {
       survey_outlet_id,
     } = createCallPlanScheduleDto;
 
-    console.log(createCallPlanScheduleDto)
-
     if (!db) {
       throw new Error('Database not initialized');
     }

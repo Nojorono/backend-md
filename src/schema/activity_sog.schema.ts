@@ -27,7 +27,3 @@ export const ActivitySogRelations = relations(ActivitySog, ({ one }) => ({
     references: [Activity.id],
   }),
 }));
-
-export const ActivityRelations = relations(Activity, ({ many }) => ({
-  activitySogs: many(ActivitySog),
-}));

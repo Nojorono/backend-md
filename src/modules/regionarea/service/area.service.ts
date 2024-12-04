@@ -24,7 +24,6 @@ export class AreaService {
   }
 
   async updateData(id: number, updateRolesDto: UpdateAreaDto) {
-    console.log(updateRolesDto);
     updateRolesDto.area = updateRolesDto.area.toUpperCase();
     updateRolesDto.created_at = new Date(updateRolesDto.created_at);
     updateRolesDto.updated_at = new Date();
