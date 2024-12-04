@@ -23,7 +23,6 @@ export class CallPlanService {
     try {
       const check =
         await this.callPlanRepository.validateCreate(createCallPlanDto);
-      console.log(check);
       if (check.length > 0) {
         throw new HttpException('DataExists', HttpStatus.BAD_REQUEST);
       }
@@ -67,12 +66,10 @@ export class CallPlanService {
     limit: string = '10',
     searchTerm: string = '',
   ) {
-    console.log(accessToken);
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
     const user = await this.userRepository.findByToken(accessToken);
     // Extract area and region from the user object to pass as filters
-    console.log(user);
     if (user) {
       const filter = {
         area: user.area || [],

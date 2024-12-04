@@ -48,8 +48,6 @@ export class RolesRepository {
   async updateRoles(id: string, updateRolesDto: UpdateRolesDto) {
     const db = this.drizzleService['db'];
     const idDecrypted = await this.decryptId(id);
-    console.log(idDecrypted, id);
-    console.log(updateRolesDto);
 
     return await db
       .update(mUserRoles)

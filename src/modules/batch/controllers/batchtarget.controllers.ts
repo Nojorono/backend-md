@@ -48,7 +48,6 @@ export class BatchTargetControllers {
   @ApiBearerAuth('accessToken')
   @Get(':batchId')
   async findAll(@Param('batchId') batchId: string = '') {
-    console.log(batchId);
     return this.batchTargetService.getAll(batchId);
   }
 }

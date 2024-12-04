@@ -23,9 +23,16 @@ import { ActivityModule } from '../modules/activity/activity.module';
 import { SioModule } from '../modules/sio/sio.module';
 import { RegionAreaModule } from '../modules/regionarea/regionarea.module';
 import { SurveyModule } from '../modules/survey/survey.module';
+import { ConfigModule } from '@nestjs/config';
+import { AppGateway } from 'src/socket/socket.gateaway';
+import { SocketModule } from 'src/socket/socket.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ // Load environment variables
+      isGlobal: true,
+    }),
+    SocketModule,
     CommonModule,
     S3Module,
     AuthModule,
