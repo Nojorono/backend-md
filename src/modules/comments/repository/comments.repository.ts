@@ -22,7 +22,7 @@ export class CommentsRepository {
 
   async createData(CreateDto: CreateDto) {
     const db = this.drizzleService['db'];
-
+    const user_id = await this.decryptId(CreateDto.user_id);
     if (!db) {
       throw new Error('Database not initialized');
     }
@@ -31,6 +31,7 @@ export class CommentsRepository {
       .insert(Comments)
       .values({
         ...CreateDto,
+        user_id: user_id,
       })
       .returning();
   }
@@ -43,7 +44,7 @@ export class CommentsRepository {
       .where(eq(Comments.id, id))
       .execute();
   }
-  
+
   async getById(id: string) {
     const db = this.drizzleService['db'];
     if (!db) {
@@ -55,6 +56,14 @@ export class CommentsRepository {
       .from(Comments)
       .where(eq(Comments.id, idDecrypted));
     return result[0];
+  }
+
+  async getByActivityId(id: number) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.select().from(Comments).where(eq(Comments.activity_id, id));
   }
 
   async deleteById(id: number, userEmail: string) {

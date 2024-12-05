@@ -26,6 +26,7 @@ import { SurveyModule } from '../modules/survey/survey.module';
 import { ConfigModule } from '@nestjs/config';
 import { AppGateway } from 'src/socket/socket.gateaway';
 import { SocketModule } from 'src/socket/socket.module';
+import { CommentsModule } from 'src/modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { SocketModule } from 'src/socket/socket.module';
     SioModule,
     RegionAreaModule,
     SurveyModule,
+    CommentsModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',

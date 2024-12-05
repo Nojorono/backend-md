@@ -14,7 +14,7 @@ import { CreateDto, UpdateDto } from '../dtos/comments.dtos';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
-@ApiTags('comments')
+@ApiTags('comment')
 @Controller({
   version: '1',
   path: '/comment',
@@ -30,9 +30,9 @@ export class CommentsControllers {
   }
   
   @ApiBearerAuth('accessToken')
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.CommentsService.getById(id);
+  @Get('activity/:id')
+  async findOne(@Param('id') id: number) {
+    return this.CommentsService.getByActivityId(id);
   }
 
   @ApiBearerAuth('accessToken')

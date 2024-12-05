@@ -127,6 +127,20 @@
       "when": 1733277627583,
       "tag": "0017_dizzy_bushwacker",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1733362413552,
+      "tag": "0018_daily_argent",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1733362828228,
+      "tag": "0019_dry_whiplash",
+      "breakpoints": true
     }
   ]
 }
