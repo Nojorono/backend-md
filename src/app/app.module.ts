@@ -24,9 +24,9 @@ import { SioModule } from '../modules/sio/sio.module';
 import { RegionAreaModule } from '../modules/regionarea/regionarea.module';
 import { SurveyModule } from '../modules/survey/survey.module';
 import { ConfigModule } from '@nestjs/config';
-import { AppGateway } from 'src/socket/socket.gateaway';
 import { SocketModule } from 'src/socket/socket.module';
 import { CommentsModule } from 'src/modules/comments/comments.module';
+import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -48,6 +48,7 @@ import { CommentsModule } from 'src/modules/comments/comments.module';
     RegionAreaModule,
     SurveyModule,
     CommentsModule,
+    NotificationsModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',

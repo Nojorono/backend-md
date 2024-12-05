@@ -24,9 +24,8 @@ export class CommentsControllers {
 
   @ApiBearerAuth('accessToken')
   @Post()
-  async create(@Body() CreateDto: CreateDto, @Req() request: Request) {
-    const accessToken = request.headers.authorization?.split(' ')[1];
-    return this.CommentsService.create(CreateDto, accessToken);
+  async create(@Body() CreateDto: CreateDto) {
+    return this.CommentsService.create(CreateDto);
   }
   
   @ApiBearerAuth('accessToken')

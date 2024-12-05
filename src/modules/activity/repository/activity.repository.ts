@@ -54,6 +54,24 @@ export class ActivityRepository {
     return activityWithRelations;
   }
 
+  async getRegionAndArea(id: number) {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const data = await db.query.Activity.findFirst({
+      where: (Activity, { eq }) => eq(Activity.id, id),
+      columns: {
+        region: true,
+        area: true,
+      },
+    });
+
+    return data;
+  }
+
   async delete(id: number, userBy: string) {
     const db = this.drizzleService['db'];
     if (!db) {
