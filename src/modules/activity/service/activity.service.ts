@@ -11,7 +11,7 @@ import {
 import { ActivityRepository } from '../repository/activity.repository';
 import { logger } from 'nestjs-i18n';
 import { ActivitySioRepository } from '../repository/activity_sio.repository';
-import { ActivitySogRepository } from '../repository/activity_sog.repository copy';
+import { ActivitySogRepository } from '../repository/activity_sog.repository';
 import { S3Service } from 'src/modules/s3/service/s3.service';
 
 @Injectable()
@@ -70,6 +70,10 @@ export class ActivityService {
 
   async getDataById(id: number) {
     return this.repository.getById(id);
+  }
+
+  async getRegionAndArea(id: number) {
+    return this.repository.getRegionAndArea(id);
   }
 
   async updateData(id: number, updateDto: UpdateMdActivityDto) {

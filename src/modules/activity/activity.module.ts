@@ -8,7 +8,7 @@ import { ActivityControllers } from './controllers/activity.controllers';
 import { OutletRepository } from '../outlet/repository/outlet.repository';
 import { CallPlanScheduleRepository } from '../callplan/repository/callplanschedule.repository';
 import { ActivitySioRepository } from './repository/activity_sio.repository';
-import { ActivitySogRepository } from './repository/activity_sog.repository copy';
+import { ActivitySogRepository } from './repository/activity_sog.repository';
 import { S3Service } from '../s3/service/s3.service';
 
 @Module({
@@ -25,6 +25,6 @@ import { S3Service } from '../s3/service/s3.service';
     OutletRepository,
     CallPlanScheduleRepository,
   ],
-  exports: [ActivityRepository, ActivitySioRepository, ActivitySogRepository, ActivityService],
+  exports: [ActivityRepository, ActivityService],
 })
 export class ActivityModule {}

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
-import { and, arrayContained, eq, inArray, isNull } from 'drizzle-orm';
+import { and, arrayContained, eq, inArray, isNull, not, notInArray, or } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import {
   buildSearchQuery,
@@ -29,6 +29,42 @@ export class UserRepo {
     return await db.query.mUser.findFirst({
       where: (mUser, { eq }) => eq(mUser.id, id),
     });
+  }
+
+  async findIdUserRegionArea(user: any, region?: string, area?: string) {
+    const db = this.drizzleService['db'];
+    const conditions = [];
+    
+    conditions.push(isNull(mUser.deleted_at));
+    conditions.push(not(eq(mUser.email, user.email)));
+    // Filter users by matching region and area if provided
+    // Or find users with no region/area set
+    if (region && area) {
+       conditions.push(
+         and(
+           or(
+             isNull(mUser.region),
+             eq(mUser.region, region)
+           ),
+           or(
+             isNull(mUser.area),
+             arrayContained(mUser.area, [area])
+           )
+         )
+       );
+    }
+
+    const query =  db.select().from(mUser).where(and(...conditions))
+    const result = await query.execute();
+    const encryptedResult = await Promise.all(
+      result.map(async (item: { id: number }) => {
+        return {
+          ...item,
+          id: await this.encryptedId(item.id),
+        };
+      }),
+    );
+    return encryptedResult;
   }
 
   // List all active with pagination and search
@@ -253,8 +289,6 @@ export class UserRepo {
     if (!db) {
       throw new Error('Database not initialized');
     }
-
-    // Perform the update and return the updated fields
     await db
       .update(mUser)
       .set(updateUserDto)

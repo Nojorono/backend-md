@@ -6,9 +6,11 @@ export const Notifications = pgTable('notifications', {
   user_id: integer('user_id').notNull(),
   created_at: timestamp('created_at').defaultNow(),
   is_read: boolean('is_read').default(false),
-  notification_identifier: text('notification_identifier')
+  notification_identifier: text('notification_identifier'),
+  type: integer('type').notNull(),
 }, (table) => {
   return {
     notificationIdentifierIdx: index('notification_identifier_idx').on(table.notification_identifier)
   }
 });
+

@@ -41,10 +41,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('message', payload);
   }
 
-  public notifyUser(userId: string, message: any) {
+  public notifyComment(userId: string, payload: any) {
     for (const [clientId, uid] of this.clientMap.entries()) {
       if (uid === userId) {
-        this.server.to(clientId).emit('notification', message);
+        this.server.to(clientId).emit('notification', payload);
       }
     }
   }
