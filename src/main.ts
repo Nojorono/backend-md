@@ -83,7 +83,7 @@ async function bootstrap() {
   //   },
   // });
   // await app.startAllMicroservices();
-  await app.listen(port, '0.0.0.0');
+  await app.listen(port, host);
   logger.log(
     `🚀 ${configService.get(
       'app.name',
