@@ -28,12 +28,6 @@ export class NotificationsControllers {
     const accessToken = request.headers.authorization?.split(' ')[1];
     return this.NotificationsService.create(CreateDto, accessToken);
   }
-  
-  // @ApiBearerAuth('accessToken')
-  // @Get('activity/:id')
-  // async findOne(@Param('id') id: number) {
-  //   return this.NotificationsService.getByUserId(id);
-  // }
 
   @ApiBearerAuth('accessToken')
   @Put(':id')
@@ -56,8 +50,10 @@ export class NotificationsControllers {
   @ApiBearerAuth('accessToken')
   @Get()
   async findAll(
-    @Query('userId') userId: number,
+    @Query('userId') userId: string,
+    @Query('limit') limit: string,
+    @Query('offset') offset: string
   ) {
-    return this.NotificationsService.getAll(userId);
+    return this.NotificationsService.getAll(userId, limit, offset);
   }
 }

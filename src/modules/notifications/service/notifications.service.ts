@@ -50,9 +50,11 @@ export class NotificationsService {
   }
 
   async getAll(
-   userId: number
+   userId: string,
+   limit: string,
+   offset: string
   ) {
-    return this.NotificationsRepository.getAll(userId);
+    return this.NotificationsRepository.getAll(userId, parseInt(limit), parseInt(offset));
   }
 
 

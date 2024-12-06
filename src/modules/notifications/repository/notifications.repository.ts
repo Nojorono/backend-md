@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { Comments, Notifications, mUser } from '../../../schema';
+import { desc, eq } from 'drizzle-orm';
+import { Comments, Notifications, mOutlets, mUser } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateDto, UpdateDto } from '../dtos/notifications.dtos';
 import {
@@ -86,15 +86,31 @@ export class NotificationsRepository {
 
   
   async getAll(
-    userId: number,
+    userId: string,
+    limit: number,
+    offset: number
   ) {
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
+    const userIdDecrypted = await this.decryptId(userId);
 
-    const query = db.select().from(Notifications).where(eq(Notifications.user_id, userId));
+    const query = db.select({
+      ...Notifications,
+      comments: Comments,
+      user: mUser,
+      outlet: mOutlets
+    })
+    .from(Notifications)
+    .leftJoin(Comments, eq(Notifications.notification_identifier, Comments.notification_identifier))
+    .leftJoin(mUser, eq(Comments.user_id, mUser.id))
+    .leftJoin(mOutlets, eq(Comments.outlet_id, mOutlets.id))
+    .where(eq(Notifications.user_id, userIdDecrypted))
+    .orderBy(desc(Notifications.created_at))
+    .limit(limit)
+    .offset(offset);
 
     const result = await query;
 
