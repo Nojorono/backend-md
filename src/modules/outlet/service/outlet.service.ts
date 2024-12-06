@@ -49,6 +49,10 @@ export class OutletService {
     return this.outletRepository.updateOutlet(id, updateOutletDto);
   }
 
+  async updateOutletStatus(id: number, updateOutletDto: UpdateOutletDto) {
+    return this.outletRepository.updateOutletStatus(id, updateOutletDto);
+  }
+
   async deleteOutlet(id: number) {
     return this.outletRepository.deleteOutlet(id);
   }
