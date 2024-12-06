@@ -65,6 +65,12 @@ export class OutletController {
   }
 
   @ApiBearerAuth('accessToken')
+  @Put(':id/status')
+  async updateStatus(@Param('id') id: number, @Body() updateOutletDto: UpdateOutletDto) {
+    return this.outletService.updateOutletStatus(id, updateOutletDto);
+  }
+
+  @ApiBearerAuth('accessToken')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.outletService.getOutletById(id);

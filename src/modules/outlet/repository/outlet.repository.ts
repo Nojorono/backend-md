@@ -71,6 +71,15 @@ export class OutletRepository {
       .where(eq(mOutlets.id, id))
       .execute();
   }
+  // Update Outlet Status by ID
+  async updateOutletStatus(id: number, updateOutletDto: UpdateOutletDto) {
+    const db = this.drizzleService['db'];
+    return await db
+      .update(mOutlets)
+      .set(updateOutletDto)
+      .where(eq(mOutlets.id, id))
+      .execute();
+  }
   // Get outlet by id
   async getOutletById(id: string) {
     const db = this.drizzleService['db'];
@@ -115,9 +124,10 @@ export class OutletRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
+    
 
     // Define the search columns and build search condition
-    const searchColumns = ['name', 'brand', 'address_line'];
+    const searchColumns = ['name', 'brand', 'address_line', 'area', 'region'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
     // Count query for total records
@@ -128,6 +138,14 @@ export class OutletRepository {
 
     if (searchCondition) {
       countQuery.where(searchCondition);
+    }
+
+    if (filter.region) {
+      countQuery.where(eq(mOutlets.region, filter.region));
+    }
+
+    if (filter.area) {
+      countQuery.where(eq(mOutlets.area, filter.area));
     }
 
     const totalRecordsResult = await countQuery;
