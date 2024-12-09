@@ -38,7 +38,7 @@ export class SurveyControllers {
   
   @ApiBearerAuth('accessToken')
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     return this.SurveyService.getById(id);
   }
 
@@ -66,9 +66,11 @@ export class SurveyControllers {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
+    @Query('isActive') isActive: string = '',
+    @Query('filter') filter: { area: string; region: string } = { area: '', region: '' },
     @Req() request: Request,
   ) {
     const accessToken = request.headers.authorization?.split(' ')[1];
-    return this.SurveyService.getAll(accessToken, page, limit, searchTerm);
+    return this.SurveyService.getAll(accessToken, page, limit, searchTerm, isActive, filter);
   }
 }
