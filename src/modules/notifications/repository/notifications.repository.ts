@@ -109,6 +109,7 @@ export class NotificationsRepository {
     .leftJoin(mOutlets, eq(Comments.outlet_id, mOutlets.id))
     .where(eq(Notifications.user_id, userIdDecrypted))
     .orderBy(desc(Notifications.created_at))
+    .orderBy(desc(Notifications.is_read))
     .limit(limit)
     .offset(offset);
 
