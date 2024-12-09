@@ -23,9 +23,8 @@ export class OutletService {
     storage: multer.memoryStorage(),
   };
 
-  async getOutletByUser(user) {
-    const isUser = await this.userRepository.findByToken(user);
-    return this.outletRepository.getOutletByType(isUser.region, isUser.area);
+  async getOutletByUser(region: string, area: string) {
+    return this.outletRepository.getOutletByType(region, area);
   }
   async getOutletSio() {
     return this.outletRepository.getOutletTypeSio();

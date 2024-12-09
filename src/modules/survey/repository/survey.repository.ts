@@ -72,7 +72,7 @@ export class SurveyRepository {
       .returning();
   }
 
-  async getSchedule(filter: { area: string[]; region: string }) {
+  async getSchedule(area: string, region: string) {
     const db = this.drizzleService['db'];
 
     if (!db) {
@@ -82,14 +82,14 @@ export class SurveyRepository {
     const query = db.select().from(Survey).where(isNull(Survey.deleted_at));
 
     // Apply region filter if provided
-    if (filter.region) {
-      query.where(eq(Survey.region, filter.region));
+    if (region) {
+      query.where(eq(Survey.region, region));
     }
     // Apply area filter if provided
-    if (filter.area) {
-      query.where(inArray(Survey.area, filter.area));
+    if (area) {
+      query.where(eq(Survey.area, area));
     }
-
+    
     return await query.execute();
   }
 

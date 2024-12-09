@@ -3,6 +3,7 @@ import { SurveyRepository } from '../repository/survey.repository';
 import { CreateDto, UpdateDto } from '../dtos/survey.dtos';
 import { UserRepo } from '../../user/repository/user.repo';
 import { OutletRepository } from 'src/modules/outlet/repository/outlet.repository';
+import { CallPlanRepository } from 'src/modules/callplan/repository/callplan.repository';
 
 @Injectable()
 export class SurveyService {
@@ -10,6 +11,7 @@ export class SurveyService {
     private readonly SurveyRepository: SurveyRepository,
     private readonly userRepository: UserRepo,
     private readonly outletRepository: OutletRepository,  
+    private readonly callPlanRepository: CallPlanRepository,
   ) {}
 
   async create(CreateDto: CreateDto, accessToken) {
@@ -52,12 +54,9 @@ export class SurveyService {
     return this.SurveyRepository.getAll(pageInt, limitInt, searchTerm, isActive, filter);
   }
 
-  async getSchedule(accessToken: string) {
-    const user = await this.userRepository.findByToken(accessToken);
-    const filter = {
-      area: user.area || [],
-      region: user.region || '',
-    };
-    return this.SurveyRepository.getSchedule(filter);  
+  async getSchedule(callPlanId: string) {
+    const callPlan = await this.callPlanRepository.getById(callPlanId);
+    console.log(callPlan)
+    return this.SurveyRepository.getSchedule(callPlan.area, callPlan.region);  
   }
 }

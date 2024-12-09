@@ -314,7 +314,7 @@ export class UserRepo {
       .execute();
   }
 
-  async getUserWithRole(region?: string, area?: any) {
+  async getMdRole(region?: string, area?: string) {
     const db = this.drizzleService['db'];
     const conditions = [];
 
@@ -322,8 +322,8 @@ export class UserRepo {
       conditions.push(eq(mUser.region, region));
     }
 
-    if (area && Array.isArray(area) && area.length > 0) {
-      conditions.push(arrayContained(mUser.area, area));
+    if (area && area.length > 0) {
+      conditions.push(arrayContained(mUser.area, [area]));
     }
 
     return await db

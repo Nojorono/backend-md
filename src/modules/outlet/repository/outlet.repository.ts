@@ -260,7 +260,7 @@ export class OutletRepository {
     );
     return result.rows;
   }
-  async getOutletByType(region?: string, area?: []) {
+  async getOutletByType(region?: string, area?: string) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
@@ -274,6 +274,14 @@ export class OutletRepository {
         name: mOutlets.name,
         area: mOutlets.area,
         region: mOutlets.region,
+        sio_type: mOutlets.sio_type,
+        brand: mOutlets.brand,
+        unique_name: mOutlets.unique_name,
+        address_line: mOutlets.address_line,
+        sub_district: mOutlets.sub_district,
+        district: mOutlets.district,
+        city_or_regency: mOutlets.city_or_regency,
+        postal_code: mOutlets.postal_code,
       })
       .from(mOutlets)
       .where(eq(mOutlets.is_active, 1));
@@ -282,11 +290,10 @@ export class OutletRepository {
       query = query.where(eq(mOutlets.region, region));
     }
 
-    if (area.length > 0) {
-      area.map((a) => {
-        query = query.where(eq(mOutlets.area, a));
-      });
+    if (area) {
+      query = query.where(eq(mOutlets.area, area));
     }
+    
     return await query;
   }
 

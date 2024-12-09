@@ -35,12 +35,12 @@ export class UserController {
   @ApiQuery({ name: 'region', required: false, type: String })
   @ApiQuery({ name: 'area', required: false, type: String })
   @Get('get-md')
-  public async getUserWithRole(
+  public async getMdRole(
     @Query('region') region?: string,
-    @Query('area') area?: any,
+    @Query('area') area?: string,
   ) {
     try {
-      return await this.userRepo.getUserWithRole(region, area);
+      return await this.userRepo.getMdRole(region, area);
     } catch (error) {
       throw new HttpException(
         'Failed to fetch users',

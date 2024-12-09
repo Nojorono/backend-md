@@ -53,9 +53,9 @@ export class OutletController {
 
   @ApiBearerAuth('accessToken')
   @Get('list-by')
-  async getOutletByType(@Req() request: Request) {
-    const accessToken = request.headers.authorization?.split(' ')[1];
-    return this.outletService.getOutletByUser(accessToken);
+  async getOutletByType(@Query() query: { region: string, area: string } ) {
+    console.log(query)
+    return this.outletService.getOutletByUser(query.region, query.area);
   }
 
   @ApiBearerAuth('accessToken')

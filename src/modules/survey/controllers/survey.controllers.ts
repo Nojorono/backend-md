@@ -30,10 +30,11 @@ export class SurveyControllers {
   }
 
   @ApiBearerAuth('accessToken')
-  @Get('schedule')  
-  async findSchedule(@Req() request: Request) {
-    const accessToken = request.headers.authorization?.split(' ')[1];
-    return this.SurveyService.getSchedule(accessToken);
+  @Get('schedule/:callPlanId')  
+  async findSchedule(
+    @Param('callPlanId') callPlanId: string,
+    ) {
+    return this.SurveyService.getSchedule(callPlanId);
   }
   
   @ApiBearerAuth('accessToken')
