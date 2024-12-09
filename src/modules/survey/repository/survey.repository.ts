@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { eq, inArray, isNull } from 'drizzle-orm';
-import { Survey } from '../../../schema';
+import { mOutlets, Survey } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateDto, UpdateDto } from '../dtos/survey.dtos';
 import {
@@ -42,16 +42,19 @@ export class SurveyRepository {
       .where(eq(Survey.id, id))
       .execute();
   }
-  async getById(id: string) {
+  async getById(id: number) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
     }
-    const idDecrypted = await this.decryptId(id);
     const result = await db
-      .select()
+      .select({
+        ...Survey,
+        outlet: mOutlets,
+      })
       .from(Survey)
-      .where(eq(Survey.id, idDecrypted));
+      .innerJoin(mOutlets, eq(Survey.outlet_id, mOutlets.id))
+      .where(eq(Survey.id, id));
     return result[0];
   }
   // Delete an outlet (soft delete by updating is_deleted field)
@@ -94,6 +97,7 @@ export class SurveyRepository {
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
+    isActive: string = '',
     filter: { area: string; region: string },
   ) {
     const db = this.drizzleService['db'];
@@ -105,14 +109,14 @@ export class SurveyRepository {
     const query = db.select().from(Survey).where(isNull(Survey.deleted_at));
 
     // Apply region filter if provided
-    // if (filter.region) {
-    //   query.where(eq(Survey.region, filter.region));
-    // }
+    if (filter.region) {
+      query.where(eq(Survey.region, filter.region));
+    }
 
     // Apply area filter if provided (assuming 'area' is an array in filter)
-    // if (filter.area) {
-    //   query.where(eq(Survey.area, filter.area));
-    // }
+    if (filter.area) {
+      query.where(eq(Survey.area, filter.area));
+    }
 
     // Apply search condition if available
     const searchColumns = ['name', 'outlet_code', 'address_line'];

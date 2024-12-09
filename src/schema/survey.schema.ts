@@ -43,6 +43,7 @@ export const Survey = pgTable('survey', {
     0,
   ),
   outlet_id: integer('outlet_id').references(() => mOutlets.id),
+  new_outlet_id: integer('new_outlet_id').references(() => mOutlets.id),
   status: integer('status'),
   is_approved: integer('is_approved').default(null),
   created_by: varchar('created_by', { length: 100 }),

@@ -2,22 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { SurveyRepository } from '../repository/survey.repository';
 import { CreateDto, UpdateDto } from '../dtos/survey.dtos';
 import { UserRepo } from '../../user/repository/user.repo';
+import { OutletRepository } from 'src/modules/outlet/repository/outlet.repository';
 
 @Injectable()
 export class SurveyService {
   constructor(
     private readonly SurveyRepository: SurveyRepository,
     private readonly userRepository: UserRepo,
+    private readonly outletRepository: OutletRepository,  
   ) {}
 
   async create(CreateDto: CreateDto, accessToken) {
     const user = await this.userRepository.findByToken(accessToken);
     CreateDto.created_by = user.email;
     CreateDto.created_at = new Date();
-    return this.SurveyRepository.createData(CreateDto);
+    const result = await this.SurveyRepository.createData(CreateDto);
+    await this.outletRepository.updateOutlet(CreateDto.outlet_id, {
+      survey_outlet_id: result[0].id,
+    });
+    return result;
   }
 
-  async getById(id: string) {
+  async getById(id: number) {
     return this.SurveyRepository.getById(id);
   }
 
@@ -38,16 +44,12 @@ export class SurveyService {
     page: string = '1',
     limit: string = '10',
     searchTerm: string = '',
-  ) {
+    isActive: string = '',
+    filter: { area: string; region: string } = { area: '', region: '' },
+  ) { 
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
-    const user = await this.userRepository.findByToken(accessToken);
-    // Extract area and region from the user object to pass as filters
-    const filter = {
-      area: user.area || '',
-      region: user.region || '',
-    };
-    return this.SurveyRepository.getAll(pageInt, limitInt, searchTerm, filter);
+    return this.SurveyRepository.getAll(pageInt, limitInt, searchTerm, isActive, filter);
   }
 
   async getSchedule(accessToken: string) {

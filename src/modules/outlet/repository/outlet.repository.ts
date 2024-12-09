@@ -124,34 +124,48 @@ export class OutletRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    
 
-    // Define the search columns and build search condition
-    const searchColumns = ['name', 'brand', 'address_line', 'area', 'region'];
-    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
+    // Base conditions
+    const baseConditions = [
+      isNull(mOutlets.deleted_at),
+      eq(mOutlets.is_active, isActive)
+    ];
 
-    // Count query for total records
-    const countQuery = db
-      .select({ count: count() })
-      .from(mOutlets)
-      .where(eq(mOutlets.is_active, isActive));
-
-    if (searchCondition) {
-      countQuery.where(searchCondition);
-    }
-
+    // Add filter conditions
     if (filter.region) {
-      countQuery.where(eq(mOutlets.region, filter.region));
+      baseConditions.push(eq(mOutlets.region, filter.region));
     }
 
     if (filter.area) {
-      countQuery.where(eq(mOutlets.area, filter.area));
+      baseConditions.push(eq(mOutlets.area, filter.area));
     }
 
-    const totalRecordsResult = await countQuery;
+    // Define the search columns and build search condition
+    const searchColumns = [
+      'name', 
+      'brand', 
+      'address_line', 
+      'area', 
+      'region', 
+      'outlet_code',
+      'unique_name',
+      'district'
+    ];
+    const searchCondition = buildSearchQuery(searchTerm, searchColumns);
+    if (searchCondition) {
+      baseConditions.push(searchCondition);
+    }
+
+    // Count query for total records with all conditions
+    const totalRecordsResult = await db
+      .select({ count: count() })
+      .from(mOutlets)
+      .where(and(...baseConditions));
+
     const totalRecords = totalRecordsResult[0]?.count ?? 0;
-    // Paginated data query
-    let paginatedQuery = db
+
+    // Paginated data query with optimized field selection
+    const paginatedResult = await db
       .select({
         id: mOutlets.id,
         outlet_code: mOutlets.outlet_code,
@@ -174,33 +188,21 @@ export class OutletRepository {
         odd_even: mOutlets.odd_even,
         photos: mOutlets.photos,
         remarks: mOutlets.remarks,
+        created_at: mOutlets.created_at,
+        updated_at: mOutlets.updated_at
       })
       .from(mOutlets)
-      .where(eq(mOutlets.is_active, isActive))
+      .where(and(...baseConditions))
+      .orderBy(mOutlets.created_at)
       .limit(limit)
       .offset((page - 1) * limit);
 
-    if (searchCondition) {
-      paginatedQuery = paginatedQuery.where(searchCondition);
-    }
-
-    if (filter.region) {
-      paginatedQuery = paginatedQuery.where(eq(mOutlets.region, filter.region));
-    }
-
-    if (filter.area) {
-      paginatedQuery = paginatedQuery.where(eq(mOutlets.area, filter.area));
-    }
-
-    const paginatedResult = await paginatedQuery;
     // Encrypt IDs for the returned data
     const encryptedResult = await Promise.all(
-      paginatedResult.map(async (item: { id: number }) => {
-        return {
-          ...item,
-          id: await this.encryptedId(item.id),
-        };
-      }),
+      paginatedResult.map(async (item: { id: number }) => ({
+        ...item,
+        id: await this.encryptedId(item.id),
+      }))
     );
 
     // Return data with pagination metadata
@@ -209,6 +211,7 @@ export class OutletRepository {
       totalItems: totalRecords,
       currentPage: page,
       totalPages: Math.ceil(totalRecords / limit),
+      limit,
     };
   }
   // List outlet summary
