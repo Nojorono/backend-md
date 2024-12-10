@@ -56,7 +56,6 @@ export class SurveyService {
 
   async getSchedule(callPlanId: string) {
     const callPlan = await this.callPlanRepository.getById(callPlanId);
-    console.log(callPlan)
     return this.SurveyRepository.getSchedule(callPlan.area, callPlan.region);  
   }
 }

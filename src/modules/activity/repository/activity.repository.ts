@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { eq, isNull } from 'drizzle-orm';
-import { Activity, mOutlets } from '../../../schema';
+import { Activity, mOutlets, Survey } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { buildSearchQuery, paginate } from '../../../helpers/nojorono.helpers';
 import {
@@ -98,7 +98,11 @@ export class ActivityRepository {
     const query = db.select({
       ...Activity,
       outlet_name: mOutlets.name,
-    }).from(Activity).leftJoin(mOutlets, eq(Activity.outlet_id, mOutlets.id)).where(isNull(Activity.deleted_at));
+      survey_name: Survey.name,
+    }).from(Activity)
+    .leftJoin(mOutlets, eq(Activity.outlet_id, mOutlets.id))
+    .leftJoin(Survey, eq(Activity.survey_outlet_id, Survey.id))
+    .where(isNull(Activity.deleted_at));
     // Apply search condition if available
     if (searchTerm !== '') {
       const searchColumns = ['area', 'region'];
