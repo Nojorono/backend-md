@@ -18,9 +18,15 @@ export class CreateMdActivityDto {
 
   @ApiProperty({ example: 1 })
   @IsInt()
-  outlet_id: number;
+  @IsOptional()
+  outlet_id?: number | null;
 
-  @ApiProperty({ example: 0, required: false })
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  @IsOptional()
+  survey_outlet_id?: number | null;
+
+  @ApiProperty({ example: 3, required: false })
   @IsInt()
   @IsOptional()
   status?: number;

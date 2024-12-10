@@ -54,7 +54,6 @@ export class OutletController {
   @ApiBearerAuth('accessToken')
   @Get('list-by')
   async getOutletByType(@Query() query: { region: string, area: string } ) {
-    console.log(query)
     return this.outletService.getOutletByUser(query.region, query.area);
   }
 

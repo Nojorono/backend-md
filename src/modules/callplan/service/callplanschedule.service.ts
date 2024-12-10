@@ -7,7 +7,7 @@ import {
   UpdateCallPlanScheduleDto,
 } from '../dtos/callplanschedule.dtos';
 import { UserRepo } from '../../user/repository/user.repo';
-import { STATUS_ACTIVITY_MD_2 } from 'src/constants';
+import { STATUS_NOT_VISITED } from 'src/constants';
 
 @Injectable()
 export class CallPlanScheduleService {
@@ -57,7 +57,7 @@ export class CallPlanScheduleService {
           survey_outlet_id: createCallPlaScheduleDto.survey_outlet_id,
           outlet_id: null,
           code_call_plan,
-          status: STATUS_ACTIVITY_MD_2,
+          status: STATUS_NOT_VISITED,
         };
         await this.callPlanScheduleRepository.createData(newScheduleDto);
         results.push(newScheduleDto);
@@ -68,7 +68,7 @@ export class CallPlanScheduleService {
             ...createCallPlaScheduleDto,
             outlet_id: outletId,
             code_call_plan,
-            status: STATUS_ACTIVITY_MD_2,
+            status: STATUS_NOT_VISITED,
           };
 
           const result = await this.callPlanScheduleRepository.createData(newScheduleDto);

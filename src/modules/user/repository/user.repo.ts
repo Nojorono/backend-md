@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
-import { and, arrayContained, eq, inArray, isNull, not, notInArray, or } from 'drizzle-orm';
+import { and, arrayContained, arrayOverlaps, eq, inArray, isNull, not, notInArray, or } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import {
   buildSearchQuery,
@@ -67,7 +67,7 @@ export class UserRepo {
     return encryptedResult;
   }
 
-  // List all active with pagination and search
+  // List all active users with pagination and search
   async getAllPagination(
     page: number = 1,
     limit: number = 10,
@@ -80,10 +80,25 @@ export class UserRepo {
     if (!db) {
       throw new Error('Database not initialized');
     }
-
     const conditions = [];
 
-    // Query for paginated and filtered results
+    // Define role-based access hierarchy
+    const roleHierarchy = {
+      'TL': ['MD'],
+      'AMO': ['MD', 'TL'],
+      'REGIONAL': ['MD', 'TL', 'AMO'],
+      'NASIONAL': ['MD', 'TL', 'AMO', 'REGIONAL'],
+      'ADMIN': ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL'],
+      'SUPERADMIN': ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL', 'ADMIN'],
+    };
+
+    // Get allowed roles based on user's role
+    const allowedRoles = roleHierarchy[user.Roles.name] || [];
+    if (allowedRoles.length === 0) {
+      allowedRoles.push(user.Roles.name); // Include user's own role if not in hierarchy
+    }
+
+    // Build base query with joins
     const query = db
       .select({
         id: mUser.id,
@@ -102,65 +117,57 @@ export class UserRepo {
         valid_to: mUser.valid_to,
       })
       .from(mUser)
-      .innerJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id));
+      .leftJoin(mUserRoles, eq(mUser.user_role_id, mUserRoles.id));
 
-    let getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'ADMIN', 'NASIONAL'];
+    // Add base conditions
+    conditions.push(eq(mUser.is_active, 1));
+    conditions.push(isNull(mUser.deleted_at));
+    conditions.push(inArray(mUserRoles.name, allowedRoles));
 
-    if (user.Roles.name == 'TL') {
-      getRoles = ['MD'];
-    }
-
-    if (user.Roles.name == 'AMO') {
-      getRoles = ['MD', 'TL'];
-    }
-
-    if (user.Roles.name == 'REGIONAL') {
-      getRoles = ['MD', 'TL', 'AMO'];
-    }
-
-    if (user.Roles.name == 'NASIONAL') {
-      getRoles = ['MD', 'TL', 'AMO', 'REGIONAL'];
-    }
-
-    if (user.Roles.name == 'ADMIN') {
-      getRoles = ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL'];
-    }
-
-    query.where(inArray(mUserRoles.name, getRoles));
-
-    query.where(and(eq(mUser.is_active, 1), isNull(mUser.deleted_at)));
-
-    const searchColumns = ['email', 'username', 'phone'];
+    // Apply search filters if provided
+    const searchColumns = ['email', 'username', 'phone', 'fullname'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
-    // Apply search condition if available
     if (searchCondition) {
-      query.where(searchCondition);
+      conditions.push(searchCondition);
     }
 
-    if (filter.area && filter.area != '') {
-      query.where(arrayContained(mUser.area, [filter.area]));
+    // Apply region filter if provided
+    if (filter.region && filter.region !== '') {
+      conditions.push(eq(mUser.region, filter.region));
     }
 
-    if (filter.region && filter.region != '') {
-      query.where(eq(mUser.region, filter.region));
+    // Apply area filter if provided
+    if (filter.area && filter.area !== '' && filter.area !== null) {
+      if (Array.isArray(filter.area)) {
+        conditions.push(arrayContained(mUser.area, filter.area));
+      } else {
+        conditions.push(arrayContained(mUser.area, [filter.area]));
+      }
     }
 
+    // Apply all conditions to query
+    query.where(and(...conditions));
+
+    // Get total count for pagination
     const records = await query.execute();
-    const totalRecords = parseInt(records.length) || 0;
+    const totalRecords = records.length;
     const { offset } = paginate(totalRecords, page, limit);
+
+    // Apply pagination
     query.limit(limit).offset(offset);
 
-    const result = await query;
+    // Execute final query
+    const result = await query.execute();
 
-    // Encrypt IDs for the returned data
+    // Encrypt IDs in the result
     const encryptedResult = await Promise.all(
-      result.map(async (item: { id: number }) => {
-        return {
-          ...item,
-          id: await this.encryptedId(item.id),
-        };
-      }),
+      result.map(async (item: { id: number; [key: string]: any }) => ({
+        ...item,
+        id: await this.encryptedId(item.id),
+      }))
     );
+
+    // Return paginated results with metadata
     return {
       data: encryptedResult,
       ...paginate(totalRecords, page, limit),

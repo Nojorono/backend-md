@@ -12,7 +12,7 @@ import {
   CreateCallPlanScheduleDto,
   UpdateCallPlanScheduleDto,
 } from '../dtos/callplanschedule.dtos';
-import { STATUS_ACTIVITY_MD_2 } from 'src/constants';
+import { STATUS_NOT_VISITED } from 'src/constants';
 
 @Injectable()
 export class CallPlanScheduleRepository {
@@ -185,7 +185,7 @@ export class CallPlanScheduleRepository {
       where: (CallPlanSchedule, { eq, and }) =>
         and(
           eq(CallPlanSchedule.user_id, idDecrypted),
-          eq(CallPlanSchedule.status, STATUS_ACTIVITY_MD_2),
+          eq(CallPlanSchedule.status, STATUS_NOT_VISITED),
           isNull(CallPlanSchedule.deleted_at),
         ),
       with: {
