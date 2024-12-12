@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { desc, eq, isNull, sql } from 'drizzle-orm';
 import { Mbatch, MbatchTarget } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
@@ -22,16 +22,22 @@ export class BatchRepository {
     return encrypt(id.toString());
   }
   // Create Roles
-  async create(createRolesDto: CreateBatchDto) {
+  async create(data: CreateBatchDto) {
     const db = this.drizzleService['db'];
 
-    if (!db) {
-      throw new Error('Database not initialized');
+    // Check for existing active batch
+    const existingBatch = await db.query.Mbatch.findFirst({
+      where: (batch, { and, eq }) => and(
+        eq(batch.code_batch, data.code_batch),
+        isNull(batch.deleted_at)
+      )
+    });
+
+    if (existingBatch) {
+      throw new BadRequestException('Batch with this code already exists');
     }
-    return await db
-      .insert(Mbatch)
-      .values({ ...createRolesDto })
-      .returning();
+
+    return db.insert(Mbatch).values(data).returning();
   }
 
   // Update Roles by ID
@@ -139,7 +145,8 @@ export class BatchRepository {
       .from(Mbatch)
       .where(isNull(Mbatch.deleted_at))
       .limit(limit) // Specify your limit
-      .offset(offset); // Specify your offset
+      .offset(offset)
+      .orderBy(desc(Mbatch.id));
 
     // Apply search condition if available
     if (searchCondition) {
