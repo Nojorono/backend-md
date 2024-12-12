@@ -97,7 +97,7 @@ export class OutletController {
     @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
     @Query('isActive') isActive: number = 1,
-    @Query('filter') filter: { area: string; region: string } = { area: '', region: '' },
+    @Query('filter') filter: { area: string; region: string; brand: string; sio_type: string } = { area: '', region: '', brand: '', sio_type: '' },
   ) {
     return this.outletService.getAllActiveOutlets(
       page,

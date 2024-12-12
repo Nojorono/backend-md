@@ -9,6 +9,7 @@ import { UserRepo } from '../../user/repository/user.repo';
 import {
   CreateMdActivityDto,
   UpdateMdActivityDto,
+  UpdateStatusDto,
 } from '../dtos/activitymd.dtos';
 import { ActivityRepository } from '../repository/activity.repository';
 import { logger } from 'nestjs-i18n';
@@ -217,15 +218,21 @@ export class ActivityService {
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
+    filter: any = {},
   ) {
     try {
-      return await this.repository.getAllActive(page, limit, searchTerm);
+      return await this.repository.getAllActive(page, limit, searchTerm, filter);
     } catch (error) {
+      console.log(error);
       throw new BadRequestException({
         statusCode: 400,
         message: await this.i18n.translate('translation.Bad Request Exception'),
         timestamp: new Date().toISOString()
       });
     }
+  }
+
+  async updateStatus(id: number, updateDto: UpdateStatusDto) {
+    return await this.repository.updateStatus(id, updateDto);
   }
 }
