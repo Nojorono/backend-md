@@ -7,6 +7,7 @@ export class CreateCallPlanScheduleDto {
   notes?: string;
   type?: number;
   survey_outlet_id?: number;
+  program_id?: number;
   status?: number;
   created_by?: string;
   created_at?: Date;
@@ -20,6 +21,7 @@ export class UpdateCallPlanScheduleDto {
   notes?: string;
   type?: number;
   survey_outlet_id?: number;
+  program_id?: number;
   status?: number;
   updated_by?: string;
   updated_at?: Date;

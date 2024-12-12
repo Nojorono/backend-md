@@ -9,6 +9,8 @@ export const MBrand = pgTable('m_brand', {
   id: serial('id').primaryKey().notNull(),
   brand: varchar('brand', { length: 50 }).unique().notNull(),
   sog: jsonb('sog').default([]),
+  branch: jsonb('branch').default([]),
+  color: varchar('color', { length: 50 }).default(''),
   created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 100 }),

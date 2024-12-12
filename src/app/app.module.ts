@@ -19,6 +19,7 @@ import { CallPlanModule } from '../modules/callplan/callplan.module';
 import { BatchModule } from '../modules/batch/batch.module';
 import { S3Module } from '../modules/s3/s3.module';
 import { BrandModule } from '../modules/brand/brand.module';
+import { ProgramModule } from '../modules/program/program.module';
 import { ActivityModule } from '../modules/activity/activity.module';
 import { SioModule } from '../modules/sio/sio.module';
 import { RegionAreaModule } from '../modules/regionarea/regionarea.module';
@@ -49,6 +50,7 @@ import { NotificationsModule } from 'src/modules/notifications/notifications.mod
     SurveyModule,
     CommentsModule,
     NotificationsModule,
+    ProgramModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',

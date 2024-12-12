@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq, isNull } from 'drizzle-orm';
-import { MBrand } from '../../../schema';
+import { MBrand, Program } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
   buildSearchQuery,
@@ -8,10 +8,10 @@ import {
   encrypt,
   paginate,
 } from '../../../helpers/nojorono.helpers';
-import { CreateBrandDto, UpdateBrandDto } from '../dtos/brand.dtos';
+import { CreateProgramDto, UpdateProgramDto } from '../dtos/program.dtos';
 
 @Injectable()
-export class BrandRepository {
+export class ProgramRepository {
   constructor(private readonly drizzleService: DrizzleService) {}
 
   async decryptId(id: string) {
@@ -23,31 +23,22 @@ export class BrandRepository {
     return encrypt(id.toString());
   }
 
-  async create(createBrandDto: CreateBrandDto) {
+  async create(createProgramDto: CreateProgramDto) {
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
 
-    return await db
-      .insert(MBrand)
-      .values({
-        ...createBrandDto,
-        created_at: new Date(),
-      })
-      .returning();
+    return await db.insert(Program).values(createProgramDto).returning();
   }
 
-  async update(id: number, updateBrandDto: UpdateBrandDto) {
+  async update(id: number, updateProgramDto: UpdateProgramDto) {
     const db = this.drizzleService['db'];
     return await db
-      .update(MBrand)
-      .set({
-        ...updateBrandDto,
-        updated_at: new Date(),
-      })
-      .where(eq(MBrand.id, id))
+      .update(Program)
+      .set(updateProgramDto)
+      .where(eq(Program.id, id))
       .execute();
   }
 
@@ -58,8 +49,8 @@ export class BrandRepository {
       throw new Error('Database not initialized');
     }
 
-    const result = await db.select().from(MBrand).where(eq(MBrand.id, id));
-    return result[0];
+    const result = await db.select().from(Program).where(eq(Program.id, id));
+    return result[0]; // Return the first (and expectedly only) result
   }
 
   async delete(id: number, userBy: string) {
@@ -68,9 +59,9 @@ export class BrandRepository {
       throw new Error('Database not initialized');
     }
     return await db
-      .update(MBrand)
+      .update(Program)
       .set({ deleted_at: new Date(), deleted_by: userBy })
-      .where(eq(MBrand.id, id))
+      .where(eq(Program.id, id))
       .returning();
   }
 
@@ -85,7 +76,7 @@ export class BrandRepository {
       throw new Error('Database not initialized');
     }
 
-    const query = db.select().from(MBrand).where(isNull(MBrand.deleted_at));
+    const query = db.select().from(Program).where(isNull(Program.deleted_at));
 
     // Apply search condition if available
     const searchColumns = ['brand'];
@@ -117,8 +108,8 @@ export class BrandRepository {
 
     const query = await db
       .select()
-      .from(MBrand)
-      .where(and(isNull(MBrand.deleted_at)));
+      .from(Program)
+      .where(and(isNull(Program.deleted_at)));
 
     const totalRecords = parseInt(query.length) || 0;
 
