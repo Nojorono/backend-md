@@ -32,6 +32,8 @@ export class BatchTargetRepository {
         batch_id: idDecrypted,
         regional: createBatchTargetDto.regional,
         amo: createBatchTargetDto.amo,
+        brand: createBatchTargetDto.brand,
+        sio_type: createBatchTargetDto.sio_type,
         brand_type_sio: createBatchTargetDto.brand_type_sio,
         amo_brand_type: createBatchTargetDto.amo_brand_type,
         allocation_ho: createBatchTargetDto.allocation_ho,

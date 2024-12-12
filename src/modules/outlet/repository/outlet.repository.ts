@@ -232,7 +232,7 @@ export class OutletRepository {
     }
     // Querying the outlet_summary view
     const result = await db.execute(
-      sql`SELECT regional, area, brand_type_sio, brand_type_outlet FROM outlet_summary;`,
+      sql`SELECT regional, area, brand, sio_type, brand_type_sio, brand_type_outlet FROM outlet_summary;`,
     );
     return result.rows;
   }

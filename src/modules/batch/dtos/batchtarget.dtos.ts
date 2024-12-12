@@ -2,6 +2,8 @@ export class CreateBatchTargetDto {
   batch_id?: string;
   regional?: string;
   amo?: string;
+  brand?: string;
+  sio_type?: string;
   brand_type_sio?: string;
   amo_brand_type?: string;
   allocation_ho?: number;
