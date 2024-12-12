@@ -15,6 +15,7 @@ import { relations } from 'drizzle-orm';
 import { ActivitySio } from './activity_sio.schema';
 import { ActivitySog } from './activity_sog.schema';
 import { Comments } from './comment.schema';
+import { ActivityBranch } from './activity_branch.schema';
 export const Activity = pgTable('activity', {
   id: serial('id').primaryKey().notNull(),
   user_id: integer('user_id').references(() => mUser.id),
@@ -72,5 +73,6 @@ export const ActivityRelations = relations(Activity, ({ one, many }) => ({
   }),
   activitySios: many(ActivitySio),
   activitySogs: many(ActivitySog),
+  activityBranches: many(ActivityBranch),
   comments: many(Comments),
 }));

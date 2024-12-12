@@ -19,7 +19,6 @@ export const CallPlanSchedule = pgTable('call_plan_schedule', {
   call_plan_id: integer('call_plan_id')
     .references(() => CallPlan.id)
     .notNull(),
-  program_id: integer('program_id').references(() => Program.id),
   outlet_id: integer('outlet_id').references(() => mOutlets.id),
   survey_outlet_id: integer('survey_outlet_id').references(() => Survey.id),
   day_plan: date('day_plan').notNull(),
@@ -34,6 +33,7 @@ export const CallPlanSchedule = pgTable('call_plan_schedule', {
   updated_at: timestamp('updated_at').defaultNow(),
   deleted_by: varchar('deleted_by', { length: 100 }),
   deleted_at: timestamp('deleted_at').default(null),
+  program_id: integer('program_id').references(() => Program.id),
 });
 
 export const CallPlanOutletRelations = relations(
@@ -46,6 +46,10 @@ export const CallPlanOutletRelations = relations(
     callPlanSurvey: one(Survey, {
       fields: [CallPlanSchedule.survey_outlet_id],
       references: [Survey.id],
+    }),
+    callPlanProgram: one(Program, {
+      fields: [CallPlanSchedule.program_id],
+      references: [Program.id],
     }),
   }),
 );
