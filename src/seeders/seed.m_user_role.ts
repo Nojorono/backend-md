@@ -11,7 +11,7 @@ const db = drizzle(pool);
 const createRole = (
   name: string,
   description: string,
-  menus: Array<{ name: string; value: string }> = [],
+  menus: Array<{ title: string; path: string }> = [],
   createdBy = 'system',
   updatedBy = 'system',
 ) => ({
@@ -26,23 +26,46 @@ const createRole = (
 async function seedUserRoles() {
   try {
     const adminMenus = [
-      { name: 'Dashboard', value: '/' },
-      { name: 'User Profile', value: '/pages/user' },
-      { name: 'Master Outlet', value: '/master/outlet' },
-      { name: 'Master Users', value: '/master/users' },
-      { name: 'Master Roles', value: '/master/roles' },
-      { name: 'Master Batch', value: '/master/batch' },
-      { name: 'Call Plan', value: '/call-plan' },
-      { name: 'Call Plan Schedule', value: '/call-plan/schedule/:id' },
+      { title: "Dashboard", path: "/" },
+      { title: "User Profile", path: "/pages/user" },
+      { title: "Master Users", path: "/master/users" },
+      { title: "Master Roles", path: "/master/roles" },
+      { title: "Master Brand", path: "/master/brand" },
+      { title: "Master Sio", path: "/master/sio" },
+      { title: "Master Region", path: "/master/region" },
+      { title: "Master Area", path: "/master/region/area/:id" },
+      { title: "Master Batch", path: "/master/batch" },
+      { title: "Batch Target", path: "/master/batch/target/:id" },
+      { title: "Survey Outlet", path: "/survey" },
+      { title: "Detail Survey Outlet", path: "/survey/detail/:id" },
+      { title: "Activity", path: "/activity" },
+      { title: "Detail Activity", path: "/activity/detail/:id" },
+      { title: "Call Plan", path: "/call-plan" },
+      { title: "Call Plan Schedule", path: "/call-plan/schedule/:id" },
+      { title: "Master Outlet", path: "/master/outlet" },
+      { title: "Outlet Detail", path: "/master/outlet/detail/:id" },
+    ];
+
+    const normalMenus = [
+      { title: "Dashboard", path: "/" },
+      { title: "User Profile", path: "/pages/user" },
+      { title: "Detail Survey Outlet", path: "/survey/detail/:id" },
+      { title: "Activity", path: "/activity" },
+      { title: "Detail Activity", path: "/activity/detail/:id" },
+      { title: "Call Plan", path: "/call-plan" },
+      { title: "Call Plan Schedule", path: "/call-plan/schedule/:id" },
+      { title: "Master Users", path: "/master/users" },
+      { title: "Master Outlet", path: "/master/outlet" },
+      { title: "Outlet Detail", path: "/master/outlet/detail/:id" },
     ];
 
     const roles = [
       createRole('SUPER-ADMIN', 'Administrator with full access', adminMenus),
       createRole('ADMIN', 'Administrator with full access', adminMenus),
       createRole('NASIONAL', 'NASIONAL Administrator access', adminMenus),
-      createRole('REGIONAL', 'REGIONAL limited access', adminMenus),
-      createRole('AMO', 'AMO limited access', adminMenus),
-      createRole('TL', 'Regular user with limited access', []),
+      createRole('REGIONAL', 'REGIONAL limited access', normalMenus),
+      createRole('AMO', 'AMO limited access', normalMenus),
+      createRole('TL', 'Regular user with limited access', normalMenus),
       createRole('MD', 'Regular user with limited access', []),
     ];
 

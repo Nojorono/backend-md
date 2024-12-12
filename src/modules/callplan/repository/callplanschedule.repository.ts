@@ -45,6 +45,7 @@ export class CallPlanScheduleRepository {
       type,
       status,
       survey_outlet_id,
+      program_id,
     } = createCallPlanScheduleDto;
 
     if (!db) {
@@ -55,6 +56,7 @@ export class CallPlanScheduleRepository {
       .insert(CallPlanSchedule)
       .values({
         call_plan_id: idDecrypted,
+        program_id,
         code_call_plan,
         outlet_id,
         survey_outlet_id,
@@ -90,15 +92,11 @@ export class CallPlanScheduleRepository {
   ) {
     const db = this.drizzleService['db'];
     const idDecrypted = await this.decryptId(id);
-    const { outlet_id, notes, day_plan, updated_by } =
-      updateCallPlanScheduleDto;
+
     return await db
       .update(CallPlanSchedule)
       .set({
-        outlet_id,
-        notes,
-        day_plan,
-        updated_by,
+        ...updateCallPlanScheduleDto,
         updated_at: new Date(),
       })
       .where(eq(CallPlanSchedule.id, idDecrypted))
