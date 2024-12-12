@@ -92,6 +92,11 @@ export class OutletRepository {
       with: {
         activities: {
           orderBy: (Activity, { desc }) => [desc(Activity.created_at)],
+          with: {
+            comments: {
+              orderBy: (Comment, { desc }) => [desc(Comment.created_at)],
+            },
+          },
         },
       },
     });
@@ -117,7 +122,7 @@ export class OutletRepository {
     limit: number = 10,
     searchTerm: string = '',
     isActive: number = 1,
-    filter: { area: string; region: string },
+    filter: { area: string; region: string; brand: string; sio_type: string },
   ) {
     const db = this.drizzleService['db'];
 
@@ -139,11 +144,16 @@ export class OutletRepository {
     if (filter.area) {
       baseConditions.push(eq(mOutlets.area, filter.area));
     }
+    if (filter.brand) {
+      baseConditions.push(eq(mOutlets.brand, filter.brand));
+    }
+    if (filter.sio_type) {
+      baseConditions.push(eq(mOutlets.sio_type, filter.sio_type));
+    }
 
     // Define the search columns and build search condition
     const searchColumns = [
       'name', 
-      'brand', 
       'address_line', 
       'area', 
       'region', 

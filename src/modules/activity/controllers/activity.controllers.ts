@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   CreateMdActivityDto,
   UpdateMdActivityDto,
+  UpdateStatusDto,
 } from '../dtos/activitymd.dtos';
 import { ActivityService } from '../service/activity.service';
 import { Public } from 'src/decorators/public.decorator';
@@ -43,6 +44,15 @@ export class ActivityControllers {
     return this.service.updateData(id, updateDto);
   }
 
+  @ApiBearerAuth('accessToken') 
+  @Put('status/:id')
+  async updateStatus(
+    @Param('id') id: number,
+    @Body() updateDto: UpdateStatusDto,
+  ) {
+    return this.service.updateStatus(id, updateDto);
+  }
+
   @ApiBearerAuth('accessToken')
   @Delete(':id')
   async remove(@Param('id') id: number, @Req() request: Request) {
@@ -56,8 +66,9 @@ export class ActivityControllers {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     @Query('searchTerm') searchTerm?: string,
+    @Query('filter') filter?: any,
   ) {
-    return this.service.getAllActive(page, limit, searchTerm);
+    return this.service.getAllActive(page, limit, searchTerm, filter);
   }
 
   @Public()

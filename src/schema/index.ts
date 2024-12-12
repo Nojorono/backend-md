@@ -18,4 +18,4 @@ export { MRegion } from './m_region.schema';
 export { MArea } from './m_area.schema';
 export { Survey } from './survey.schema';
 export { Notifications } from './notification.schema';
-export { Comments } from './comment.schema';
+export { Comments, commentRelations } from './comment.schema';

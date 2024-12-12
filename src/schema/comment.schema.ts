@@ -1,3 +1,5 @@
+import { relations } from 'drizzle-orm';
+import { Activity } from './activity.schema';
 import { pgTable, serial, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
 
 export const Comments = pgTable('comments', {
@@ -10,3 +12,10 @@ export const Comments = pgTable('comments', {
   is_liked: boolean('is_liked').default(false), // ref to like table
   notification_identifier: text('notification_identifier') // ref to notification table
 });
+
+export const commentRelations = relations(Comments, ({ one }) => ({
+  activity: one(Activity, {
+    fields: [Comments.activity_id],
+    references: [Activity.id],
+  }),
+}));

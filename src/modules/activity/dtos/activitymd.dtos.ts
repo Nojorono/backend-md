@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, IsDate, Length, IsArray } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsDate, Length, IsArray, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ActivitySioDto } from './activity_sio.dtos';
 import { ActivitySogDto } from './activity_sog.dtos';
@@ -152,4 +152,10 @@ export class UpdateMdActivityDto {
   @ApiProperty({ type: [ActivitySogDto], required: false })
   activity_sog?: ActivitySogDto[];
 
+}
+
+export class UpdateStatusDto {
+  @ApiProperty({ example: 1, required: true })
+  @IsNumber()
+  status: number;
 }

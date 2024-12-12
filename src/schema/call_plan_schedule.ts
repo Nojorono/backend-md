@@ -41,6 +41,10 @@ export const CallPlanOutletRelations = relations(
       fields: [CallPlanSchedule.outlet_id],
       references: [mOutlets.id],
     }),
+    callPlanSurvey: one(Survey, {
+      fields: [CallPlanSchedule.survey_outlet_id],
+      references: [Survey.id],
+    }),
   }),
 );
 
