@@ -189,6 +189,7 @@ export class CallPlanScheduleRepository {
       with: {
         callPlanOutlet: true,
         callPlanSurvey: true,
+        callPlanProgram: true,
       },
     });
   }
