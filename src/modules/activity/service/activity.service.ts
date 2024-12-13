@@ -17,6 +17,7 @@ import { ActivitySioRepository } from '../repository/activity_sio.repository';
 import { ActivitySogRepository } from '../repository/activity_sog.repository';
 import { S3Service } from 'src/modules/s3/service/s3.service';
 import { I18nService } from 'nestjs-i18n';
+import { ActivityBranchRepository } from '../repository/activity_branch.repository';
 
 @Injectable()
 export class ActivityService {
@@ -24,15 +25,18 @@ export class ActivityService {
     private readonly repository: ActivityRepository,
     private readonly activitySioRepository: ActivitySioRepository,
     private readonly activitySogRepository: ActivitySogRepository,
+    private readonly activityBranchRepository: ActivityBranchRepository,
     private readonly userRepository: UserRepo,
     private readonly s3Service: S3Service,
     private readonly i18n: I18nService,
   ) {}
 
   async createData(createDto: CreateMdActivityDto) {
+    const validateData = false;
+  
     try {
       // Validate required fields
-      if (!createDto.user_id || !createDto.call_plan_schedule_id) {
+      if (!createDto.user_id || !createDto.call_plan_schedule_id || !createDto.call_plan_id) {
         throw new BadRequestException(await this.i18n.translate('translation.Bad Request Exception'));
       }
 
@@ -50,10 +54,18 @@ export class ActivityService {
       if (!createDto.start_time || !createDto.end_time) {
         throw new BadRequestException(await this.i18n.translate('translation.Start time and end time are required'));
       }
-      createDto.start_time = new Date(createDto.start_time);
-      createDto.end_time = new Date(createDto.end_time);
 
-      if (createDto.start_time >= createDto.end_time) {
+      const startTime = new Date(createDto.start_time);
+      const endTime = new Date(createDto.end_time);
+
+      if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+        throw new BadRequestException(await this.i18n.translate('translation.Invalid date format'));
+      }
+
+      createDto.start_time = startTime;
+      createDto.end_time = endTime;
+
+      if (startTime >= endTime) {
         throw new BadRequestException(await this.i18n.translate('translation.Start time must be before end time'));
       }
 
@@ -62,8 +74,13 @@ export class ActivityService {
         if (!Array.isArray(createDto.photos)) {
           throw new BadRequestException(await this.i18n.translate('translation.Photos must be an array'));
         }
+
+        // Upload photos in parallel
         createDto.photos = await Promise.all(
           createDto.photos.map(async (photo) => {
+            if (!photo) {
+              throw new BadRequestException(await this.i18n.translate('translation.Invalid photo data'));
+            }
             try {
               return await this.s3Service.uploadImageFromUri(photo, 'activity');
             } catch (error) {
@@ -80,9 +97,12 @@ export class ActivityService {
       }
 
       // Handle SIO entries
-      if (createDto.activity_sio?.length) {
+      if (Array.isArray(createDto.activity_sio) && createDto.activity_sio.length > 0) {
         const sioEntries = await Promise.all(
           createDto.activity_sio.map(async sio => {
+            if (!sio) {
+              throw new BadRequestException(await this.i18n.translate('translation.Invalid SIO data'));
+            }
             try {
               return {
                 ...sio,
@@ -90,6 +110,10 @@ export class ActivityService {
                 photo: sio.photo ? 
                   await this.s3Service.uploadImageFromUri(sio.photo, 'activity_sio') : 
                   null,
+                created_by: user.email,
+                created_at: new Date(),
+                updated_by: user.email,
+                updated_at: new Date()
               };
             } catch (error) {
               throw new BadRequestException(await this.i18n.translate('translation.Invalid SIO photo format'));
@@ -100,12 +124,25 @@ export class ActivityService {
       }
 
       // Handle SOG entries  
-      if (createDto.activity_sog?.length) {
+      if (Array.isArray(createDto.activity_sog) && createDto.activity_sog.length > 0) {
         const sogEntries = createDto.activity_sog.map(sog => ({
           ...sog,
           activity_id: activity.id,
+          created_by: user.email,
+          created_at: new Date(),
         }));
         await this.activitySogRepository.create(sogEntries);
+      }
+
+      // Handle Branch entries
+      if (Array.isArray(createDto.activity_branch) && createDto.activity_branch.length > 0) {
+        const branchEntries = createDto.activity_branch.map(branch => ({
+          ...branch,
+          activity_id: activity.id,
+          created_by: user.email,
+          created_at: new Date(),
+        }));
+        await this.activityBranchRepository.create(branchEntries);
       }
 
       return activity;
@@ -118,6 +155,7 @@ export class ActivityService {
       throw new BadRequestException({
         statusCode: 400,
         message: await this.i18n.translate('translation.Bad Request Exception'),
+        error: error.message,
         timestamp: new Date().toISOString()
       });
     }

@@ -35,7 +35,7 @@ export class ActivityBranchRepository {
     }
 
     const result = await db.select().from(ActivityBranch).where(eq(ActivityBranch.id, id));
-    return result[0]; // Return the first (and expectedly only) result
+    return result[0];
   }
 
   async delete(id: number, userBy: string) {

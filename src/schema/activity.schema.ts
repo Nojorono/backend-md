@@ -16,6 +16,7 @@ import { ActivitySio } from './activity_sio.schema';
 import { ActivitySog } from './activity_sog.schema';
 import { Comments } from './comment.schema';
 import { ActivityBranch } from './activity_branch.schema';
+import { Program } from './m_program.schema';
 export const Activity = pgTable('activity', {
   id: serial('id').primaryKey().notNull(),
   user_id: integer('user_id').references(() => mUser.id),
@@ -27,6 +28,7 @@ export const Activity = pgTable('activity', {
     .notNull(),
   outlet_id: integer('outlet_id').references(() => mOutlets.id),
   survey_outlet_id: integer('survey_outlet_id').references(() => Survey.id),
+  program_id: integer('program_id').references(() => Program.id),
   status: integer('status'),
   area: varchar('area', { length: 100 }).notNull(),
   region: varchar('region', { length: 100 }).notNull(),
@@ -70,6 +72,10 @@ export const ActivityRelations = relations(Activity, ({ one, many }) => ({
   outlet: one(mOutlets, {
       fields: [Activity.outlet_id],
       references: [mOutlets.id],
+  }),
+  program: one(Program, {
+    fields: [Activity.program_id],
+    references: [Program.id],
   }),
   activitySios: many(ActivitySio),
   activitySogs: many(ActivitySog),

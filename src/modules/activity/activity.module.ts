@@ -10,6 +10,7 @@ import { CallPlanScheduleRepository } from '../callplan/repository/callplansched
 import { ActivitySioRepository } from './repository/activity_sio.repository';
 import { ActivitySogRepository } from './repository/activity_sog.repository';
 import { S3Service } from '../s3/service/s3.service';
+import { ActivityBranchRepository } from './repository/activity_branch.repository';
 
 @Module({
   controllers: [ActivityControllers],
@@ -19,6 +20,7 @@ import { S3Service } from '../s3/service/s3.service';
     ActivityRepository,
     ActivitySioRepository,
     ActivitySogRepository,
+    ActivityBranchRepository,
     S3Service,
     ActivityService,
     UserRepo,

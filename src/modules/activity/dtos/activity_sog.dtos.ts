@@ -6,6 +6,11 @@ export class ActivitySogDto {
   @IsString()
   name: string;
 
+  @ApiProperty({ example: '100' })
+  @IsString()
+  @IsOptional()
+  value?: string;
+
   @ApiProperty({ example: 'Sample Description' })
   @IsString()
   @IsOptional()
