@@ -83,37 +83,37 @@ export class S3Service {
 
   async uploadImageFromUri(uri: string, keyDirectory: string) {
     try {
-        let arrayBuffer: ArrayBuffer;
-        let originalName: string;
+      let arrayBuffer: ArrayBuffer;
+      let originalName: string;
 
-        if (uri.startsWith('file://')) {
-            // Handle local file URIs
-            const filePath = uri.replace('file://', '');
-            const fileBuffer = require('fs').readFileSync(filePath);
-            arrayBuffer = fileBuffer.buffer;
-            originalName = path.basename(filePath);
-        } else {
-            // Handle remote URLs
-            const response = await fetch(uri);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            arrayBuffer = await response.arrayBuffer();
-            originalName = uri.split('/').pop() || 'unknown';
+      if (uri.startsWith('file://')) {
+        // Handle local file URIs
+        const filePath = uri.replace('file://', '');
+        const fileBuffer = require('fs').readFileSync(filePath);
+        arrayBuffer = fileBuffer.buffer;
+        originalName = path.basename(filePath);
+      } else {
+        // Handle remote URLs
+        const response = await fetch(uri);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        arrayBuffer = await response.arrayBuffer();
+        originalName = uri.split('/').pop() || 'unknown';
+      }
 
-        // Create a file object with the buffer and original name
-        const file = {
-            buffer: Buffer.from(arrayBuffer),
-            originalname: originalName,
-        } as Express.Multer.File;
+      // Create a file object with the buffer and original name
+      const file = {
+        buffer: Buffer.from(arrayBuffer),
+        originalname: originalName,
+      } as Express.Multer.File;
 
-        // Upload the file (assuming you have this method implemented)
-        const imageUrl = await this.uploadCompressedImage(keyDirectory, file);
-        return imageUrl;
+      // Upload the file (assuming you have this method implemented)
+      const imageUrl = await this.uploadCompressedImage(keyDirectory, file);
+      return imageUrl;
     } catch (error) {
-        console.error('Error uploading image:', error);
-        throw new Error(`Failed to upload image: ${error.message}`);
+      console.error('Error uploading image:', error);
+      throw new Error(`Failed to upload image: ${error.message}`);
     }
-}
+  }
 }

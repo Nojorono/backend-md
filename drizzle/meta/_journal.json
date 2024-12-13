@@ -183,6 +183,13 @@
       "when": 1733992004238,
       "tag": "0025_modern_vapor",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1733992604233,
+      "tag": "0026_perfect_shocker",
+      "breakpoints": true
     }
   ]
 }
