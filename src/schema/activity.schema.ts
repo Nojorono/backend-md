@@ -37,6 +37,8 @@ export const Activity = pgTable('activity', {
   photos: jsonb('photos').default([]),
   start_time: timestamp('start_time').notNull(),
   end_time: timestamp('end_time').notNull(),
+  latitude: varchar('latitude', { length: 100 }),
+  longitude: varchar('longitude', { length: 100 }),
   created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 100 }),

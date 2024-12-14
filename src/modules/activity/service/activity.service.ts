@@ -82,7 +82,7 @@ export class ActivityService {
               throw new BadRequestException(await this.i18n.translate('translation.Invalid photo data'));
             }
             try {
-              return await this.s3Service.uploadImageFromUri(photo, 'activity');
+              return await this.s3Service.uploadImageFlexible(photo, 'activity');
             } catch (error) {
               throw new BadRequestException(await this.i18n.translate('translation.Invalid photo format'));
             }
@@ -108,7 +108,7 @@ export class ActivityService {
                 ...sio,
                 activity_id: activity.id,
                 photo: sio.photo ? 
-                  await this.s3Service.uploadImageFromUri(sio.photo, 'activity_sio') : 
+                  await this.s3Service.uploadImageFlexible(sio.photo, 'activity_sio') : 
                   null,
                 created_by: user.email,
                 created_at: new Date(),
@@ -212,7 +212,7 @@ export class ActivityService {
         updateDto.photos = await Promise.all(
           updateDto.photos.map(async (photo) => {
             try {
-              return await this.s3Service.uploadImageFromUri(photo, 'activity');
+              return await this.s3Service.uploadImageFlexible(photo, 'activity');
             } catch (error) {
               throw new BadRequestException(await this.i18n.translate('translation.Invalid photo format'));
             }
