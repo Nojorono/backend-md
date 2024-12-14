@@ -28,9 +28,13 @@ export const Absensi = pgTable(
     clockOut: timestamp('clock_out').default(null),
     area: varchar('area', { length: 255 }).default(''),
     region: varchar('region', { length: 255 }).default(''),
+    longitudeIn: varchar('longitude_in', { length: 255 }).default(''),
+    latitudeIn: varchar('latitude_in', { length: 255 }).default(''),
+    longitudeOut: varchar('longitude_out', { length: 255 }).default(''),
+    latitudeOut: varchar('latitude_out', { length: 255 }).default(''),
   },
   (table) => ({
-    userDateIdx: unique().on(table.userId, table.date),
+    userDateIdx: unique().on(table.userId, table.clockIn, table.clockOut),
   }),
 );
 

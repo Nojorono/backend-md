@@ -204,6 +204,34 @@
       "when": 1734165906953,
       "tag": "0028_foamy_crystal",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1734166006143,
+      "tag": "0029_flimsy_scarlet_spider",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1734166149205,
+      "tag": "0030_steep_maverick",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1734167066710,
+      "tag": "0031_skinny_quasimodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1734171639058,
+      "tag": "0032_lying_flatman",
+      "breakpoints": true
     }
   ]
 }

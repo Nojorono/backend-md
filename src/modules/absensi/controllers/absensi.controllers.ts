@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -23,16 +24,21 @@ export class AbsensiControllers {
   @ApiBearerAuth('accessToken')
   @Post()
   async create(@Body() CreateDto: CreateDto) {
-    return this.absensiService.create(CreateDto);
+    try {
+      return this.absensiService.create(CreateDto);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @ApiBearerAuth('accessToken')
-  @Put(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() UpdateDto: UpdateDto,
-  ) {
-    return this.absensiService.update(id, UpdateDto);
+  @Put()
+  async update(@Body() UpdateDto: UpdateDto) {
+    try {
+      return this.absensiService.update(UpdateDto);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @ApiBearerAuth('accessToken')
@@ -43,6 +49,10 @@ export class AbsensiControllers {
     @Query('searchTerm') searchTerm: string = '',
     @Query('filter') filter: { area: string; region: string } = { area: '', region: '' },
   ) {
-    return this.absensiService.getAll(page, limit, searchTerm, filter);
+    try {
+      return this.absensiService.getAll(page, limit, searchTerm, filter);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

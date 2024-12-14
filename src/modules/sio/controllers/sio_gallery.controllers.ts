@@ -9,6 +9,7 @@ import {
     Req,
     UseInterceptors,
     UploadedFile,
+    Put,
   } from '@nestjs/common';
   import { Request } from 'express';
   import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -32,8 +33,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
     @ApiBearerAuth('accessToken')
     @Post()
     @UseInterceptors(FileInterceptor('photo'))
-    async create(@Body() createDto: CreateSioGalleryDto, @UploadedFile() file: Express.Multer.File) {
-      return this.service.createData(createDto, file);
+    async create(@Body() createDto: CreateSioGalleryDto, @UploadedFile() photo: Express.Multer.File) {
+      return this.service.createData(createDto, photo);
     }
     @ApiBearerAuth('accessToken')
     @Get(':id')
@@ -41,9 +42,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
       return this.service.getDataById(id);
     }
     @ApiBearerAuth('accessToken')
-    @Post(':id')
-    async update(@Param('id') id: number, @Body() updateDto: UpdateSioGalleryDto) {
-      return this.service.updateData(id, updateDto);
+    @Put(':id')
+    @UseInterceptors(FileInterceptor('photo'))
+    async update(@Param('id') id: number, @Body() updateDto: UpdateSioGalleryDto, @UploadedFile() photo: Express.Multer.File) {
+      return this.service.updateData(id, updateDto, photo);
     }
     @ApiBearerAuth('accessToken')
     @Delete(':id')
@@ -54,11 +56,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
     @ApiBearerAuth('accessToken')
     @Get()
     async findAll(
+      @Query('sioTypeId') sioTypeId: number,
       @Query('page') page: number = 1,
       @Query('limit') limit: number = 10,
       @Query('searchTerm') searchTerm: string = '',
     ) {
-      return this.service.getAllActive(page, limit, searchTerm);
+      return this.service.getAllActive(sioTypeId, page, limit, searchTerm);
     }
   }
   
