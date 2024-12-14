@@ -5,7 +5,7 @@ export class CreateSioGalleryDto {
 }
 
 export class UpdateSioGalleryDto {
+  id: number;
   name: string;
   photo: string;
-  sio_type_id: number;
 }

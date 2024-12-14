@@ -198,7 +198,17 @@ export class UserRepo {
       .execute();
   }
 
-  // Read user by ID
+  async findByIdDecrypted(id: string) {
+    const idDecrypted = await this.decryptId(id);
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.query.mUser.findFirst({
+      where: (mUser, { eq }) => eq(mUser.id, idDecrypted),
+    });
+  }
+
   async getUserById(id: string) {
     const idDecrypted = await this.decryptId(id);
     const db = this.drizzleService['db'];

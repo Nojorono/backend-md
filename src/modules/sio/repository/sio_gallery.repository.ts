@@ -58,10 +58,10 @@ export class SioGalleryRepository {
   }
 
   async getAllActive(
+    sioTypeId: number,
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
-    sioTypeId: number = 0,
   ) {
     const db = this.drizzleService['db'];
 

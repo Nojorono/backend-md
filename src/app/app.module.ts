@@ -28,6 +28,7 @@ import { ConfigModule } from '@nestjs/config';
 import { SocketModule } from 'src/socket/socket.module';
 import { CommentsModule } from 'src/modules/comments/comments.module';
 import { NotificationsModule } from 'src/modules/notifications/notifications.module';
+import { AbsensiModule } from 'src/modules/absensi/absensi.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { NotificationsModule } from 'src/modules/notifications/notifications.mod
     CommentsModule,
     NotificationsModule,
     ProgramModule,
+    AbsensiModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',

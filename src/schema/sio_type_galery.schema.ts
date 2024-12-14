@@ -8,7 +8,6 @@ export const SioTypeGalery = pgTable('sio_type_galery', {
   name: text('name').notNull(),
   photo: text('photo'),
   created_at: timestamp('created_at').defaultNow(),
-  type: integer('type').notNull(),
 }, (table) => {
   return {
     nameIdx: index('name_idx').on(table.name)

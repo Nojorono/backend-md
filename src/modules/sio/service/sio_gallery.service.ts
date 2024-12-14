@@ -23,7 +23,15 @@ export class SioGalleryService {
     return this.repository.getById(id);
   }
 
-  async updateData(id: number, updateDto: UpdateSioGalleryDto) {
+  async updateData(id: number, updateDto: UpdateSioGalleryDto, file: Express.Multer.File) {
+    const data = await this.repository.getById(id);
+    if(data.photo) {
+      await this.s3Service.deleteImage(data.photo);
+    }
+    if(file) {
+      const url = await this.s3Service.uploadCompressedImage('sio_component', file);
+      updateDto.photo = url;
+    }
     return this.repository.update(id, updateDto);
   }
 
@@ -33,11 +41,12 @@ export class SioGalleryService {
   }
 
   async getAllActive(
+    sioTypeId: number,
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
   ) {
-    return this.repository.getAllActive(page, limit, searchTerm);
+    return this.repository.getAllActive(sioTypeId, page, limit, searchTerm);
   }
 
   async getAll() {

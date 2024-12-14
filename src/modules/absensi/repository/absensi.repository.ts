@@ -1,13 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  desc,
-  and,
-  between,
-  eq,
-  like,
-  or,
-  sql,
-} from 'drizzle-orm';
+import { desc, and, between, eq, like, or, sql } from 'drizzle-orm';
 import { Absensi, mUser } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateDto, UpdateDto } from '../dtos/absensi.dtos';
@@ -28,29 +20,37 @@ export class AbsensiRepository {
       .insert(Absensi)
       .values({
         ...CreateDto,
+        longitudeIn: CreateDto.longitude,
+        latitudeIn: CreateDto.latitude,
       })
       .returning();
   }
+
   async updateData(id: number, UpdateDto: UpdateDto) {
     const db = this.drizzleService['db'];
     return await db
       .update(Absensi)
-      .set({ ...UpdateDto })
+      .set({
+        ...UpdateDto,
+        longitudeOut: UpdateDto.longitude,
+        latitudeOut: UpdateDto.latitude,
+      })
       .where(eq(Absensi.id, id))
       .execute();
   }
-  async getById(id: number) {
+
+  async findByUserId(userId: number) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
     }
-    const result = await db
-      .select({
-        ...Absensi,
-      })
-      .from(Absensi)
-      .where(eq(Absensi.id, id));
-    return result[0];
+
+    const dateNow = new Date();
+
+    return await db.query.Absensi.findFirst({
+      where: (Absensi, { eq, and }) =>
+        and(eq(Absensi.userId, userId), eq(Absensi.date, dateNow)),
+    });
   }
   // Delete an outlet (soft delete by updating is_deleted field)
   async deleteById(id: number, userEmail: string) {
