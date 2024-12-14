@@ -81,25 +81,44 @@ export class S3Service {
     }
   }
 
-  async uploadImageFromUri(uri: string, keyDirectory: string) {
+  async uploadImageFlexible(input: Express.Multer.File | string, keyDirectory: string) {
     try {
       let arrayBuffer: ArrayBuffer;
       let originalName: string;
 
-      if (uri.startsWith('file://')) {
-        // Handle local file URIs
-        const filePath = uri.replace('file://', '');
-        const fileBuffer = require('fs').readFileSync(filePath);
-        arrayBuffer = fileBuffer.buffer;
-        originalName = path.basename(filePath);
-      } else {
-        // Handle remote URLs
-        const response = await fetch(uri);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      // Handle different input types
+      if (!input) {
+        return null;
+      }
+
+      if (typeof input === 'object' && 'buffer' in input) {
+        // Handle Multer file upload
+        const file = input as Express.Multer.File;
+        arrayBuffer = file.buffer;
+        originalName = file.originalname;
+      } else if (typeof input === 'string') {
+        if (input.startsWith('data:image')) {
+          // Handle base64 image data
+          const base64Data = input.split(',')[1];
+          arrayBuffer = Buffer.from(base64Data, 'base64');
+          originalName = 'base64-image.jpg';
+        } else if (input.startsWith('file://')) {
+          // Handle local file URIs
+          const filePath = input.replace('file://', '');
+          const fileBuffer = require('fs').readFileSync(filePath);
+          arrayBuffer = fileBuffer.buffer;
+          originalName = path.basename(filePath);
+        } else {
+          // Handle remote URLs
+          const response = await fetch(input);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          arrayBuffer = await response.arrayBuffer();
+          originalName = input.split('/').pop() || 'unknown';
         }
-        arrayBuffer = await response.arrayBuffer();
-        originalName = uri.split('/').pop() || 'unknown';
+      } else {
+        throw new Error('Unsupported input type');
       }
 
       // Create a file object with the buffer and original name
@@ -108,7 +127,7 @@ export class S3Service {
         originalname: originalName,
       } as Express.Multer.File;
 
-      // Upload the file (assuming you have this method implemented)
+      // Upload the file using the compressed image method
       const imageUrl = await this.uploadCompressedImage(keyDirectory, file);
       return imageUrl;
     } catch (error) {

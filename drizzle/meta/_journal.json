@@ -190,6 +190,20 @@
       "when": 1733992604233,
       "tag": "0026_perfect_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1734078203657,
+      "tag": "0027_dusty_william_stryker",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1734165906953,
+      "tag": "0028_foamy_crystal",
+      "breakpoints": true
     }
   ]
 }

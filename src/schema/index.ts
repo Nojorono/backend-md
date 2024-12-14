@@ -21,3 +21,5 @@ export { Survey } from './survey.schema';
 export { Notifications } from './notification.schema';
 export { Comments, commentRelations } from './comment.schema';
 export { Program } from './m_program.schema';
+export { SioTypeGalery } from './sio_type_galery.schema';
+export { Absensi, absensiRelations } from './absensi.schema';
