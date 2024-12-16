@@ -23,9 +23,17 @@ export class AbsensiService {
       }
     }
 
-    const timeClockIn = new Date(CreateDto.clockIn);
+    // Ensure clockIn is a valid Date object and convert to Jakarta timezone
+    const timeClockIn = CreateDto.clockIn instanceof Date ? 
+      new Date(CreateDto.clockIn.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' })) :
+      new Date(new Date(CreateDto.clockIn).toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+
+    // Get Jakarta time reference for 8 AM
+    const jakartaRef = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+    jakartaRef.setHours(8, 0, 0, 0);
+
     if (timeClockIn.getHours() >= 8) {
-      const diffMs = timeClockIn.getTime() - new Date().setHours(8, 0, 0, 0);
+      const diffMs = timeClockIn.getTime() - jakartaRef.getTime();
       const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
       const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
       CreateDto.status = `Terlambat ${diffHrs} jam ${diffMins} menit`;
@@ -33,7 +41,11 @@ export class AbsensiService {
       CreateDto.status = 'On Time';
     }
 
-    const result = await this.AbsensiRepository.createData(CreateDto);
+    // Ensure we pass a proper Date object
+    CreateDto.clockIn = timeClockIn;
+    CreateDto.date = new Date(CreateDto.date);
+
+    const result = await this.AbsensiRepository.createData(CreateDto, user.id);
     return result;
   }
 
@@ -52,12 +64,20 @@ export class AbsensiService {
       throw new BadRequestException('Already has clock out today');
     }
 
-    const timeClockOut = new Date(UpdateDto.clockOut);
-    if (timeClockOut.getHours() < 17) {
+    const timeClockOut = UpdateDto.clockOut instanceof Date ?
+      UpdateDto.clockOut :
+      new Date(UpdateDto.clockOut);
+    
+    // Convert to Asia/Jakarta timezone
+    const jakartaTime = new Date(timeClockOut.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+    const jakartaHours = jakartaTime.getHours();
+
+    if (jakartaHours < 16) {
       throw new BadRequestException('Clock out time must be greater than 17:00');
     }
 
     UpdateDto.clockOut = timeClockOut;
+    UpdateDto.userId = user.id;
 
     return this.AbsensiRepository.updateData(absensiToday.id, UpdateDto);
   }

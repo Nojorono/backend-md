@@ -9,7 +9,7 @@ import { paginate } from '../../../helpers/nojorono.helpers';
 export class AbsensiRepository {
   constructor(private readonly drizzleService: DrizzleService) {}
 
-  async createData(CreateDto: CreateDto) {
+  async createData(CreateDto: CreateDto, userId: number) {
     const db = this.drizzleService['db'];
 
     if (!db) {
@@ -22,6 +22,7 @@ export class AbsensiRepository {
         ...CreateDto,
         longitudeIn: CreateDto.longitude,
         latitudeIn: CreateDto.latitude,
+        userId: userId,
       })
       .returning();
   }
@@ -84,6 +85,7 @@ export class AbsensiRepository {
       .select({
         ...Absensi,
         user_name: mUser.fullname,
+        user_email: mUser.email,
       })
       .from(Absensi)
       .leftJoin(mUser, eq(Absensi.userId, mUser.id));
@@ -100,6 +102,7 @@ export class AbsensiRepository {
           like(Absensi.status, `%${word}%`),
           like(Absensi.remarks, `%${word}%`),
           like(mUser.fullname, `%${word}%`),
+          like(mUser.email, `%${word}%`)
         ),
       );
 
@@ -108,10 +111,12 @@ export class AbsensiRepository {
     }
 
     if (filter.region) {
+      console.log(filter.region);
       whereConditions.push(eq(Absensi.region, filter.region));
     }
 
     if (filter.area) {
+      console.log(filter.area);
       whereConditions.push(eq(Absensi.area, filter.area));
     }
 

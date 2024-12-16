@@ -9,6 +9,9 @@ import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 
 async function bootstrap() {
+  // Set timezone to Asia/Jakarta
+  process.env.TZ = 'Asia/Jakarta';
+  
   const logger = new Logger();
   const app = await NestFactory.create(
     AppModule,
@@ -36,7 +39,7 @@ async function bootstrap() {
       status: 200,
       message: `Message from ${configService.get('app.name')}`,
       data: {
-        timestamp: new Date(),
+        timestamp: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
       },
     });
   });
@@ -52,20 +55,31 @@ async function bootstrap() {
     });
   }
   await setupSwagger(app);
-  app.use(helmet({
+  app.use(helmet(
+    {
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginOpenerPolicy: false,
-  }));
+  }
+));
 
   app.enableCors({
     origin: [
       'http://localhost:8080',
-      'http://10.0.63.205:8080',
+      'http://10.0.63.205:8080', 
       'http://127.0.0.1:8080',
-      'http://192.168.1.100:8080', // Add your local network IP
-      'http://0.0.0.0:8080'
+      'http://192.168.1.100:8080',
+      'http://192.168.0.102:8080',
+      'http://192.168.1.102:8080',
+      'http://0.0.0.0:8080',
+      'exp://192.168.0.102:*',
+      'exp://192.168.1.102:*',
+      'exp://10.0.63.239:*',
+      'http://192.168.0.102:*',
+      'http://192.168.1.102:*',
+      'http://10.0.63.239:*',
+      '*'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
@@ -83,7 +97,7 @@ async function bootstrap() {
   //   },
   // });
   // await app.startAllMicroservices();
-  await app.listen(port, host);
+  await app.listen(port, '0.0.0.0');
   logger.log(
     `🚀 ${configService.get(
       'app.name',

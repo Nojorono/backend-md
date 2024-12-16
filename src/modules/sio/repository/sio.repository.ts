@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq, isNull } from 'drizzle-orm';
-import { MSioType } from '../../../schema';
+import { MSioType, SioTypeGalery } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { buildSearchQuery, paginate } from '../../../helpers/nojorono.helpers';
 import { CreateSioDto, UpdateSioDto } from '../dtos/sio.dtos';
@@ -92,10 +92,22 @@ export class SioRepository {
       throw new Error('Database not initialized');
     }
 
-    const query = await db
-      .select()
-      .from(MSioType)
-      .where(and(isNull(MSioType.deleted_at)));
+    const query = await db.query.MSioType.findMany({
+      columns: {
+        id: true,
+        name: true,
+      },
+      with: {
+        sioTypeGalery: {
+          columns: {
+            id: true,
+            name: true,
+            photo: true,
+          },
+        },
+      },
+      where: isNull(MSioType.deleted_at),
+    });
 
     const totalRecords = parseInt(query.length) || 0;
 

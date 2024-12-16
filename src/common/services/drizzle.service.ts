@@ -13,6 +13,8 @@ export class DrizzleService implements OnModuleInit {
 
   constructor() {
     this.databaseType = process.env.DATABASE_TYPE || 'postgresql';
+    // Set timezone to Asia/Jakarta
+    process.env.TZ = 'Asia/Jakarta';
   }
 
   // On module initialization, connect to the database
@@ -40,7 +42,9 @@ export class DrizzleService implements OnModuleInit {
   async isHealthy(): Promise<HealthIndicatorResult> {
     try {
       if (this.databaseType === 'postgresql') {
-        await this.db.execute('SELECT 1'); // Drizzle's method for executing raw queries
+        // Set timezone for the session
+        await this.db.execute("SET timezone='Asia/Jakarta'");
+        await this.db.execute('SELECT 1');
       } else {
         throw new Error('Unsupported database provider');
       }
