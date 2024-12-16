@@ -83,7 +83,7 @@ export class S3Service {
 
   async uploadImageFlexible(input: Express.Multer.File | string, keyDirectory: string) {
     try {
-      let arrayBuffer: ArrayBuffer;
+      let buffer: Buffer;
       let originalName: string;
 
       // Handle different input types
@@ -94,19 +94,19 @@ export class S3Service {
       if (typeof input === 'object' && 'buffer' in input) {
         // Handle Multer file upload
         const file = input as Express.Multer.File;
-        arrayBuffer = file.buffer;
+        buffer = file.buffer;
         originalName = file.originalname;
       } else if (typeof input === 'string') {
         if (input.startsWith('data:image')) {
           // Handle base64 image data
           const base64Data = input.split(',')[1];
-          arrayBuffer = Buffer.from(base64Data, 'base64');
+          buffer = Buffer.from(base64Data, 'base64');
           originalName = 'base64-image.jpg';
         } else if (input.startsWith('file://')) {
           // Handle local file URIs
           const filePath = input.replace('file://', '');
           const fileBuffer = require('fs').readFileSync(filePath);
-          arrayBuffer = fileBuffer.buffer;
+          buffer = Buffer.from(fileBuffer);
           originalName = path.basename(filePath);
         } else {
           // Handle remote URLs
@@ -114,7 +114,8 @@ export class S3Service {
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          arrayBuffer = await response.arrayBuffer();
+          const blob = await response.blob();
+          buffer = Buffer.from(await blob.arrayBuffer());
           originalName = input.split('/').pop() || 'unknown';
         }
       } else {
@@ -123,7 +124,7 @@ export class S3Service {
 
       // Create a file object with the buffer and original name
       const file = {
-        buffer: Buffer.from(arrayBuffer),
+        buffer,
         originalname: originalName,
       } as Express.Multer.File;
 
