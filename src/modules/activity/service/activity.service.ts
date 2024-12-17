@@ -18,6 +18,7 @@ import { ActivitySogRepository } from '../repository/activity_sog.repository';
 import { S3Service } from 'src/modules/s3/service/s3.service';
 import { I18nService } from 'nestjs-i18n';
 import { ActivityBranchRepository } from '../repository/activity_branch.repository';
+import { CallPlanScheduleRepository } from 'src/modules/callplan/repository/callplanschedule.repository';
 
 @Injectable()
 export class ActivityService {
@@ -29,6 +30,7 @@ export class ActivityService {
     private readonly userRepository: UserRepo,
     private readonly s3Service: S3Service,
     private readonly i18n: I18nService,
+    private readonly callPlanScheduleRepository: CallPlanScheduleRepository,
   ) {}
 
   async createData(createDto: CreateMdActivityDto) {
@@ -46,14 +48,14 @@ export class ActivityService {
         throw new BadRequestException(await this.i18n.translate('translation.User not found'));
       }
 
-      // Set metadata
-      createDto.created_by = user.email;
-      createDto.created_at = new Date();
-      
       // Validate and convert dates
       if (!createDto.start_time || !createDto.end_time) {
         throw new BadRequestException(await this.i18n.translate('translation.Start time and end time are required'));
       }
+
+      // Set metadata
+      createDto.created_by = user.email;
+      createDto.created_at = new Date();
 
       const startTime = new Date(createDto.start_time);
       const endTime = new Date(createDto.end_time);
@@ -144,6 +146,10 @@ export class ActivityService {
         }));
         await this.activityBranchRepository.create(branchEntries);
       }
+
+      await this.callPlanScheduleRepository.updateStatus(createDto.call_plan_schedule_id, {
+        status: 200
+      });
 
       return activity;
 

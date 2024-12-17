@@ -122,8 +122,6 @@ export class ActivityRepository {
       
       const searchConditions = searchWords.map(word => 
         or(
-          like(Activity.brand, `%${word}%`),
-          like(Activity.type_sio, `%${word}%`),
           like(mOutlets.name, `%${word}%`),
           like(Survey.name, `%${word}%`),
           like(mUser.fullname, `%${word}%`),
@@ -141,6 +139,14 @@ export class ActivityRepository {
 
     if (filter.area) {
       whereConditions.push(eq(Activity.area, filter.area));
+    }
+
+    if (filter.brand) {
+      whereConditions.push(eq(Activity.brand, filter.brand));
+    }
+
+    if (filter.sio_type) {
+      whereConditions.push(eq(Activity.type_sio, filter.sio_type));
     }
 
     if (filter.date_start && filter.date_end) {

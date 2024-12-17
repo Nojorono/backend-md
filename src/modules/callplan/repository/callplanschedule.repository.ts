@@ -103,6 +103,13 @@ export class CallPlanScheduleRepository {
       .execute();
   }
 
+  async updateStatus(id: number, updateDto: any) {
+    const db = this.drizzleService['db'];
+    return await db.update(CallPlanSchedule).set({
+      status: updateDto.status,
+    }).where(eq(CallPlanSchedule.id, id)).execute();
+  }
+
   // Get Schedule by callPlanId
   async getByIdCallPlan(
     id: string,
