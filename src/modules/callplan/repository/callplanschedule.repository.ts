@@ -106,7 +106,8 @@ export class CallPlanScheduleRepository {
   async updateStatus(id: number, updateDto: any) {
     const db = this.drizzleService['db'];
     return await db.update(CallPlanSchedule).set({
-      status: updateDto.status,
+      ...updateDto,
+      updated_at: new Date(),
     }).where(eq(CallPlanSchedule.id, id)).execute();
   }
 

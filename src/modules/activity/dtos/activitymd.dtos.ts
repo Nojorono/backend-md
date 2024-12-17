@@ -91,23 +91,23 @@ export class CreateMdActivityDto {
   @Type(() => Date)
   created_at?: Date;
   
-  @ApiProperty({ type: [ActivitySioDto], description: 'Activity SIO Data', required: false })
-  @ValidateNested({ each: true })
-  @Type(() => ActivitySioDto)
-  @IsOptional()
-  activity_sio?: ActivitySioDto[];
+  // @ApiProperty({ type: [ActivitySioDto], description: 'Activity SIO Data', required: false })
+  // @ValidateNested({ each: true })
+  // @Type(() => ActivitySioDto)
+  // @IsOptional()
+  // activity_sio?: ActivitySioDto[];
 
-  @ApiProperty({ type: [ActivitySogDto], description: 'Activity SOG Data', required: false })
-  @ValidateNested({ each: true })
-  @Type(() => ActivitySogDto)
-  @IsOptional()
-  activity_sog?: ActivitySogDto[];
+  // @ApiProperty({ type: [ActivitySogDto], description: 'Activity SOG Data', required: false })
+  // @ValidateNested({ each: true })
+  // @Type(() => ActivitySogDto)
+  // @IsOptional()
+  // activity_sog?: ActivitySogDto[];
 
-  @ApiProperty({ type: [ActivityBranchDto], description: 'Activity Branch Data', required: false })
-  @ValidateNested({ each: true })
-  @Type(() => ActivityBranchDto)
-  @IsOptional()
-  activity_branch?: ActivityBranchDto[];
+  // @ApiProperty({ type: [ActivityBranchDto], description: 'Activity Branch Data', required: false })
+  // @ValidateNested({ each: true })
+  // @Type(() => ActivityBranchDto)
+  // @IsOptional()
+  // activity_branch?: ActivityBranchDto[];
 }
 
 export class UpdateMdActivityDto {

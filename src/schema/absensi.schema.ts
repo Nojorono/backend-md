@@ -32,6 +32,8 @@ export const Absensi = pgTable(
     latitudeIn: varchar('latitude_in', { length: 255 }).default(''),
     longitudeOut: varchar('longitude_out', { length: 255 }).default(''),
     latitudeOut: varchar('latitude_out', { length: 255 }).default(''),
+    photoIn: varchar('photo_in', { length: 255 }).default(''),
+    photoOut: varchar('photo_out', { length: 255 }).default(''),
   },
   (table) => ({
     userDateIdx: unique().on(table.userId, table.clockIn, table.clockOut),

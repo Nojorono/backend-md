@@ -2,14 +2,19 @@ import { IsString, IsInt, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ActivitySogDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  @IsOptional()
+  activity_id: number;
+
   @ApiProperty({ example: 'Sample Name' })
   @IsString()
   name: string;
 
-  @ApiProperty({ example: '100' })
-  @IsString()
+  @ApiProperty({ example: 100 })
+  @IsInt()
   @IsOptional()
-  value?: string;
+  value?: number;
 
   @ApiProperty({ example: 'Sample Description' })
   @IsString()
@@ -20,4 +25,4 @@ export class ActivitySogDto {
   @IsString()
   @IsOptional()
   notes?: string;
-} 
+}

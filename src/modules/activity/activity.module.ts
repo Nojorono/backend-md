@@ -11,9 +11,17 @@ import { ActivitySioRepository } from './repository/activity_sio.repository';
 import { ActivitySogRepository } from './repository/activity_sog.repository';
 import { S3Service } from '../s3/service/s3.service';
 import { ActivityBranchRepository } from './repository/activity_branch.repository';
+import { ActivitySioControllers } from './controllers/activitySio.controllers';
+import { ActivitySogControllers } from './controllers/activitySog.controllers';
+import { ActivityBranchControllers } from './controllers/activityBranch.controllers';
 
 @Module({
-  controllers: [ActivityControllers],
+  controllers: [
+    ActivityControllers,
+    ActivitySioControllers,
+    ActivitySogControllers,
+    ActivityBranchControllers,
+  ],
   imports: [CommonModule],
   providers: [
     DrizzleService,

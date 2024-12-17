@@ -29,6 +29,7 @@ import { SocketModule } from 'src/socket/socket.module';
 import { CommentsModule } from 'src/modules/comments/comments.module';
 import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 import { AbsensiModule } from 'src/modules/absensi/absensi.module';
+import { DashboardModule } from 'src/modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { AbsensiModule } from 'src/modules/absensi/absensi.module';
     NotificationsModule,
     ProgramModule,
     AbsensiModule,
+    DashboardModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
