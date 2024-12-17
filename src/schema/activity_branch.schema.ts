@@ -12,7 +12,7 @@ import {
     id: serial('id').primaryKey().notNull(),
     activity_id: integer('activity_id').references(() => Activity.id),
     name: varchar('name', { length: 50 }).notNull(),
-    value: varchar('value', { length: 255 }),
+    value: integer('value'),
     description: varchar('description', { length: 255 }),
     notes: varchar('notes', { length: 255 }),
     created_by: varchar('created_by', { length: 100 }),
