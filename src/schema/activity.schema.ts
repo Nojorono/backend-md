@@ -5,6 +5,7 @@ import {
   timestamp,
   integer,
   jsonb,
+  text,
 } from 'drizzle-orm/pg-core';
 import { mUser } from './m_user.schema';
 import { CallPlan } from './call_plan';
@@ -30,6 +31,7 @@ export const Activity = pgTable('activity', {
   survey_outlet_id: integer('survey_outlet_id').references(() => Survey.id),
   program_id: integer('program_id').references(() => Program.id),
   status: integer('status'),
+  status_approval: integer('status_approval').default(0),
   area: varchar('area', { length: 100 }).notNull(),
   region: varchar('region', { length: 100 }).notNull(),
   brand: varchar('brand', { length: 100 }).notNull(),
@@ -39,6 +41,7 @@ export const Activity = pgTable('activity', {
   end_time: timestamp('end_time').notNull(),
   latitude: varchar('latitude', { length: 100 }),
   longitude: varchar('longitude', { length: 100 }),
+  notes: text('notes'),
   created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 100 }),

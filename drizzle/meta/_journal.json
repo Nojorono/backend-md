@@ -246,6 +246,20 @@
       "when": 1734416594173,
       "tag": "0034_chemical_magdalene",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1734490282984,
+      "tag": "0035_ambitious_stellaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1734490819018,
+      "tag": "0036_hard_alice",
+      "breakpoints": true
     }
   ]
 }

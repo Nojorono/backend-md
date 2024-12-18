@@ -356,6 +356,7 @@ export class ActivityService {
   }
 
   async updateStatus(id: number, updateDto: UpdateStatusDto) {
-    return await this.repository.updateStatus(id, updateDto);
+    const result = await this.repository.updateStatus(id, updateDto);
+    return result;
   }
 }
