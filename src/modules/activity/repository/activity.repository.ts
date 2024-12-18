@@ -188,7 +188,7 @@ export class ActivityRepository {
     const db = this.drizzleService['db'];
     return await db
       .update(Activity)
-      .set({ status: updateDto.status })
+      .set({ status_approval: updateDto.status })
       .where(eq(Activity.id, id))
       .execute();
   }
