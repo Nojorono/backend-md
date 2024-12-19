@@ -98,7 +98,7 @@ export class SurveyRepository {
     limit: number = 10,
     searchTerm: string = '',
     isActive: string = '',
-    filter: { area: string; region: string },
+    filter: { area: string; region: string; brand: string; sio_type: string },
   ) {
     const db = this.drizzleService['db'];
 
@@ -116,6 +116,14 @@ export class SurveyRepository {
     // Apply area filter if provided (assuming 'area' is an array in filter)
     if (filter.area) {
       query.where(eq(Survey.area, filter.area));
+    }
+
+    if (filter.brand) {
+      query.where(eq(Survey.brand, filter.brand));
+    }
+
+    if (filter.sio_type) {
+      query.where(eq(Survey.sio_type, filter.sio_type));
     }
 
     // Apply search condition if available

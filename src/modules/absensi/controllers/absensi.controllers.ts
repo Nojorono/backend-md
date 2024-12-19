@@ -8,10 +8,13 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AbsensiService } from '../service/absensi.service';
 import { CreateDto, UpdateDto } from '../dtos/absensi.dtos';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('absensi')
 @Controller({
@@ -23,21 +26,31 @@ export class AbsensiControllers {
 
   @ApiBearerAuth('accessToken')
   @Post()
-  async create(@Body() CreateDto: CreateDto) {
+  @UseInterceptors(FileInterceptor('file'))
+  async create(@Body() CreateDto: any, @UploadedFile() file: Express.Multer.File) {
     try {
-      return this.absensiService.create(CreateDto);
+      const result = await this.absensiService.create(CreateDto, file);
+      if (!result) {
+        throw new BadRequestException('Failed to create attendance record');
+      }
+      return result;
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException(error.response);
     }
   }
 
   @ApiBearerAuth('accessToken')
   @Put()
-  async update(@Body() UpdateDto: UpdateDto) {
+  @UseInterceptors(FileInterceptor('file'))
+  async update(@Body() UpdateDto: any, @UploadedFile() file: Express.Multer.File) {
     try {
-      return this.absensiService.update(UpdateDto);
+      const result = await this.absensiService.update(UpdateDto, file);
+      if (!result) {
+        throw new BadRequestException('Failed to update attendance record');
+      }
+      return result;
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException(error.response);
     }
   }
 
@@ -52,7 +65,7 @@ export class AbsensiControllers {
     try {
       return this.absensiService.getAll(page, limit, searchTerm, filter);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException(error.response);
     }
   }
 }

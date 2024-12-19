@@ -144,7 +144,8 @@ export class CallPlanScheduleRepository {
       .where(
         and(eq(CallPlanSchedule.call_plan_id, idDecrypted)),
         isNull(CallPlanSchedule.deleted_at),
-      );
+      )
+      .orderBy(desc(CallPlanSchedule.id));
 
     // Build search query
     const searchColumns = ['code_call_plan'];
@@ -216,6 +217,7 @@ export class CallPlanScheduleRepository {
       with: {
         callPlan: true,
       },
+      orderBy: (CallPlan, { desc }) => [desc(CallPlan.created_at)]
     });
   }
 
