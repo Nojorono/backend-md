@@ -19,6 +19,10 @@ export class OutletService {
     private readonly drizzleService: DrizzleService,
   ) {}
 
+  async getOutletByFilter(query: { region: string, area: string, brand: string, sio_type: string }) {
+    return this.outletRepository.getOutletByFilter(query);
+  }
+
   private readonly upload: MulterOptions = {
     storage: multer.memoryStorage(),
   };

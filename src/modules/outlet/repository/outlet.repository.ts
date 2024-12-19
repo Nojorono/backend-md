@@ -296,4 +296,22 @@ export class OutletRepository {
       data,
     };
   }
+
+  async getOutletByFilter(query: { region: string, area: string, brand: string, sio_type: string }) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    const result = await db.query.mOutlets.findMany({
+      where: and(
+        eq(mOutlets.is_active, 1),
+        eq(mOutlets.region, query.region),
+        eq(mOutlets.area, query.area),
+        eq(mOutlets.brand, query.brand),
+        eq(mOutlets.sio_type, query.sio_type)
+      )
+    });
+    return result;
+  }
 }
+

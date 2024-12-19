@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from 'src/common/services/drizzle.service';
-import { and, count as drizzleCount, eq, isNull } from 'drizzle-orm';
-import { Mbatch, MbatchTarget, Activity, CallPlan } from '../../../schema';
+import { and, count, desc, count as drizzleCount, eq, isNull } from 'drizzle-orm';
+import {
+  Mbatch,
+  MbatchTarget,
+  Activity,
+  CallPlan,
+  mOutlets,
+  MBrand,
+} from '../../../schema';
 
 @Injectable()
 export class DashboardService {
@@ -72,5 +79,64 @@ export class DashboardService {
       batch_target_allocation_ho: item.batch_target_allocation_ho,
       activity_count: Number(item.activity_count) || 0,
     }));
+  }
+
+  async getOutletByFilter(filter: {
+    region: string;
+    area: string;
+    brand: string;
+    sio_type: string;
+  }) {
+    const db = this.drizzleService['db'];
+
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const baseConditions = [
+      isNull(mOutlets.deleted_at),
+      eq(mOutlets.is_active, 1)
+    ];
+
+    if (filter.region) {
+      baseConditions.push(eq(mOutlets.region, filter.region));
+    }
+
+    if (filter.area) {
+      baseConditions.push(eq(mOutlets.area, filter.area));
+    }
+    if (filter.brand) {
+      baseConditions.push(eq(mOutlets.brand, filter.brand));
+    }
+    if (filter.sio_type) {
+      baseConditions.push(eq(mOutlets.sio_type, filter.sio_type));
+    }
+
+    const totalRecordsResult = await db
+      .select({ count: count() })
+      .from(mOutlets)
+      .where(and(...baseConditions));
+
+    const totalRecords = totalRecordsResult[0]?.count ?? 0;
+
+    const result = await db
+      .select({
+        id: mOutlets.id,
+        brand: mOutlets.brand,
+        latitude: mOutlets.latitude,
+        longitude: mOutlets.longitude,
+        sio_type: mOutlets.sio_type,
+        region: mOutlets.region,
+        area: mOutlets.area,
+        color: MBrand.color,
+      })
+      .from(mOutlets)
+      .leftJoin(MBrand, eq(mOutlets.brand, MBrand.brand))
+      .where(and(...baseConditions));
+
+    return {
+      data: result,
+      totalItems: totalRecords,
+    };
   }
 }
