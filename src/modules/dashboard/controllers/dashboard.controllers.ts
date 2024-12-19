@@ -15,4 +15,12 @@ export class DashboardControllers {
   async getDashboardBatchTarget(@Query('code_batch') codeBatch: string) {
     return this.DashboardService.getDashboardBatchTarget(codeBatch);
   }
+
+  @ApiBearerAuth('accessToken')
+  @Get('outlet')
+  async getOutletByFilter(
+    @Query('filter') filter: { area: string; region: string; brand: string; sio_type: string } = { area: '', region: '', brand: '', sio_type: '' },
+  ) {
+    return this.DashboardService.getOutletByFilter(filter);
+  }
 }

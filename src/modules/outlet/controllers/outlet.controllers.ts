@@ -28,6 +28,7 @@ export class OutletController {
     private readonly outletService: OutletService,
     private readonly outletRepository: OutletRepository,
   ) {}
+  
   @ApiBearerAuth('accessToken')
   @Get('survey-list')
   async getAll() {
