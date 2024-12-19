@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   BadRequestException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserRepo } from '../../user/repository/user.repo';
 import {
@@ -22,6 +23,8 @@ import { CallPlanScheduleRepository } from 'src/modules/callplan/repository/call
 import { ActivitySioDto } from '../dtos/activity_sio.dtos';
 import { ActivitySogDto } from '../dtos/activity_sog.dtos';
 import { ActivityBranchDto } from '../dtos/activity_branch.dtos';
+import { STATUS_APPROVED, STATUS_PERM_CLOSED } from 'src/constants';
+import { OutletRepository } from 'src/modules/outlet/repository/outlet.repository';
 
 @Injectable()
 export class ActivityService {
@@ -34,6 +37,7 @@ export class ActivityService {
     private readonly s3Service: S3Service,
     private readonly i18n: I18nService,
     private readonly callPlanScheduleRepository: CallPlanScheduleRepository,
+    private readonly outletRepository: OutletRepository,
   ) {}
 
   async createDataSio(createDto: ActivitySioDto, file: Express.Multer.File) {
@@ -71,7 +75,7 @@ export class ActivityService {
       return result;
     } catch (error) {
       logger.error('Error creating SOG activity:', error.message, error.stack);
-      throw new BadRequestException(error.message); 
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -86,7 +90,11 @@ export class ActivityService {
       const result = await this.activityBranchRepository.create(createDto);
       return result;
     } catch (error) {
-      logger.error('Error creating branch activity:', error.message, error.stack);
+      logger.error(
+        'Error creating branch activity:',
+        error.message,
+        error.stack,
+      );
       throw new BadRequestException(error.message);
     }
   }
@@ -115,7 +123,9 @@ export class ActivityService {
       const [activity] = await this.repository.create(createDto);
       if (!activity) {
         throw new InternalServerErrorException(
-          await this.i18n.translate('translation.Failed to create activity record'),
+          await this.i18n.translate(
+            'translation.Failed to create activity record',
+          ),
         );
       }
 
@@ -123,7 +133,6 @@ export class ActivityService {
       await this.updateCallPlanSchedule(createDto);
 
       return activity;
-
     } catch (error) {
       logger.error('Error in create activity:', error.message, error.stack);
       if (error instanceof HttpException) {
@@ -139,7 +148,11 @@ export class ActivityService {
   }
 
   private async validateRequiredFields(createDto: CreateMdActivityDto) {
-    if (!createDto.user_id || !createDto.call_plan_schedule_id || !createDto.call_plan_id) {
+    if (
+      !createDto.user_id ||
+      !createDto.call_plan_schedule_id ||
+      !createDto.call_plan_id
+    ) {
       throw new BadRequestException(
         await this.i18n.translate('translation.Bad Request Exception'),
       );
@@ -159,7 +172,9 @@ export class ActivityService {
   private async validateDates(createDto: CreateMdActivityDto) {
     if (!createDto.start_time || !createDto.end_time) {
       throw new BadRequestException(
-        await this.i18n.translate('translation.Start time and end time are required'),
+        await this.i18n.translate(
+          'translation.Start time and end time are required',
+        ),
       );
     }
 
@@ -174,7 +189,9 @@ export class ActivityService {
 
     if (startTime >= endTime) {
       throw new BadRequestException(
-        await this.i18n.translate('translation.Start time must be before end time'),
+        await this.i18n.translate(
+          'translation.Start time must be before end time',
+        ),
       );
     }
 
@@ -356,7 +373,57 @@ export class ActivityService {
   }
 
   async updateStatus(id: number, updateDto: UpdateStatusDto) {
-    const result = await this.repository.updateStatus(id, updateDto);
-    return result;
+    try {
+      const activity = await this.repository.getById(id);
+      if (!activity) {
+        throw new HttpException(
+          await this.i18n.translate('translation.Activity not found'),
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (
+        activity.outlet_id &&
+        activity.status === STATUS_PERM_CLOSED &&
+        updateDto.status === STATUS_APPROVED
+      ) {
+        await this.outletRepository.updateOutletStatus(activity.outlet_id, {
+          is_active: 0,
+          remarks: 'Outlet Tutup Permanen',
+          updated_by: activity.created_by,
+          updated_at: new Date(),
+        });
+      }
+
+      if (activity.survey_outlet_id && updateDto.status === STATUS_APPROVED) {
+        await this.outletRepository.createOutlet({
+          name: activity.surveyOutlet.name,
+          unique_name: activity.surveyOutlet.unique_name,
+          brand: activity.surveyOutlet.brand,
+          address_line: activity.surveyOutlet.address_line,
+          sub_district: activity.surveyOutlet.sub_district,
+          district: activity.surveyOutlet.district,
+          city_or_regency: activity.surveyOutlet.city_or_regency,
+          postal_code: activity.surveyOutlet.postal_code,
+          latitude: activity.latitude,
+          longitude: activity.longitude,
+          sio_type: activity.surveyOutlet.sio_type,
+          region: activity.surveyOutlet.region,
+          area: activity.surveyOutlet.area,
+          cycle: activity.surveyOutlet.cycle,
+          visit_day: activity.surveyOutlet.visit_day,
+          odd_even: activity.surveyOutlet.odd_even,
+          remarks: activity.surveyOutlet.remarks,
+          photos: activity.photos,
+          created_by: activity.created_by,
+          created_at: new Date(),
+        });
+      }
+
+      const result = await this.repository.updateStatus(id, updateDto);
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -68,7 +68,7 @@ export class SurveyControllers {
     @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
     @Query('isActive') isActive: string = '',
-    @Query('filter') filter: { area: string; region: string } = { area: '', region: '' },
+    @Query('filter') filter: { area: string; region: string; brand: string; sio_type: string } = { area: '', region: '', brand: '', sio_type: '' },  
     @Req() request: Request,
   ) {
     const accessToken = request.headers.authorization?.split(' ')[1];

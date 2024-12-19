@@ -30,35 +30,9 @@ export class OutletRepository {
     return await db
       .insert(mOutlets)
       .values({
-        outlet_code: createOutletDto.outlet_code,
-        name: createOutletDto.name,
-        brand: createOutletDto.brand,
-        unique_name: createOutletDto.unique_name,
-        address_line: createOutletDto.address_line,
-        sub_district: createOutletDto.sub_district,
-        district: createOutletDto.district,
-        city_or_regency: createOutletDto.city_or_regency || '',
-        postal_code: createOutletDto.postal_code,
-        latitude: createOutletDto.latitude || '',
-        longitude: createOutletDto.longitude || '',
-        sio_type: createOutletDto.sio_type || '',
-        region: createOutletDto.region || '',
-        area: createOutletDto.area || '',
-        cycle: createOutletDto.cycle || '',
-        is_active:
-          createOutletDto.is_active !== undefined
-            ? createOutletDto.is_active
-            : 1, // Defaulting to 1
-        visit_day: createOutletDto.visit_day,
-        odd_even: createOutletDto.odd_even,
-        photos: createOutletDto.photos || [],
-        remarks: createOutletDto.remarks || '',
-        created_by: createOutletDto.created_by,
-        updated_by: createOutletDto.updated_by,
-        deleted_by: createOutletDto.deleted_by,
-        deleted_at: createOutletDto.deleted_at,
-        created_at: createOutletDto.created_at || new Date(),
-        updated_at: createOutletDto.updated_at || new Date(),
+        ...createOutletDto,
+        created_at: new Date(),
+        updated_at: new Date(),
       })
       .returning();
   }

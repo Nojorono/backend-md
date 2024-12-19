@@ -47,7 +47,7 @@ export class SurveyService {
     limit: string = '10',
     searchTerm: string = '',
     isActive: string = '',
-    filter: { area: string; region: string } = { area: '', region: '' },
+    filter: { area: string; region: string; brand: string; sio_type: string } = { area: '', region: '', brand: '', sio_type: '' },
   ) { 
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
