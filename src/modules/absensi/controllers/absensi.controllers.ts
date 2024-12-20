@@ -55,6 +55,12 @@ export class AbsensiControllers {
   }
 
   @ApiBearerAuth('accessToken')
+  @Get('today/:userId')
+  async findToday(@Param('userId') userId: string) {
+    return this.absensiService.findToday(userId);
+  }
+
+  @ApiBearerAuth('accessToken')
   @Get()
   async findAll(
     @Query('page') page: string = '1',

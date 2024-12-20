@@ -13,6 +13,12 @@ export class AbsensiService {
     private readonly s3Service: S3Service,
   ) {}
 
+  async findToday(userId: string) {
+    const user = await this.userRepository.findByIdDecrypted(userId);
+    const absensiToday = await this.AbsensiRepository.findByUserId(user.id);
+    return absensiToday;
+  }
+
   async create(CreateDto: any, file: Express.Multer.File) {
     try {
       const user = await this.userRepository.findByIdDecrypted(CreateDto.userId);
