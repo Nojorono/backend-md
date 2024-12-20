@@ -24,7 +24,6 @@ export class AbsensiService {
       if (absensiToday) {
         if (absensiToday.clockIn) {
           throw new HttpException('Already has clock in today', HttpStatus.BAD_REQUEST);
-          return absensiToday;
         }
       }
 
@@ -51,7 +50,6 @@ export class AbsensiService {
         CreateDto.photoIn = photoIn;
       }
 
-      // Ensure we pass a proper Date object
       CreateDto.clockIn = timeClockIn;
       CreateDto.date = new Date(CreateDto.date);
       CreateDto.area = user.area[0];
@@ -60,7 +58,6 @@ export class AbsensiService {
       const result = await this.AbsensiRepository.createData(CreateDto, user.id);
       return result;
     } catch (error) {
-      // Log the error and its stack trace for more insight
       logger.error('Failed to create:', error.message, error.stack);
       if (error instanceof HttpException) {
         throw error;
@@ -105,7 +102,9 @@ export class AbsensiService {
         UpdateDto.photoOut = photoOut;
       }
 
-      return this.AbsensiRepository.updateData(absensiToday.id, UpdateDto);
+      await this.AbsensiRepository.updateData(absensiToday.id, UpdateDto);
+      const data = await this.AbsensiRepository.findByUserId(user.id);
+      return data;
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;

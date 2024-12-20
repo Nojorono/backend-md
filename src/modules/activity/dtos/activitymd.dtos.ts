@@ -116,47 +116,11 @@ export class UpdateMdActivityDto {
   @IsOptional()
   status?: number;
 
-  @ApiProperty({ example: 'Area B', description: 'Area Name', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 50)
-  area?: string;
-
-  @ApiProperty({ example: 'Region Y', description: 'Region Name', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 50)
-  region?: string;
-
-  @ApiProperty({ example: 'Brand B', description: 'Brand Name', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 50)
-  brand?: string;
-
-  @ApiProperty({ example: 'SIO GT STANDARD', description: 'SIO Type', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 80)
-  type_sio?: string;
-
-  @ApiProperty({ example: '2023-01-01T12:00:00Z', description: 'Activity Start Time', required: false })
-  @IsDate()
-  @IsOptional()
-  @Type(() => Date)
-  start_time?: Date;
-
   @ApiProperty({ example: '2023-01-01T13:00:00Z', description: 'Activity End Time', required: false })
   @IsDate()
   @IsOptional()
   @Type(() => Date)
   end_time?: Date;
-
-  @ApiProperty({ example: ['photo_url.jpg'], description: 'Activity Photos', required: false })
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  photos?: string[];
 
   @ApiProperty({ example: 'user_updater', description: 'Updated By User', required: false })
   @IsString()
@@ -169,30 +133,6 @@ export class UpdateMdActivityDto {
   @IsOptional()
   @Type(() => Date)
   updated_at?: Date;
-
-  @ApiProperty({ example: 'user_deleter', description: 'Deleted By User', required: false })
-  @IsString()
-  @IsOptional()
-  @Length(1, 50)
-  deleted_by?: string;
-
-  @ApiProperty({ example: '2023-01-01T15:00:00Z', description: 'Deletion Date', required: false })
-  @IsDate()
-  @IsOptional()
-  @Type(() => Date)
-  deleted_at?: Date;
-
-  @ApiProperty({ type: [ActivitySioDto], description: 'Activity SIO Data', required: false })
-  @ValidateNested({ each: true })
-  @Type(() => ActivitySioDto)
-  @IsOptional()
-  activity_sio?: ActivitySioDto[];
-
-  @ApiProperty({ type: [ActivitySogDto], description: 'Activity SOG Data', required: false })
-  @ValidateNested({ each: true })
-  @Type(() => ActivitySogDto)
-  @IsOptional()
-  activity_sog?: ActivitySogDto[];
 }
 
 export class UpdateStatusDto {

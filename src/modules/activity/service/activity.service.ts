@@ -108,8 +108,13 @@ export class ActivityService {
       const user = await this.validateUser(createDto.user_id);
 
       // Validate and convert dates
-      this.validateDates(createDto);
-
+      if (createDto.start_time) {
+        createDto.start_time = new Date(createDto.start_time);  
+      }
+  
+      if (createDto.end_time) {
+        createDto.end_time = new Date(createDto.end_time);
+      }
       // Set metadata
       createDto.created_by = user.email;
       createDto.created_at = new Date();
@@ -135,15 +140,10 @@ export class ActivityService {
       return activity;
     } catch (error) {
       logger.error('Error in create activity:', error.message, error.stack);
-      if (error instanceof HttpException) {
+      if (error instanceof HttpException || error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException({
-        statusCode: 400,
-        message: await this.i18n.translate('translation.Bad Request Exception'),
-        error: error.message,
-        timestamp: new Date().toISOString(),
-      });
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -170,33 +170,28 @@ export class ActivityService {
   }
 
   private async validateDates(createDto: CreateMdActivityDto) {
-    if (!createDto.start_time || !createDto.end_time) {
-      throw new BadRequestException(
-        await this.i18n.translate(
-          'translation.Start time and end time are required',
-        ),
-      );
+
+    if (createDto.start_time) {
+      createDto.start_time = new Date(createDto.start_time);  
     }
 
-    const startTime = new Date(createDto.start_time);
-    const endTime = new Date(createDto.end_time);
+    if (createDto.end_time) {
+      createDto.end_time = new Date(createDto.end_time);
+    }
 
-    if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+    if (isNaN(createDto.start_time.getTime()) || isNaN(createDto.end_time.getTime())) {
       throw new BadRequestException(
         await this.i18n.translate('translation.Invalid date format'),
       );
     }
 
-    if (startTime >= endTime) {
+    if (createDto.start_time >= createDto.end_time) {
       throw new BadRequestException(
         await this.i18n.translate(
           'translation.Start time must be before end time',
         ),
       );
     }
-
-    createDto.start_time = startTime;
-    createDto.end_time = endTime;
   }
 
   private async processPhotos(photos: any[]): Promise<string[]> {
@@ -280,46 +275,13 @@ export class ActivityService {
         );
       }
 
-      if (updateDto.start_time)
-        updateDto.start_time = new Date(updateDto.start_time);
-      if (updateDto.end_time) updateDto.end_time = new Date(updateDto.end_time);
-
-      if (
-        updateDto.start_time &&
-        updateDto.end_time &&
-        updateDto.start_time >= updateDto.end_time
-      ) {
-        throw new BadRequestException(
-          await this.i18n.translate(
-            'translation.Start time must be before end time',
-          ),
-        );
-      }
-
-      if (updateDto.photos?.length) {
-        updateDto.photos = await Promise.all(
-          updateDto.photos.map(async (photo) => {
-            try {
-              return await this.s3Service.uploadImageFlexible(
-                photo,
-                'activity',
-              );
-            } catch (error) {
-              throw new BadRequestException(
-                await this.i18n.translate('translation.Invalid photo format'),
-              );
-            }
-          }),
-        );
-      }
-
       return await this.repository.update(id, updateDto);
     } catch (error) {
-      throw new BadRequestException({
-        statusCode: 400,
-        message: await this.i18n.translate('translation.Bad Request Exception'),
-        timestamp: new Date().toISOString(),
-      });
+      logger.error('Error in update activity:', error.message, error.stack);
+      if (error instanceof HttpException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(error.message);
     }
   }
 
