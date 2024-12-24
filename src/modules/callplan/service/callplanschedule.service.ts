@@ -6,14 +6,14 @@ import {
   CreateCallPlanScheduleDto,
   UpdateCallPlanScheduleDto,
 } from '../dtos/callplanschedule.dtos';
-import { UserRepo } from '../../user/repository/user.repo';
 import { STATUS_NOT_VISITED } from 'src/constants';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class CallPlanScheduleService {
   constructor(
     private readonly callPlanScheduleRepository: CallPlanScheduleRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
   ) {}
 
   async updateCallPlanSchedule(
@@ -22,8 +22,8 @@ export class CallPlanScheduleService {
     accessToken,
   ) {
     try {
-      const userCreate = await this.userRepository.findByToken(accessToken);
-      updateCallPlanScheduleDto.updated_by = userCreate.email;
+      const decoded = this.jwtService.verify(accessToken);
+      updateCallPlanScheduleDto.updated_by = decoded.email;
       return this.callPlanScheduleRepository.updateData(
         id,
         updateCallPlanScheduleDto,
@@ -39,12 +39,8 @@ export class CallPlanScheduleService {
     accessToken: string,
   ): Promise<any[]> {
     try {
-      const userCreate = await this.userRepository.findByToken(accessToken);
-      if (!userCreate) {
-        throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
-      }
-
-      createCallPlaScheduleDto.created_by = userCreate.email;
+      const decoded = this.jwtService.verify(accessToken);
+      createCallPlaScheduleDto.created_by = decoded.email;
 
       const lastId = await this.callPlanScheduleRepository.findLastId();
       let currentId = lastId ? lastId.id + 1 : 1;
@@ -85,8 +81,8 @@ export class CallPlanScheduleService {
   }
 
   async deleteCallPlanSchedule(id: string, accessToken) {
-    const userCreate = await this.userRepository.findByToken(accessToken);
-    return this.callPlanScheduleRepository.deleteById(id, userCreate.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.callPlanScheduleRepository.deleteById(id, decoded.email);
   }
 
   async getSchedules(

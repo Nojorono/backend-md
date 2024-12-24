@@ -1,9 +1,39 @@
 import { IsString, IsInt, IsOptional, IsDate, Length, IsArray, IsNumber, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ActivitySioDto } from './activity_sio.dtos';
-import { ActivitySogDto } from './activity_sog.dtos';
-import { ActivityBranchDto } from './activity_branch.dtos';
+
+export class UpdateRangeFacilityDto {
+  @ApiProperty({ example: 1, description: 'Range Health Facilities', required: false })
+  @IsInt()
+  @IsOptional()
+  range_health_facilities?: number;
+
+  @ApiProperty({ example: 1, description: 'Range Work Place', required: false })
+  @IsInt()
+  @IsOptional()
+  range_work_place?: number;
+
+  @ApiProperty({ example: 1, description: 'Range Public Transportation Facilities', required: false })
+  @IsInt()
+  @IsOptional()
+  range_public_transportation_facilities?: number;
+
+  @ApiProperty({ example: 1, description: 'Range Worship Facilities', required: false })
+  @IsInt()
+  @IsOptional()
+  range_worship_facilities?: number;
+
+  @ApiProperty({ example: 1, description: 'Range Playground Facilities', required: false })
+  @IsInt()
+  @IsOptional()
+  range_playground_facilities?: number;
+
+  @ApiProperty({ example: 1, description: 'Range Educational Facilities', required: false })
+  @IsInt()
+  @IsOptional()
+  range_educational_facilities?: number;
+}
+
 
 export class CreateMdActivityDto {
   @ApiProperty({ example: 17, description: 'User ID' })
@@ -91,11 +121,11 @@ export class CreateMdActivityDto {
   @Type(() => Date)
   created_at?: Date;
   
-  // @ApiProperty({ type: [ActivitySioDto], description: 'Activity SIO Data', required: false })
-  // @ValidateNested({ each: true })
-  // @Type(() => ActivitySioDto)
-  // @IsOptional()
-  // activity_sio?: ActivitySioDto[];
+  @ApiProperty({ type: UpdateRangeFacilityDto, description: 'Range Facility Data', required: false })
+  @ValidateNested({ each: true })
+  @Type(() => UpdateRangeFacilityDto)
+  @IsOptional()
+  range_facility?: UpdateRangeFacilityDto;
 
   // @ApiProperty({ type: [ActivitySogDto], description: 'Activity SOG Data', required: false })
   // @ValidateNested({ each: true })

@@ -11,13 +11,14 @@ import { CreateBatchDto, UpdateBatchDto } from '../dtos/batch.dtos';
 import { logger } from 'nestjs-i18n';
 import { OutletRepository } from '../../outlet/repository/outlet.repository';
 import { BatchTargetRepository } from '../repository/batchtarget.repository';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class BatchService {
   constructor(
     private readonly batchRepository: BatchRepository,
     private readonly batchTargetRepository: BatchTargetRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
     private readonly outletRepository: OutletRepository,
   ) {}
 
@@ -84,11 +85,11 @@ export class BatchService {
 
   async deleteData(id: string, accessToken: string): Promise<void> {
     try {
-      const user = await this.userRepository.findByToken(accessToken);
-      if (!user) {
+      const decoded = this.jwtService.verify(accessToken);
+      if (!decoded) {
         throw new BadRequestException('Invalid access token');
       }
-      await this.batchRepository.delete(id, user.email);
+      await this.batchRepository.delete(id, decoded.email);
     } catch (error) {
       logger.error('Error deleting batch:', error.message, error.stack);
       if (error instanceof HttpException) {

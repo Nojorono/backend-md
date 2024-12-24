@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepo } from '../../user/repository/user.repo';
 import { CreateAreaDto, UpdateAreaDto } from '../dtos/area.dtos';
 import { AreaRepository } from '../repository/area.repository';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AreaService {
   constructor(
     private readonly AreaRepository: AreaRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
   ) {}
 
   async getAllData() {
@@ -31,8 +31,8 @@ export class AreaService {
   }
 
   async deleteData(id: number, accessToken: string): Promise<void> {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.AreaRepository.delete(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.AreaRepository.delete(id, decoded.email);
   }
 
   async getAll(id: number) {

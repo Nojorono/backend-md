@@ -9,10 +9,19 @@ import { SioGalleryRepository } from './repository/sio_gallery.repository';
 import { SioGalleryService } from './service/sio_gallery.service';
 import { SioGalleryControllers } from './controllers/sio_gallery.controllers';
 import { S3Service } from '../s3/service/s3.service';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   controllers: [SioControllers, SioGalleryControllers],
-  imports: [CommonModule],
+  imports: [CommonModule, JwtModule.registerAsync({
+    imports: [ConfigModule],
+    useFactory: async (configService: ConfigService) => ({
+      secret: configService.get('auth.accessToken.secret'),
+    }),
+    inject: [ConfigService],
+  })],
   providers: [
     DrizzleService,
     SioRepository,

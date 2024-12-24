@@ -67,7 +67,6 @@ export class ActivitySioControllers {
     @UploadedFile() file: Express.Multer.File,
   ) {
     try {
-      console.log(createDto);
       // Convert activity_id from string to number if needed
       if (typeof createDto.activity_id === 'string') {
         createDto.activity_id = parseInt(createDto.activity_id, 10);

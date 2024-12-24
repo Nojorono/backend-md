@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepo } from '../../user/repository/user.repo';
 import {
   CreateBatchTargetDto,
   UpdateBatchTargetDto,
 } from '../dtos/batchtarget.dtos';
 import { BatchTargetRepository } from '../repository/batchtarget.repository';
-
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class BatchTargetService {
   constructor(
     private readonly batchTargetRepository: BatchTargetRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createData(createDto: CreateBatchTargetDto) {
@@ -26,8 +25,8 @@ export class BatchTargetService {
   }
 
   async deleteData(id: number, accessToken: string): Promise<void> {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.batchTargetRepository.delete(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.batchTargetRepository.delete(id, decoded.email);
   }
 
   async getAll(batchId: string = '') {

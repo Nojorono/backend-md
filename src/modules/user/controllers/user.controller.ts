@@ -54,7 +54,8 @@ export class UserController {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
-    @Query('filter') filter: { area: string; region: string } = { area: '', region: '' },
+    @Query('filter')
+    filter: { area: string; region: string } = { area: '', region: '' },
     @Req() request: Request,
   ) {
     const accessToken = request.headers.authorization?.split(' ')[1];

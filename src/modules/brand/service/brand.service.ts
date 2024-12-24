@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { UserRepo } from '../../user/repository/user.repo';
 import { CreateBrandDto, UpdateBrandDto } from '../dtos/brand.dtos';
 import { BrandRepository } from '../repository/brand.repository';
-
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class BrandService {
   constructor(
     private readonly brandRepository: BrandRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createData(createBrandDto: CreateBrandDto) {
@@ -23,8 +23,8 @@ export class BrandService {
   }
 
   async deleteData(id: number, accessToken: string): Promise<void> {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.brandRepository.delete(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.brandRepository.delete(id, decoded.email);
   }
 
   async getAllActive(

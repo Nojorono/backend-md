@@ -8,10 +8,19 @@ import { CallPlanScheduleRepository } from './repository/callplanschedule.reposi
 import { UserRepo } from '../user/repository/user.repo';
 import { CallPlanScheduleControllers } from './controllers/callplanschedule.controllers';
 import { CallPlanScheduleService } from './service/callplanschedule.service';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   controllers: [CallPlanControllers, CallPlanScheduleControllers],
-  imports: [CommonModule],
+  imports: [CommonModule, JwtModule.registerAsync({
+    imports: [ConfigModule],
+    useFactory: async (configService: ConfigService) => ({
+      secret: configService.get('auth.accessToken.secret'),
+    }),
+    inject: [ConfigService],
+  }), ],
   providers: [
     DrizzleService,
     CallPlanRepository,

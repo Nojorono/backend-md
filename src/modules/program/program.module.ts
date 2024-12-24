@@ -5,10 +5,19 @@ import { UserRepo } from '../user/repository/user.repo';
 import { ProgramRepository } from './repository/program.repository';
 import { ProgramService } from './service/program.service';
 import { ProgramControllers } from './controllers/program.controllers';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   controllers: [ProgramControllers],
-  imports: [CommonModule],
+  imports: [CommonModule, JwtModule.registerAsync({
+    imports: [ConfigModule],
+    useFactory: async (configService: ConfigService) => ({
+      secret: configService.get('auth.accessToken.secret'),
+    }),
+    inject: [ConfigService],
+  }), ],
   providers: [DrizzleService, ProgramRepository, ProgramService, UserRepo],
   exports: [ProgramRepository, ProgramService],
 })

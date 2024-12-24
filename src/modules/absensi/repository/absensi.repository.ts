@@ -111,12 +111,10 @@ export class AbsensiRepository {
     }
 
     if (filter.region) {
-      console.log(filter.region);
       whereConditions.push(eq(Absensi.region, filter.region));
     }
 
     if (filter.area) {
-      console.log(filter.area);
       whereConditions.push(eq(Absensi.area, filter.area));
     }
 

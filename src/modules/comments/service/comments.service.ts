@@ -5,6 +5,7 @@ import { UserRepo } from '../../user/repository/user.repo';
 import { v4 as uuidv4 } from 'uuid';
 import { NotificationsService } from '../../notifications/service/notifications.service';
 import { ActivityRepository } from '../../activity/repository/activity.repository';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class CommentsService {
@@ -13,6 +14,7 @@ export class CommentsService {
     private readonly userRepository: UserRepo,
     private readonly NotificationsService: NotificationsService,
     private readonly ActivityRepository: ActivityRepository,
+    private readonly jwtService: JwtService,
   ) {}
 
   async create(CreateDto: CreateDto) {
@@ -41,13 +43,13 @@ export class CommentsService {
   }
 
   async update(id: number, UpdateDto: UpdateDto, accessToken) {
-    const user = await this.userRepository.findByToken(accessToken);
+    const decoded = this.jwtService.verify(accessToken);
     return this.CommentsRepository.updateData(id, UpdateDto);
   }
 
   async delete(id: number, accessToken: string) {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.CommentsRepository.deleteById(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.CommentsRepository.deleteById(id, decoded.email);
   }
 
   async getAll(

@@ -206,6 +206,9 @@ export class UserRepo {
     }
     return await db.query.mUser.findFirst({
       where: (mUser, { eq }) => eq(mUser.id, idDecrypted),
+      with: {
+        Roles: true,
+      },
     });
   }
 
@@ -245,24 +248,24 @@ export class UserRepo {
     return null;
   }
 
-  async findByToken(token: string) {
-    const db = this.drizzleService['db'];
-    const user = await db.query.mUser.findFirst({
-      where: (mUser, { eq }) => eq(mUser.remember_token, token),
-      with: {
-        Roles: true,
-      },
-    });
+  // async findByToken(token: string) {
+  //   const db = this.drizzleService['db'];
+  //   const user = await db.query.mUser.findFirst({
+  //     where: (mUser, { eq }) => eq(mUser.remember_token, token),
+  //     with: {
+  //       Roles: true,
+  //     },
+  //   });
 
-    if (user) {
-      const encryptedId = await this.encryptedId(user.id);
-      return {
-        ...user,
-        id: encryptedId,
-      };
-    }
-    return null;
-  }
+  //   if (user) {
+  //     const encryptedId = await this.encryptedId(user.id);
+  //     return {
+  //       ...user,
+  //       id: encryptedId,
+  //     };
+  //   }
+  //   return null;
+  // }
 
   // Read user by Email
   async getUserByEmail(email: string) {
