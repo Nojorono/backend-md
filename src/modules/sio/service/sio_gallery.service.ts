@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepo } from '../../user/repository/user.repo';
 import { CreateSioGalleryDto, UpdateSioGalleryDto } from '../dtos/sio_gallery.dtos';
 import { SioGalleryRepository } from '../repository/sio_gallery.repository';
 import { S3Service } from 'src/modules/s3/service/s3.service';
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class SioGalleryService {
   constructor(
     private readonly repository: SioGalleryRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
     private readonly s3Service: S3Service,
   ) {}
 
@@ -36,8 +36,8 @@ export class SioGalleryService {
   }
 
   async deleteData(id: number, accessToken: string): Promise<void> {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.repository.delete(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.repository.delete(id, decoded.email);
   }
 
   async getAllActive(

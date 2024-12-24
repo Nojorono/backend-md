@@ -4,18 +4,21 @@ import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import { UserRepo } from '../repository/user.repo';
 import { logger } from 'nestjs-i18n';
 import { S3Service } from '../../s3/service/s3.service';
+import { JwtService } from '@nestjs/jwt';
+
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepo: UserRepo,
     private readonly s3Service: S3Service,
+    private readonly jwtService: JwtService,
   ) {}
 
   // Create a new user
   async store(createUserDto: CreateUserDto, accessToken: string) {
     try {
-      const user = await this.userRepo.findByToken(accessToken);
+      const decoded = this.jwtService.verify(accessToken);
       if (createUserDto.email) {
         createUserDto.email = createUserDto.email.toLowerCase();
       }
@@ -37,7 +40,7 @@ export class UserService {
       }
 
       // Create and return the new user
-      return await this.userRepo.createUser(createUserDto, user.email);
+      return await this.userRepo.createUser(createUserDto, decoded.email);
     } catch (e) {
       // Log the error and its stack trace for more insight
       logger.error('Error in create user:', e.message, e.stack);
@@ -56,8 +59,8 @@ export class UserService {
     photo: Express.Multer.File,
   ) {
     try {
-      const user = await this.userRepo.findByToken(accessToken);
-      if (!user) {
+      const decoded = this.jwtService.verify(accessToken);
+      if (!decoded) {
         throw new HttpException(
           'accessTokenUnauthorized',
           HttpStatus.UNAUTHORIZED,
@@ -76,7 +79,7 @@ export class UserService {
           throw new HttpException('userExists', HttpStatus.CONFLICT);
         }
       }
-      updateUserDto.updated_by = user.email;
+      updateUserDto.updated_by = decoded.email;
       updateUserDto.updated_at = new Date();
       if (photo) {
         updateUserDto.photo = await this.s3Service.uploadCompressedImage(
@@ -108,7 +111,8 @@ export class UserService {
   ) {
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
-    const user = await this.userRepo.findByToken(accessToken);
+    const decoded = this.jwtService.verify(accessToken);
+    const user = await this.userRepo.findByIdDecrypted(decoded.id);
     return this.userRepo.getAllPagination(pageInt, limitInt, searchTerm, filter, user);
   }
 }

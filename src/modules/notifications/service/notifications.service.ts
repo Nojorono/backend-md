@@ -3,6 +3,7 @@ import { NotificationsRepository } from '../repository/notifications.repository'
 import { CreateDto, UpdateDto } from '../dtos/notifications.dtos';
 import { UserRepo } from '../../user/repository/user.repo';
 import { AppGateway } from 'src/socket/socket.gateaway';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Injectable()
@@ -10,13 +11,15 @@ export class NotificationsService {
   constructor(
     private readonly NotificationsRepository: NotificationsRepository,
     private readonly userRepository: UserRepo,
-    private readonly appGateway: AppGateway,  
+    private readonly appGateway: AppGateway,
+    private readonly jwtService: JwtService,
   ) {}
 
   // Create notification type 1 = comment
   async create(CreateDto: CreateDto, user?: any, region?: string, area?: string) {
     if (CreateDto.type == 1) {
-        const findIdUserRegionArea = await this.userRepository.findIdUserRegionArea(user, region, area);
+        const decoded = this.jwtService.verify(user);
+        const findIdUserRegionArea = await this.userRepository.findIdUserRegionArea(decoded.email, region, area);
         for (const user of findIdUserRegionArea) {
             CreateDto.user_id = user.id;
             CreateDto.message = CreateDto.message;
@@ -35,18 +38,14 @@ export class NotificationsService {
     return this.NotificationsRepository.getById(id);
   }
 
-  // async getByUserId(userId: number) {
-  //   return this.NotificationsRepository.getByUserId(userId);
-  // }
-
   async update(id: number, UpdateDto: UpdateDto, accessToken) {
-    const user = await this.userRepository.findByToken(accessToken);
+    const decoded = this.jwtService.verify(accessToken);
     return this.NotificationsRepository.updateData(id, UpdateDto);
   }
 
   async delete(id: number, accessToken: string) {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.NotificationsRepository.deleteById(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.NotificationsRepository.deleteById(id, decoded.email);
   }
 
   async getAll(
@@ -56,6 +55,4 @@ export class NotificationsService {
   ) {
     return this.NotificationsRepository.getAll(userId, parseInt(limit), parseInt(offset));
   }
-
-
 }

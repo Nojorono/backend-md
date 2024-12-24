@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { RolesRepository } from '../repository/roles.repository';
 import { UserRepo } from '../../user/repository/user.repo';
 import { CreateRolesDto, UpdateRolesDto } from '../dtos/roles.dtos';
-
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class RolesService {
   constructor(
     private readonly rolesRepository: RolesRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
+    private readonly userRepo: UserRepo,
   ) {}
 
   async createRoles(createRolesDto: CreateRolesDto) {
@@ -23,11 +24,12 @@ export class RolesService {
   }
 
   async deleteRoles(id: string, accessToken: string): Promise<void> {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.rolesRepository.deleteRoles(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.rolesRepository.deleteRoles(id, decoded.email);
   }
   async getAllRolesList(accessToken) {
-    const user = await this.userRepository.findByToken(accessToken);
+    const decoded = this.jwtService.verify(accessToken);
+    const user = await this.userRepo.findByIdDecrypted(decoded.id);
     return this.rolesRepository.getRolesList(user.Roles);
   }
   async getAllActiveRoles(

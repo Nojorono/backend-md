@@ -25,7 +25,8 @@ import { ActivitySogDto } from '../dtos/activity_sog.dtos';
 import { ActivityBranchDto } from '../dtos/activity_branch.dtos';
 import { STATUS_APPROVED, STATUS_PERM_CLOSED } from 'src/constants';
 import { OutletRepository } from 'src/modules/outlet/repository/outlet.repository';
-
+import { SurveyRepository } from 'src/modules/survey/repository/survey.repository';
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class ActivityService {
   constructor(
@@ -33,11 +34,13 @@ export class ActivityService {
     private readonly activitySioRepository: ActivitySioRepository,
     private readonly activitySogRepository: ActivitySogRepository,
     private readonly activityBranchRepository: ActivityBranchRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
     private readonly s3Service: S3Service,
     private readonly i18n: I18nService,
     private readonly callPlanScheduleRepository: CallPlanScheduleRepository,
     private readonly outletRepository: OutletRepository,
+    private readonly surveyOutletRepository: SurveyRepository,
+    private readonly userRepository: UserRepo,
   ) {}
 
   async createDataSio(createDto: ActivitySioDto, file: Express.Multer.File) {
@@ -111,7 +114,6 @@ export class ActivityService {
       if (createDto.start_time) {
         createDto.start_time = new Date(createDto.start_time);  
       }
-  
       if (createDto.end_time) {
         createDto.end_time = new Date(createDto.end_time);
       }
@@ -132,6 +134,28 @@ export class ActivityService {
             'translation.Failed to create activity record',
           ),
         );
+      }
+
+      if (createDto.range_facility) {
+         if(createDto.outlet_id) {
+          await this.outletRepository.updateOutlet(createDto.outlet_id, {
+            range_health_facilities: createDto.range_facility.range_health_facilities,
+            range_work_place: createDto.range_facility.range_work_place,
+            range_public_transportation_facilities: createDto.range_facility.range_public_transportation_facilities,
+            range_worship_facilities: createDto.range_facility.range_worship_facilities,
+            range_playground_facilities: createDto.range_facility.range_playground_facilities,
+            range_educational_facilities: createDto.range_facility.range_educational_facilities,
+          });
+         }else{
+          await this.surveyOutletRepository.updateData(createDto.survey_outlet_id, {
+            range_health_facilities: createDto.range_facility.range_health_facilities,
+            range_work_place: createDto.range_facility.range_work_place,
+            range_public_transportation_facilities: createDto.range_facility.range_public_transportation_facilities,
+            range_worship_facilities: createDto.range_facility.range_worship_facilities,
+            range_playground_facilities: createDto.range_facility.range_playground_facilities,
+            range_educational_facilities: createDto.range_facility.range_educational_facilities,
+          });
+         }
       }
 
       // Update call plan schedule status
@@ -287,8 +311,8 @@ export class ActivityService {
 
   async deleteData(id: number, accessToken: string): Promise<void> {
     try {
-      const user = await this.userRepository.findByToken(accessToken);
-      if (!user) {
+      const decoded = this.jwtService.verify(accessToken);
+      if (!decoded) {
         throw new NotFoundException(
           await this.i18n.translate('translation.User not found'),
         );
@@ -301,7 +325,7 @@ export class ActivityService {
         );
       }
 
-      await this.repository.delete(id, user.email);
+      await this.repository.delete(id, decoded.email);
     } catch (error) {
       throw new BadRequestException({
         statusCode: 400,
@@ -325,7 +349,6 @@ export class ActivityService {
         filter,
       );
     } catch (error) {
-      console.log(error);
       throw new BadRequestException({
         statusCode: 400,
         message: await this.i18n.translate('translation.Bad Request Exception'),

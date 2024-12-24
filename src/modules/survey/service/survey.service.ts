@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { SurveyRepository } from '../repository/survey.repository';
 import { CreateDto, UpdateDto } from '../dtos/survey.dtos';
-import { UserRepo } from '../../user/repository/user.repo';
 import { OutletRepository } from 'src/modules/outlet/repository/outlet.repository';
 import { CallPlanRepository } from 'src/modules/callplan/repository/callplan.repository';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class SurveyService {
   constructor(
     private readonly SurveyRepository: SurveyRepository,
-    private readonly userRepository: UserRepo,
     private readonly outletRepository: OutletRepository,  
     private readonly callPlanRepository: CallPlanRepository,
+    private readonly jwtService: JwtService,
   ) {}
 
   async create(CreateDto: CreateDto, accessToken) {
-    const user = await this.userRepository.findByToken(accessToken);
-    CreateDto.created_by = user.email;
+    const decoded = this.jwtService.verify(accessToken);
+    CreateDto.created_by = decoded.email;
     CreateDto.created_at = new Date();
     const result = await this.SurveyRepository.createData(CreateDto);
     await this.outletRepository.updateOutlet(CreateDto.outlet_id, {
@@ -30,15 +30,15 @@ export class SurveyService {
   }
 
   async update(id: number, UpdateDto: UpdateDto, accessToken) {
-    const user = await this.userRepository.findByToken(accessToken);
-    UpdateDto.updated_by = user.email;
+    const decoded = this.jwtService.verify(accessToken);
+    UpdateDto.updated_by = decoded.email;
     UpdateDto.updated_at = new Date();
     return this.SurveyRepository.updateData(id, UpdateDto);
   }
 
   async delete(id: number, accessToken: string) {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.SurveyRepository.deleteById(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.SurveyRepository.deleteById(id, decoded.email);
   }
 
   async getAll(

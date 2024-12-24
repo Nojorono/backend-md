@@ -9,10 +9,19 @@ import { OutletRepository } from '../outlet/repository/outlet.repository';
 import { BatchTargetRepository } from './repository/batchtarget.repository';
 import { BatchTargetService } from './service/batchtarget.service';
 import { BatchTargetControllers } from './controllers/batchtarget.controllers';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   controllers: [BatchControllers, BatchTargetControllers],
-  imports: [CommonModule],
+  imports: [CommonModule, JwtModule.registerAsync({
+    imports: [ConfigModule],
+    useFactory: async (configService: ConfigService) => ({
+      secret: configService.get('auth.accessToken.secret'),
+    }),
+    inject: [ConfigService],
+  })],
   providers: [
     DrizzleService,
     BatchRepository,

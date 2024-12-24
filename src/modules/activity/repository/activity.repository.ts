@@ -49,6 +49,7 @@ export class ActivityRepository {
         callPlan: true,
         activitySios: true,
         activitySogs: true,
+        activityBranches: true,
       },
     });
 

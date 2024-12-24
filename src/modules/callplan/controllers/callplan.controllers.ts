@@ -67,9 +67,8 @@ export class CallPlanControllers {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
     @Query('searchTerm') searchTerm: string = '',
-    @Req() request: Request,
+    @Query('filter') filter: { area: string; region: string; } = { area: '', region: '' },  
   ) {
-    const accessToken = request.headers.authorization?.split(' ')[1];
-    return this.callPlanService.getAll(accessToken, page, limit, searchTerm);
+    return this.callPlanService.getAll(page, limit, searchTerm, filter);
   }
 }

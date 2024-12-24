@@ -149,7 +149,7 @@ export class CallPlanRepository {
     page: number = 1,
     limit: number = 10,
     searchTerm: string = '',
-    filter: { area: string[]; region: string },
+    filter: { area: string; region: string; } = { area: '', region: '' },
   ) {
     const db = this.drizzleService['db'];
 
@@ -165,8 +165,8 @@ export class CallPlanRepository {
     }
 
     // Apply area filter if provided (assuming 'area' is an array in filter)
-    if (Array.isArray(filter.area) && filter.area.length > 0) {
-      query.where(inArray(CallPlan.area, filter.area));
+    if (filter.area) {
+      query.where(eq(CallPlan.area, filter.area));
     }
 
     // Apply search condition if available

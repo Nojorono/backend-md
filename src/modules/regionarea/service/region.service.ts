@@ -4,15 +4,15 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { RegionRepository } from '../repository/region.repository';
-import { UserRepo } from '../../user/repository/user.repo';
 import { CreateRegionDto, UpdateRegionDto } from '../dtos/region.dtos';
 import { logger } from 'nestjs-i18n';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class RegionService {
   constructor(
     private readonly RegionRepository: RegionRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
   ) {}
 
   async getAllData() {
@@ -42,8 +42,8 @@ export class RegionService {
   }
 
   async deleteData(id: number, accessToken: string): Promise<void> {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.RegionRepository.delete(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.RegionRepository.delete(id, decoded.email);
   }
 
   async getAllActiveData(

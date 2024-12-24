@@ -14,6 +14,11 @@ import { ActivityBranchRepository } from './repository/activity_branch.repositor
 import { ActivitySioControllers } from './controllers/activitySio.controllers';
 import { ActivitySogControllers } from './controllers/activitySog.controllers';
 import { ActivityBranchControllers } from './controllers/activityBranch.controllers';
+import {SurveyRepository} from '../survey/repository/survey.repository'
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
+
 
 @Module({
   controllers: [
@@ -22,7 +27,13 @@ import { ActivityBranchControllers } from './controllers/activityBranch.controll
     ActivitySogControllers,
     ActivityBranchControllers,
   ],
-  imports: [CommonModule],
+  imports: [CommonModule, JwtModule.registerAsync({
+    imports: [ConfigModule],
+    useFactory: async (configService: ConfigService) => ({
+      secret: configService.get('auth.accessToken.secret'),
+    }),
+    inject: [ConfigService],
+  })],
   providers: [
     DrizzleService,
     ActivityRepository,
@@ -34,6 +45,7 @@ import { ActivityBranchControllers } from './controllers/activityBranch.controll
     UserRepo,
     OutletRepository,
     CallPlanScheduleRepository,
+    SurveyRepository
   ],
   exports: [ActivityRepository, ActivityService],
 })

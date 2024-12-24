@@ -8,12 +8,13 @@ import { CreateCallPlanDto, UpdateCallPlanDto } from '../dtos/callplan.dtos';
 import { CallPlanRepository } from '../repository/callplan.repository';
 import { logger } from 'nestjs-i18n';
 import { UserRepo } from '../../user/repository/user.repo';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class CallPlanService {
   constructor(
     private readonly callPlanRepository: CallPlanRepository,
-    private readonly userRepository: UserRepo,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createCallPlan(
@@ -26,8 +27,8 @@ export class CallPlanService {
       if (check.length > 0) {
         throw new HttpException('DataExists', HttpStatus.BAD_REQUEST);
       }
-      const user = await this.userRepository.findByToken(accessToken);
-      return this.callPlanRepository.createData(createCallPlanDto, user.email);
+      const decoded = this.jwtService.verify(accessToken);
+      return this.callPlanRepository.createData(createCallPlanDto, decoded.email);
     } catch (e) {
       // Log the error and its stack trace for more insight
       logger.error('Error in createCallPlan:', e.message, e.stack);
@@ -47,40 +48,32 @@ export class CallPlanService {
     updateCallPlanDto: UpdateCallPlanDto,
     accessToken: string,
   ) {
-    const user = await this.userRepository.findByToken(accessToken);
+    const decoded = this.jwtService.verify(accessToken);
     return this.callPlanRepository.updateData(
       id,
       updateCallPlanDto,
-      user.email,
+      decoded.email,
     );
   }
 
   async deleteCallPlan(id: string, accessToken: string) {
-    const user = await this.userRepository.findByToken(accessToken);
-    return this.callPlanRepository.deleteById(id, user.email);
+    const decoded = this.jwtService.verify(accessToken);
+    return this.callPlanRepository.deleteById(id, decoded.email);
   }
 
   async getAll(
-    accessToken: string,
     page: string = '1',
     limit: string = '10',
     searchTerm: string = '',
+    filter: { area: string; region: string; } = { area: '', region: '' },
   ) {
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
-    const user = await this.userRepository.findByToken(accessToken);
-    // Extract area and region from the user object to pass as filters
-    if (user) {
-      const filter = {
-        area: user.area || [],
-        region: user.region || '',
-      };
       return this.callPlanRepository.getAllCallPlan(
         pageInt,
         limitInt,
         searchTerm,
         filter,
       );
-    }
   }
 }
