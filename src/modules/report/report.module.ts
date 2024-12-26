@@ -1,0 +1,52 @@
+import { Module } from '@nestjs/common';
+
+import { CommonModule } from '../../common/common.module';
+import { DrizzleService } from '../../common/services/drizzle.service';
+import { UserRepo } from '../user/repository/user.repo';
+import { AppGateway } from 'src/socket/socket.gateaway';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import { ReportService } from './service/report.service';
+import { ReportControllers } from './controllers/report.controllers';
+import { OutletRepository } from '../outlet/repository/outlet.repository';
+import { BatchRepository } from '../batch/repository/batch.repository';
+import { AbsensiRepository } from '../absensi/repository/absensi.repository';
+import { CallPlanRepository } from '../callplan/repository/callplan.repository';
+import { ProgramRepository } from '../program/repository/program.repository';
+import { SurveyRepository } from '../survey/repository/survey.repository';
+import { BrandRepository } from '../brand/repository/brand.repository';
+import { CallPlanScheduleRepository } from '../callplan/repository/callplanschedule.repository';
+import { ActivityRepository } from '../activity/repository/activity.repository';
+
+@Module({
+  controllers: [ReportControllers],
+  imports: [
+    CommonModule,
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('auth.accessToken.secret'),
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  providers: [
+    DrizzleService,
+    AppGateway,
+    ReportService,
+    ActivityRepository,
+    UserRepo,
+    BatchRepository,
+    BrandRepository,
+    CallPlanRepository,
+    CallPlanScheduleRepository,
+    OutletRepository,
+    ProgramRepository,
+    SurveyRepository,
+    AbsensiRepository,
+  ],
+  exports: [ReportService],
+})
+export class ReportModule {}

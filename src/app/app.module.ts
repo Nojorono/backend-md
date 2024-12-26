@@ -30,6 +30,7 @@ import { CommentsModule } from 'src/modules/comments/comments.module';
 import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 import { AbsensiModule } from 'src/modules/absensi/absensi.module';
 import { DashboardModule } from 'src/modules/dashboard/dashboard.module';
+import { ReportModule } from 'src/modules/report/report.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { DashboardModule } from 'src/modules/dashboard/dashboard.module';
     ProgramModule,
     AbsensiModule,
     DashboardModule,
+    ReportModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
