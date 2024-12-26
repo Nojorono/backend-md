@@ -19,6 +19,7 @@ import {
 } from '../dtos/activitymd.dtos';
 import { ActivityService } from '../service/activity.service';
 import { Public } from 'src/decorators/public.decorator';
+import { QueueService } from '../service/queue.service';
 @ApiTags('activity')
 @Controller({
   version: '1',
@@ -27,6 +28,7 @@ import { Public } from 'src/decorators/public.decorator';
 export class ActivityControllers {
   constructor(
     private readonly service: ActivityService,
+    private readonly queueService: QueueService,
   ) {}
 
   @ApiBearerAuth('accessToken')
@@ -75,6 +77,7 @@ export class ActivityControllers {
   @Post()
   async create(@Body() createDto: CreateMdActivityDto) {
     try {
+      // return this.queueService.addToActivityQueue(createDto);
       return this.service.createDataActivity(createDto);
     } catch (error) {
       if (error instanceof BadRequestException) {

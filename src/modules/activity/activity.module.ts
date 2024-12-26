@@ -14,12 +14,13 @@ import { ActivityBranchRepository } from './repository/activity_branch.repositor
 import { ActivitySioControllers } from './controllers/activitySio.controllers';
 import { ActivitySogControllers } from './controllers/activitySog.controllers';
 import { ActivityBranchControllers } from './controllers/activityBranch.controllers';
-import {SurveyRepository} from '../survey/repository/survey.repository'
+import { SurveyRepository } from '../survey/repository/survey.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigService } from '@nestjs/config';
-
-
+import { BullModule } from '@nestjs/bullmq';
+import { QueueService } from './service/queue.service';
+import { ActivityQueueProcessor } from './queue/activity.queue';
 @Module({
   controllers: [
     ActivityControllers,
@@ -27,13 +28,29 @@ import { ConfigService } from '@nestjs/config';
     ActivitySogControllers,
     ActivityBranchControllers,
   ],
-  imports: [CommonModule, JwtModule.registerAsync({
-    imports: [ConfigModule],
-    useFactory: async (configService: ConfigService) => ({
-      secret: configService.get('auth.accessToken.secret'),
+  imports: [
+    CommonModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('auth.accessToken.secret'),
+      }),
+      inject: [ConfigService],
     }),
-    inject: [ConfigService],
-  })],
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
+        password: process.env.REDIS_PASSWORD,
+      },
+    }),
+    BullModule.registerQueue(
+      { name: 'activityQueue' },
+      { name: 'activityBranchQueue' },
+      { name: 'activitySogQueue' },
+      { name: 'activitySioQueue' },
+    ),
+  ],
   providers: [
     DrizzleService,
     ActivityRepository,
@@ -45,8 +62,14 @@ import { ConfigService } from '@nestjs/config';
     UserRepo,
     OutletRepository,
     CallPlanScheduleRepository,
-    SurveyRepository
+    SurveyRepository,
+    QueueService,
+    ActivityQueueProcessor,
   ],
-  exports: [ActivityRepository, ActivityService],
+  exports: [
+    ActivityRepository,
+    ActivityService,
+    QueueService,
+  ],
 })
 export class ActivityModule {}
