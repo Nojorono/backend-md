@@ -18,6 +18,7 @@ import { ActivitySog } from './activity_sog.schema';
 import { Comments } from './comment.schema';
 import { ActivityBranch } from './activity_branch.schema';
 import { Program } from './m_program.schema';
+import { ActivityProgram } from './activity_program.schema';
 export const Activity = pgTable('activity', {
   id: serial('id').primaryKey().notNull(),
   user_id: integer('user_id').references(() => mUser.id),
@@ -42,6 +43,7 @@ export const Activity = pgTable('activity', {
   latitude: varchar('latitude', { length: 100 }),
   longitude: varchar('longitude', { length: 100 }),
   notes: text('notes'),
+  photo_program: varchar('photo_program', { length: 255 }),
   created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 100 }),
@@ -85,5 +87,6 @@ export const ActivityRelations = relations(Activity, ({ one, many }) => ({
   activitySios: many(ActivitySio),
   activitySogs: many(ActivitySog),
   activityBranches: many(ActivityBranch),
+  activityPrograms: many(ActivityProgram),
   comments: many(Comments),
 }));

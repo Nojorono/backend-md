@@ -13,6 +13,7 @@ export { Activity, ActivityRelations, outletActivityRelations } from './activity
 export { ActivitySog, ActivitySogRelations } from './activity_sog.schema';
 export { ActivitySio, ActivitySioRelations } from './activity_sio.schema';
 export { ActivityBranch, ActivityBranchRelations } from './activity_branch.schema';
+export { ActivityProgram, ActivityProgramRelations } from './activity_program.schema';
 export { MBrand } from './m_brand_sog.schema';
 export { MSioType, MSioTypeRelations } from './m_sio_type.schema';
 export { MRegion } from './m_region.schema';

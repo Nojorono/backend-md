@@ -1,0 +1,1 @@
+ALTER TABLE "m_program" ADD COLUMN "valid_date" varchar(255);

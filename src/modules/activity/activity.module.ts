@@ -21,12 +21,15 @@ import { ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { QueueService } from './service/queue.service';
 import { ActivityQueueProcessor } from './queue/activity.queue';
+import { ActivityProgramRepository } from './repository/activity_program.repository';
+import { ActivityProgramControllers } from './controllers/activityProgram.controllers';
 @Module({
   controllers: [
     ActivityControllers,
     ActivitySioControllers,
     ActivitySogControllers,
     ActivityBranchControllers,
+    ActivityProgramControllers,
   ],
   imports: [
     CommonModule,
@@ -65,6 +68,7 @@ import { ActivityQueueProcessor } from './queue/activity.queue';
     SurveyRepository,
     QueueService,
     ActivityQueueProcessor,
+    ActivityProgramRepository,
   ],
   exports: [
     ActivityRepository,
