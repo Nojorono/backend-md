@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm';
 import { CallPlanSchedule, mOutlets, mUser, Survey } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import {
@@ -145,7 +145,13 @@ export class CallPlanScheduleRepository {
         and(eq(CallPlanSchedule.call_plan_id, idDecrypted)),
         isNull(CallPlanSchedule.deleted_at),
       )
-      .orderBy(desc(CallPlanSchedule.id));
+      .orderBy(desc(CallPlanSchedule.id))
+      .orderBy(
+        sql`CASE 
+          WHEN ${CallPlanSchedule.status} = 400 THEN 1
+          ELSE 2
+        END`
+      );
 
     // Build search query
     const searchColumns = ['code_call_plan'];
