@@ -173,17 +173,21 @@ export class ActivityRepository {
       .then(result => Number(result[0].count));
 
     // Apply pagination
-    const { offset } = paginate(totalRecords, page, limit);
+    const { offset, totalPages, currentPage } = paginate(totalRecords, page, limit);
+
     const result = await query
       .orderBy(desc(Activity.created_at))
-      .limit(limit)
       .offset(offset)
+      .limit(limit)
       .execute();
 
     return {
       result,
-      ...paginate(totalRecords, page, limit),
+      totalRecords,
+      totalPages,
+      currentPage
     };
+    // End of Selection
   }
 
   async updateStatus(id: number, updateDto: UpdateStatusDto) {

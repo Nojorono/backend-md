@@ -329,15 +329,17 @@ export class ActivityService {
   }
 
   async getAllActive(
-    page: number = 1,
-    limit: number = 10,
+    page: string = '1',
+    limit: string = '10',
     searchTerm: string = '',
     filter: any = {},
   ) {
     try {
+      const intPage = parseInt(page);
+      const intLimit = parseInt(limit);
       return await this.repository.getAllActive(
-        page,
-        limit,
+        intPage,
+        intLimit,
         searchTerm,
         filter,
       );
