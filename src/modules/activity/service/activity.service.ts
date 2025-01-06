@@ -27,6 +27,7 @@ import { STATUS_APPROVED, STATUS_PERM_CLOSED } from 'src/constants';
 import { OutletRepository } from 'src/modules/outlet/repository/outlet.repository';
 import { SurveyRepository } from 'src/modules/survey/repository/survey.repository';
 import { JwtService } from '@nestjs/jwt';
+import { ActivityProgramRepository } from '../repository/activity_program.repository';
 @Injectable()
 export class ActivityService {
   constructor(
@@ -34,6 +35,7 @@ export class ActivityService {
     private readonly activitySioRepository: ActivitySioRepository,
     private readonly activitySogRepository: ActivitySogRepository,
     private readonly activityBranchRepository: ActivityBranchRepository,
+    private readonly activityProgramRepository: ActivityProgramRepository,
     private readonly jwtService: JwtService,
     private readonly s3Service: S3Service,
     private readonly i18n: I18nService,
@@ -62,6 +64,29 @@ export class ActivityService {
       return result;
     } catch (error) {
       logger.error('Error creating SIO activity:', error.message, error.stack);
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async createDataProgram(createDto: any, file: Express.Multer.File) {
+    try {
+      if (!createDto.activity_id) {
+        throw new BadRequestException(
+          await this.i18n.translate('Activity ID is required'),
+        );
+      }
+
+      if (file) {
+        createDto.photo = await this.s3Service.uploadImageFlexible(
+          file,
+          'activity_program',
+        );
+      }
+
+      const result = await this.activityProgramRepository.create(createDto);
+      return result;
+    } catch (error) {
+      logger.error('Error creating Program activity:', error.message, error.stack);
       throw new BadRequestException(error.message);
     }
   }

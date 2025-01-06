@@ -260,6 +260,20 @@
       "when": 1734490819018,
       "tag": "0036_hard_alice",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1735808652314,
+      "tag": "0037_tricky_jubilee",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1735886316009,
+      "tag": "0038_sweet_lilith",
+      "breakpoints": true
     }
   ]
 }

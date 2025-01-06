@@ -1,17 +1,10 @@
 import {
     Controller,
-    Get,
     Post,
-    Delete,
-    Param,
     Body,
-    Query,
-    Req,
-    Put,
     BadRequestException,
   } from '@nestjs/common';
-  import { Request } from 'express';
-  import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+  import { ApiTags } from '@nestjs/swagger';
   import { ActivityService } from '../service/activity.service';
   import { ActivityBranchDto } from '../dtos/activity_branch.dtos';
   import { Public } from 'src/decorators/public.decorator';

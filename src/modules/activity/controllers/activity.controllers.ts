@@ -9,6 +9,7 @@ import {
   Req,
   Put,
   BadRequestException,
+  UploadedFile,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -75,7 +76,7 @@ export class ActivityControllers {
 
   @Public()
   @Post()
-  async create(@Body() createDto: CreateMdActivityDto) {
+  async create(@Body() createDto: CreateMdActivityDto, @UploadedFile() file: Express.Multer.File) {
     try {
       // return this.queueService.addToActivityQueue(createDto);
       return this.service.createDataActivity(createDto);
