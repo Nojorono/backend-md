@@ -13,12 +13,13 @@ import {
 export class ActivityRepository {
   constructor(private readonly drizzleService: DrizzleService) {}
 
-  async create(createDto: CreateMdActivityDto) {
+  async create(createDto: any) {
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
+    console.log('createDto', createDto);
 
     return await db.insert(Activity).values(createDto).returning();
   }

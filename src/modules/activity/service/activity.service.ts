@@ -127,8 +127,18 @@ export class ActivityService {
     }
   }
 
-  async createDataActivity(createDto: CreateMdActivityDto) {
+  async createDataActivity(createDto: any) {
     try {
+      // Convert relevant fields to integers
+      createDto.user_id = parseInt(createDto.user_id, 10);
+      createDto.call_plan_id = parseInt(createDto.call_plan_id, 10);
+      createDto.call_plan_schedule_id = parseInt(createDto.call_plan_schedule_id, 10);
+      createDto.outlet_id = createDto.outlet_id ? parseInt(createDto.outlet_id, 10) : null;
+      createDto.survey_outlet_id = createDto.survey_outlet_id ? parseInt(createDto.survey_outlet_id, 10) : null;
+      createDto.program_id = createDto.program_id ? parseInt(createDto.program_id, 10) : null;
+      createDto.status = parseInt(createDto.status, 10);
+      createDto.status_approval = parseInt(createDto.status_approval, 10);
+
       // Validate required fields
       this.validateRequiredFields(createDto);
 
@@ -148,45 +158,40 @@ export class ActivityService {
 
       // Process photos if present
       if (createDto.photos) {
-        createDto.photos = await this.processPhotos(createDto.photos);
+        if(Array.isArray(createDto.photos)) {
+          createDto.photos = await this.processPhotos(createDto.photos);
+        }
       }
 
-      // Create main activity record
-      const [activity] = await this.repository.create(createDto);
-      if (!activity) {
-        throw new InternalServerErrorException(
-          await this.i18n.translate(
-            'translation.Failed to create activity record',
-          ),
-        );
+      if (createDto.photo_program) {
+        createDto.photo_program = await this.s3Service.uploadCompressedImage('activity-program', createDto.photo_program);
       }
 
-      if (createDto.range_facility) {
-         if(createDto.outlet_id) {
-          await this.outletRepository.updateOutlet(createDto.outlet_id, {
-            range_health_facilities: createDto.range_facility.range_health_facilities,
-            range_work_place: createDto.range_facility.range_work_place,
-            range_public_transportation_facilities: createDto.range_facility.range_public_transportation_facilities,
-            range_worship_facilities: createDto.range_facility.range_worship_facilities,
-            range_playground_facilities: createDto.range_facility.range_playground_facilities,
-            range_educational_facilities: createDto.range_facility.range_educational_facilities,
-          });
-         }else{
-          await this.surveyOutletRepository.updateData(createDto.survey_outlet_id, {
-            range_health_facilities: createDto.range_facility.range_health_facilities,
-            range_work_place: createDto.range_facility.range_work_place,
-            range_public_transportation_facilities: createDto.range_facility.range_public_transportation_facilities,
-            range_worship_facilities: createDto.range_facility.range_worship_facilities,
-            range_playground_facilities: createDto.range_facility.range_playground_facilities,
-            range_educational_facilities: createDto.range_facility.range_educational_facilities,
-          });
-         }
+      if (createDto.range_facility) {        
+        // Parse range facility values with default 0
+        const rangeFacility = {
+          range_health_facilities: parseInt(createDto.range_facility.range_health_facilities, 10) || 0,
+          range_work_place: parseInt(createDto.range_facility.range_work_place, 10) || 0, 
+          range_public_transportation_facilities: parseInt(createDto.range_facility.range_public_transportation_facilities, 10) || 0,
+          range_worship_facilities: parseInt(createDto.range_facility.range_worship_facilities, 10) || 0,
+          range_playground_facilities: parseInt(createDto.range_facility.range_playground_facilities, 10) || 0,
+          range_educational_facilities: parseInt(createDto.range_facility.range_educational_facilities, 10) || 0
+        };
+
+        if(createDto.outlet_id) {
+          await this.outletRepository.updateOutlet(createDto.outlet_id, rangeFacility);
+        } else if(createDto.survey_outlet_id) {
+          await this.surveyOutletRepository.updateData(createDto.survey_outlet_id, rangeFacility);
+        }
       }
+
+       // Create main activity record
+       const [result] = await this.repository.create(createDto);
 
       // Update call plan schedule status
-      await this.updateCallPlanSchedule(createDto);
+      await this.updateCallPlanSchedule(result);
 
-      return activity;
+      return result;
     } catch (error) {
       logger.error('Error in create activity:', error.message, error.stack);
       if (error instanceof HttpException || error instanceof BadRequestException) {
@@ -218,31 +223,6 @@ export class ActivityService {
     return user;
   }
 
-  private async validateDates(createDto: CreateMdActivityDto) {
-
-    if (createDto.start_time) {
-      createDto.start_time = new Date(createDto.start_time);  
-    }
-
-    if (createDto.end_time) {
-      createDto.end_time = new Date(createDto.end_time);
-    }
-
-    if (isNaN(createDto.start_time.getTime()) || isNaN(createDto.end_time.getTime())) {
-      throw new BadRequestException(
-        await this.i18n.translate('translation.Invalid date format'),
-      );
-    }
-
-    if (createDto.start_time >= createDto.end_time) {
-      throw new BadRequestException(
-        await this.i18n.translate(
-          'translation.Start time must be before end time',
-        ),
-      );
-    }
-  }
-
   private async processPhotos(photos: any[]): Promise<string[]> {
     if (!Array.isArray(photos)) {
       throw new BadRequestException(
@@ -250,7 +230,9 @@ export class ActivityService {
       );
     }
 
-    return Promise.all(
+    const photoString: string[] = [];
+
+    await Promise.all(
       photos.map(async (photo) => {
         if (!photo) {
           throw new BadRequestException(
@@ -258,7 +240,8 @@ export class ActivityService {
           );
         }
         try {
-          return await this.s3Service.uploadImageFlexible(photo, 'activity');
+          const photoUrl = await this.s3Service.uploadCompressedImage('activity', photo);
+          photoString.push(photoUrl);
         } catch (error) {
           throw new BadRequestException(
             await this.i18n.translate('translation.Invalid photo format'),
@@ -266,15 +249,18 @@ export class ActivityService {
         }
       }),
     );
+
+    return photoString;
   }
 
-  private async updateCallPlanSchedule(createDto: CreateMdActivityDto) {
+  private async updateCallPlanSchedule(result: any) {
+    console.log('createDto Update Call Plan Schedule', result);
     await this.callPlanScheduleRepository.updateStatus(
-      createDto.call_plan_schedule_id,
+      result.call_plan_schedule_id,
       {
         status: 200,
-        time_start: createDto.start_time,
-        time_end: createDto.end_time,
+        time_start: result.start_time,
+        time_end: result.end_time,
       },
     );
   }
@@ -288,24 +274,6 @@ export class ActivityService {
         );
       }
       return activity;
-    } catch (error) {
-      throw new BadRequestException({
-        statusCode: 400,
-        message: await this.i18n.translate('translation.Bad Request Exception'),
-        timestamp: new Date().toISOString(),
-      });
-    }
-  }
-
-  async getRegionAndArea(id: number) {
-    try {
-      const data = await this.repository.getRegionAndArea(id);
-      if (!data) {
-        throw new NotFoundException(
-          await this.i18n.translate('translation.Activity not found'),
-        );
-      }
-      return data;
     } catch (error) {
       throw new BadRequestException({
         statusCode: 400,
