@@ -1,9 +1,22 @@
-import { IsString, IsInt, IsOptional, IsDate, Length, IsArray, IsNumber, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsOptional,
+  IsDate,
+  Length,
+  IsArray,
+  IsNumber,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class UpdateRangeFacilityDto {
-  @ApiProperty({ example: 1, description: 'Range Health Facilities', required: false })
+  @ApiProperty({
+    example: 1,
+    description: 'Range Health Facilities',
+    required: false,
+  })
   @IsInt()
   @IsOptional()
   range_health_facilities?: number;
@@ -13,27 +26,42 @@ export class UpdateRangeFacilityDto {
   @IsOptional()
   range_work_place?: number;
 
-  @ApiProperty({ example: 1, description: 'Range Public Transportation Facilities', required: false })
+  @ApiProperty({
+    example: 1,
+    description: 'Range Public Transportation Facilities',
+    required: false,
+  })
   @IsInt()
   @IsOptional()
   range_public_transportation_facilities?: number;
 
-  @ApiProperty({ example: 1, description: 'Range Worship Facilities', required: false })
+  @ApiProperty({
+    example: 1,
+    description: 'Range Worship Facilities',
+    required: false,
+  })
   @IsInt()
   @IsOptional()
   range_worship_facilities?: number;
 
-  @ApiProperty({ example: 1, description: 'Range Playground Facilities', required: false })
+  @ApiProperty({
+    example: 1,
+    description: 'Range Playground Facilities',
+    required: false,
+  })
   @IsInt()
   @IsOptional()
   range_playground_facilities?: number;
 
-  @ApiProperty({ example: 1, description: 'Range Educational Facilities', required: false })
+  @ApiProperty({
+    example: 1,
+    description: 'Range Educational Facilities',
+    required: false,
+  })
   @IsInt()
   @IsOptional()
   range_educational_facilities?: number;
 }
-
 
 export class CreateMdActivityDto {
   @ApiProperty({ example: 17, description: 'User ID' })
@@ -43,7 +71,7 @@ export class CreateMdActivityDto {
   @ApiProperty({ example: 1, description: 'Call Plan Schedule ID' })
   @IsInt()
   call_plan_schedule_id: number;
-  
+
   @ApiProperty({ example: 1, description: 'Call Plan ID' })
   @IsInt()
   call_plan_id: number;
@@ -63,81 +91,120 @@ export class CreateMdActivityDto {
   @IsOptional()
   program_id?: number | null;
 
-  @ApiProperty({ example: 200, description: 'Activity Status', required: false })
+  @ApiProperty({
+    example: 200,
+    description: 'Activity Status',
+    required: false,
+  })
   @IsInt()
   @IsOptional()
   status?: number;
 
-  @ApiProperty({ example: 'MAKASSAR', description: 'Area Name', required: false })
+  @ApiProperty({
+    example: 'MAKASSAR',
+    description: 'Area Name',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   @Length(1, 50)
   area?: string;
 
-  @ApiProperty({ example: 'SULAWESI', description: 'Region Name', required: false })
+  @ApiProperty({
+    example: 'SULAWESI',
+    description: 'Region Name',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   @Length(1, 50)
   region?: string;
 
-  @ApiProperty({ example: 'CLASMILD', description: 'Brand Name', required: false })
+  @ApiProperty({
+    example: 'CLASMILD',
+    description: 'Brand Name',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   @Length(1, 50)
   brand?: string;
 
-  @ApiProperty({ example: 'SIO GT STANDARD', description: 'SIO Type', required: false })
+  @ApiProperty({
+    example: 'SIO GT STANDARD',
+    description: 'SIO Type',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   @Length(1, 80)
   type_sio?: string;
 
-  @ApiProperty({ example: '2023-01-01T10:00:00Z', description: 'Activity Start Time' })
-  @IsDate()
+  @ApiProperty({
+    example: '2023-01-01T10:00:00Z',
+    description: 'Activity Start Time',
+  })
   @IsOptional()
   @Type(() => Date)
   start_time?: Date;
 
-  @ApiProperty({ example: '2023-01-01T11:00:00Z', description: 'Activity End Time' })
-  @IsDate()
+  @ApiProperty({
+    example: '2023-01-01T11:00:00Z',
+    description: 'Activity End Time',
+  })
   @IsOptional()
   @Type(() => Date)
   end_time?: Date;
 
-  @ApiProperty({ example: ['https://via.placeholder.com/300.png/09f/fff?text=Test+Image'], description: 'Activity Photos', required: false })
-  @IsArray()
-  @IsString({ each: true })
+  @ApiProperty({
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary'
+    },
+    description: 'Activity photos (max 5MB each)',
+    required: false,
+  })
   @IsOptional()
-  photos?: string[];
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    return value ? [value] : [];
+  })
+  photos?: any;
+
+  @ApiProperty({
+    type: 'string', 
+    format: 'binary',
+    description: 'Activity photo program (max 5MB)',
+    required: false,
+  })
+  @IsOptional()
+  photo_program?: any;
 
   @ApiProperty({ example: 'user_creator', description: 'Created By User' })
-  @IsString()
+  @IsOptional()
   @Length(1, 50)
   created_by: string;
 
-  @ApiProperty({ example: '2023-01-01T12:00:00Z', description: 'Creation Date' })
-  @IsDate()
+  @ApiProperty({
+    example: '2023-01-01T12:00:00Z',
+    description: 'Creation Date',
+  })
   @IsOptional()
   @Type(() => Date)
   created_at?: Date;
-  
-  @ApiProperty({ type: UpdateRangeFacilityDto, description: 'Range Facility Data', required: false })
+
+  @ApiProperty({
+    type: UpdateRangeFacilityDto,
+    description: 'Range Facility Data',
+    required: false,
+  })
   @ValidateNested({ each: true })
   @Type(() => UpdateRangeFacilityDto)
   @IsOptional()
   range_facility?: UpdateRangeFacilityDto;
-
-  // @ApiProperty({ type: [ActivitySogDto], description: 'Activity SOG Data', required: false })
-  // @ValidateNested({ each: true })
-  // @Type(() => ActivitySogDto)
-  // @IsOptional()
-  // activity_sog?: ActivitySogDto[];
-
-  // @ApiProperty({ type: [ActivityBranchDto], description: 'Activity Branch Data', required: false })
-  // @ValidateNested({ each: true })
-  // @Type(() => ActivityBranchDto)
-  // @IsOptional()
-  // activity_branch?: ActivityBranchDto[];
 }
 
 export class UpdateMdActivityDto {
@@ -146,19 +213,31 @@ export class UpdateMdActivityDto {
   @IsOptional()
   status?: number;
 
-  @ApiProperty({ example: '2023-01-01T13:00:00Z', description: 'Activity End Time', required: false })
+  @ApiProperty({
+    example: '2023-01-01T13:00:00Z',
+    description: 'Activity End Time',
+    required: false,
+  })
   @IsDate()
   @IsOptional()
   @Type(() => Date)
   end_time?: Date;
 
-  @ApiProperty({ example: 'user_updater', description: 'Updated By User', required: false })
+  @ApiProperty({
+    example: 'user_updater',
+    description: 'Updated By User',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   @Length(1, 50)
   updated_by?: string;
 
-  @ApiProperty({ example: '2023-01-01T14:00:00Z', description: 'Update Date', required: false })
+  @ApiProperty({
+    example: '2023-01-01T14:00:00Z',
+    description: 'Update Date',
+    required: false,
+  })
   @IsDate()
   @IsOptional()
   @Type(() => Date)
