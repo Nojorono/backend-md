@@ -6,10 +6,11 @@ import {
   UploadedFile,
   UseInterceptors,
   ValidationPipe,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActivityService } from '../service/activity.service';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { ActivitySioDto } from '../dtos/activity_sio.dtos';
 import { Public } from 'src/decorators/public.decorator';
 
@@ -45,7 +46,12 @@ export class ActivitySioControllers {
           maxLength: 1000,
           description: 'Optional, max 1000 characters',
         },
-        file: {
+        photo_before: {
+          type: 'string',
+          format: 'binary',
+          description: 'Optional image file, max 5MB',
+        },
+        photo_after: {
           type: 'string',
           format: 'binary',
           description: 'Optional image file, max 5MB',
@@ -55,16 +61,20 @@ export class ActivitySioControllers {
     },
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
-      },
-    }),
-  )
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'photo_before', maxCount: 1 },
+    { name: 'photo_after', maxCount: 1 }
+  ], {
+    limits: {
+      fileSize: 5 * 1024 * 1024 // 5MB
+    }
+  }))
   async create(
     @Body() createDto: any,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: { 
+      photo_before?: Express.Multer.File[],
+      photo_after?: Express.Multer.File[]
+    }
   ) {
     try {
       // Convert activity_id from string to number if needed
@@ -72,7 +82,7 @@ export class ActivitySioControllers {
         createDto.activity_id = parseInt(createDto.activity_id, 10);
       }
 
-      return await this.service.createDataSio(createDto, file);
+      return await this.service.createDataSio(createDto, files);
     } catch (error) {
       throw new BadRequestException({
         success: false,

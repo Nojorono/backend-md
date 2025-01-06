@@ -45,7 +45,10 @@ export class ActivityService {
     private readonly userRepository: UserRepo,
   ) {}
 
-  async createDataSio(createDto: ActivitySioDto, file: Express.Multer.File) {
+  async createDataSio(createDto: ActivitySioDto, files: { 
+    photo_before?: Express.Multer.File[],
+    photo_after?: Express.Multer.File[]
+  }) {
     try {
       if (!createDto.activity_id) {
         throw new BadRequestException(
@@ -53,9 +56,16 @@ export class ActivityService {
         );
       }
 
-      if (file) {
-        createDto.photo = await this.s3Service.uploadImageFlexible(
-          file,
+      if (files.photo_before) {
+        createDto.photo_before = await this.s3Service.uploadImageFlexible(
+          files.photo_before[0],
+          'activity_sio',
+        );
+      }
+
+      if (files.photo_after) {
+        createDto.photo_after = await this.s3Service.uploadImageFlexible(
+          files.photo_after[0],
           'activity_sio',
         );
       }

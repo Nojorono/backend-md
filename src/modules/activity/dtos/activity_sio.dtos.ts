@@ -44,5 +44,14 @@ export class ActivitySioDto {
   })
   @IsOptional()
   @IsString()
-  photo?: string;
+  photo_before?: string;
+
+  @ApiProperty({ 
+    type: 'string',
+    description: 'URL of the activity photo',
+    example: 'https://example.com/photo.jpg'
+  })
+  @IsOptional()
+  @IsString()
+  photo_after?: string;
 }
