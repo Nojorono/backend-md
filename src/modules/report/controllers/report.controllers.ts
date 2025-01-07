@@ -3,7 +3,6 @@ import { ReportService } from '../service/report.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
-
 @ApiTags('report')
 @Controller({
   version: '1',
@@ -16,27 +15,40 @@ export class ReportControllers {
   @Get('activity')
   async getReportActivity(
     @Query('batch_code') batchCode: string,
-    // @Query('date_range') dateRange: { start: string; end: string },
     @Res() res: Response,
   ) {
-    const excelBuffer = await this.reportService.getReportActivity(batchCode);
-    const date = new Date().toISOString().split('T')[0];
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    );
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="activity_report_${date}.xlsx"`,
-    );
-
-    res.send(excelBuffer);
+    try {
+      // Validate batchCode
+      if (!batchCode) {
+        return res.status(400).json({ message: 'Batch code is required.' });
+      }
+      const excelBuffer = await this.reportService.getReportActivity(batchCode);
+      const date = new Date().toISOString().split('T')[0];
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="activity_report_${date}.xlsx"`,
+      );
+      res.send(excelBuffer);
+    } catch (error) {
+      console.error('Error generating report:', error);
+      return res.status(500).json({ message: 'Internal server error.' });
+    }
   }
 
   @ApiBearerAuth('accessToken')
   @Get('outlet')
   async getReportOutlet(
-    @Query('filter') filter: { area: string; region: string; brand: string; sio_type: string } = { area: '', region: '', brand: '', sio_type: '' },
+    @Query('filter')
+    filter: {
+      area: string;
+      region: string;
+      brand: string;
+      sio_type: string;
+    } = { area: '', region: '', brand: '', sio_type: '' },
     @Res() res: Response,
   ) {
     const excelBuffer = await this.reportService.getReportOutlet(filter);
@@ -46,7 +58,10 @@ export class ReportControllers {
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
-    res.setHeader('Content-Disposition', `attachment; filename="outlet_report_${date}.xlsx"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="outlet_report_${date}.xlsx"`,
+    );
     res.send(excelBuffer);
   }
 }
