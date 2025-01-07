@@ -18,15 +18,8 @@ export class ReportService {
 
   async getReportActivity(
     batchCode: string,
-    // dateRange: {
-    //   start: string;
-    //   end: string;
-    // },
   ): Promise<Buffer> {
     const db = this.drizzleService['db'];
-
-    // const startDate = new Date(dateRange.start);
-    // const endDate = new Date(dateRange.end);
 
     // Query data using Drizzle ORM
     const result = await db.query.Activity.findMany({
@@ -64,7 +57,6 @@ export class ReportService {
 
       const activitySioColumns = {};
       row.activitySios.forEach((sio, i) => {  
-        console.log(sio);
         activitySioColumns[`SIO Name${i + 1}`] = {
           t: 's',
           v: sio.name,
@@ -81,7 +73,7 @@ export class ReportService {
           t: 's',
           v: sog.name,
         };
-        activitySogColumns[`SOG Value${i + 1}`] = {
+        activitySogColumns[`Stock`] = {
           t: 's',
           v: sog.value,
         };
@@ -132,16 +124,72 @@ export class ReportService {
     const worksheet = xlsx.utils.json_to_sheet(data);
     const workbook = xlsx.utils.book_new();
 
-    // Add filter to the headers
-    const headerRange = `A1:${xlsx.utils.encode_col(Object.keys(data[0]).length - 1)}1`;
-    worksheet['!autofilter'] = { ref: headerRange };
+    // Get the range of the worksheet
+    const range = xlsx.utils.decode_range(worksheet['!ref']);
+
+    // Create header style
+    const headerStyle = {
+      fill: {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { rgb: '4F81BD' }
+      },
+      font: {
+        color: { rgb: 'FFFFFF' },
+        bold: true
+      },
+      border: {
+        top: { style: 'thin', color: { rgb: '000000' } },
+        bottom: { style: 'thin', color: { rgb: '000000' } },
+        left: { style: 'thin', color: { rgb: '000000' } },
+        right: { style: 'thin', color: { rgb: '000000' } }
+      }
+    };
+
+    // Apply styles to headers and add borders to all cells
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      for (let row = range.s.r; row <= range.e.r; row++) {
+        const cellRef = xlsx.utils.encode_cell({ r: row, c: col });
+        if (!worksheet[cellRef]) {
+          worksheet[cellRef] = { v: '' };
+        }
+        
+        worksheet[cellRef].s = {
+          border: {
+            top: { style: 'thin', color: { rgb: '000000' } },
+            bottom: { style: 'thin', color: { rgb: '000000' } },
+            left: { style: 'thin', color: { rgb: '000000' } },
+            right: { style: 'thin', color: { rgb: '000000' } }
+          }
+        };
+
+        // Apply header style to first row
+        if (row === 0) {
+          worksheet[cellRef].s = headerStyle;
+        }
+      }
+    }
+
+    // Add filter to headers
+    worksheet['!autofilter'] = { ref: `A1:${xlsx.utils.encode_cell({ r: 0, c: range.e.c })}` };
+
+    // Set column widths
+    const cols = [];
+    for (let i = 0; i <= range.e.c; i++) {
+      cols.push({ wch: 15 }); // Set width to 15 characters
+    }
+    worksheet['!cols'] = cols;
+
     xlsx.utils.book_append_sheet(workbook, worksheet, 'Activity Report');
 
     // Generate Excel buffer
     const excelBuffer = xlsx.write(workbook, {
       type: 'buffer',
       bookType: 'xlsx',
+      bookSST: false,
+      cellStyles: true
     });
+
     return excelBuffer;
   }
 
@@ -201,7 +249,6 @@ export class ReportService {
         Kecamatan: row.sub_district,
         Kelurahan: row.district,
         Kota: row.city_or_regency,
-        'Kode Pos': row.postal_code,
         Latitude: row.latitude,
         Longitude: row.longitude,
         Cycle: row.cycle,
@@ -216,18 +263,72 @@ export class ReportService {
     const worksheet = xlsx.utils.json_to_sheet(data);
     const workbook = xlsx.utils.book_new();
 
-    // Add filter to the headers
-    const headerRange = `A1:${xlsx.utils.encode_col(Object.keys(data[0]).length - 1)}1`;
-    worksheet['!autofilter'] = { ref: headerRange };
+    // Get the range of the worksheet
+    const range = xlsx.utils.decode_range(worksheet['!ref']);
 
-    // Append worksheet to workbook
+    // Create header style
+    const headerStyle = {
+      fill: {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { rgb: '4F81BD' }
+      },
+      font: {
+        color: { rgb: 'FFFFFF' },
+        bold: true
+      },
+      border: {
+        top: { style: 'thin', color: { rgb: '000000' } },
+        bottom: { style: 'thin', color: { rgb: '000000' } },
+        left: { style: 'thin', color: { rgb: '000000' } },
+        right: { style: 'thin', color: { rgb: '000000' } }
+      }
+    };
+
+    // Apply styles to headers and add borders to all cells
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      for (let row = range.s.r; row <= range.e.r; row++) {
+        const cellRef = xlsx.utils.encode_cell({ r: row, c: col });
+        if (!worksheet[cellRef]) {
+          worksheet[cellRef] = { v: '' };
+        }
+        
+        worksheet[cellRef].s = {
+          border: {
+            top: { style: 'thin', color: { rgb: '000000' } },
+            bottom: { style: 'thin', color: { rgb: '000000' } },
+            left: { style: 'thin', color: { rgb: '000000' } },
+            right: { style: 'thin', color: { rgb: '000000' } }
+          }
+        };
+
+        // Apply header style to first row
+        if (row === 0) {
+          worksheet[cellRef].s = headerStyle;
+        }
+      }
+    }
+
+    // Add filter to headers
+    worksheet['!autofilter'] = { ref: `A1:${xlsx.utils.encode_cell({ r: 0, c: range.e.c })}` };
+
+    // Set column widths
+    const cols = [];
+    for (let i = 0; i <= range.e.c; i++) {
+      cols.push({ wch: 15 }); // Set width to 15 characters
+    }
+    worksheet['!cols'] = cols;
+
     xlsx.utils.book_append_sheet(workbook, worksheet, 'Outlet Report');
 
     // Generate Excel buffer
     const excelBuffer = xlsx.write(workbook, {
       type: 'buffer',
       bookType: 'xlsx',
+      bookSST: false,
+      cellStyles: true
     });
+
     return excelBuffer;
   }
 }
