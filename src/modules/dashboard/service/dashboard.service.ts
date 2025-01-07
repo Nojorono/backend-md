@@ -29,19 +29,18 @@ export class DashboardService {
         batch_target_amo_brand_type: MbatchTarget.amo_brand_type,
         batch_target_total_master: MbatchTarget.total_master,
         batch_target_allocation_ho: MbatchTarget.allocation_ho,
-        activity_count: drizzleCount(Activity.id),
+        actual_outlet: drizzleCount(mOutlets.id),
       })
       .from(Mbatch)
       .innerJoin(MbatchTarget, eq(Mbatch.id, MbatchTarget.batch_id))
       .leftJoin(CallPlan, eq(CallPlan.code_batch, Mbatch.code_batch))
       .leftJoin(
-        Activity,
+        mOutlets,
         and(
-          eq(Activity.call_plan_id, CallPlan.id),
-          eq(Activity.area, MbatchTarget.amo),
-          eq(Activity.region, MbatchTarget.regional),
-          eq(Activity.brand, MbatchTarget.brand),
-          eq(Activity.type_sio, MbatchTarget.sio_type),
+          eq(mOutlets.area, MbatchTarget.amo),
+          eq(mOutlets.region, MbatchTarget.regional),
+          eq(mOutlets.brand, MbatchTarget.brand),
+          eq(mOutlets.sio_type, MbatchTarget.sio_type),
         ),
       )
       .where(
@@ -77,7 +76,7 @@ export class DashboardService {
       batch_target_amo_brand_type: item.batch_target_amo_brand_type,
       batch_target_total_master: item.batch_target_total_master,
       batch_target_allocation_ho: item.batch_target_allocation_ho,
-      activity_count: Number(item.activity_count) || 0,
+      actual_outlet: Number(item.actual_outlet) || 0,
     }));
   }
 
