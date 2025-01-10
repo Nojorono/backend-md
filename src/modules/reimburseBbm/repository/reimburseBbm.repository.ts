@@ -90,6 +90,8 @@ export class ReimburseBbmRepository {
         ...ReimburseBbm,
         user_name: mUser.fullname,
         user_email: mUser.email,
+        user_area: mUser.area,
+        user_region: mUser.region,
       })
       .from(ReimburseBbm)
       .leftJoin(mUser, eq(ReimburseBbm.user_id, mUser.id));
@@ -107,6 +109,8 @@ export class ReimburseBbmRepository {
           like(ReimburseBbm.description, `%${word}%`),
           like(mUser.fullname, `%${word}%`),
           like(mUser.email, `%${word}%`),
+          like(mUser.area, `%${word}%`),
+          like(mUser.region, `%${word}%`),
         ),
       );
 
@@ -117,11 +121,11 @@ export class ReimburseBbmRepository {
     if (filter.date_start && filter.date_end) {
       const dateStart = new Date(filter.date_start);
       const dateEnd = new Date(filter.date_end);
-      whereConditions.push(between(Absensi.createdAt, dateStart, dateEnd));
+      whereConditions.push(between(ReimburseBbm.date_in, dateStart, dateEnd));
     }
 
     if (filter.status) {
-      whereConditions.push(eq(Absensi.status, filter.status));
+      whereConditions.push(eq(ReimburseBbm.status, filter.status));
     }
 
     // Apply where conditions
@@ -139,7 +143,7 @@ export class ReimburseBbmRepository {
     // Apply pagination
     const { offset } = paginate(totalRecords, page, limit);
     const result = await query
-      .orderBy(desc(Absensi.createdAt))
+      .orderBy(desc(ReimburseBbm.date_in))
       .limit(limit)
       .offset(offset)
       .execute();
