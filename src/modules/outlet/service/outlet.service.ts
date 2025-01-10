@@ -48,8 +48,9 @@ export class OutletService {
     return this.outletRepository.getOutletById(id);
   }
 
-  async updateOutlet(id: number, updateOutletDto: UpdateOutletDto) {
-    return this.outletRepository.updateOutlet(id, updateOutletDto);
+  async updateOutlet(id: string, updateOutletDto: UpdateOutletDto) {
+    const idDecrypt = await this.outletRepository.decryptId(id);
+    return this.outletRepository.updateOutlet(idDecrypt, updateOutletDto);
   }
 
   async updateOutletStatus(id: number, updateOutletDto: UpdateOutletDto) {

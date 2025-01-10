@@ -79,7 +79,7 @@ export class OutletController {
   @ApiBearerAuth('accessToken')
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updateOutletDto: UpdateOutletDto,
   ) {
     return this.outletService.updateOutlet(id, updateOutletDto);
