@@ -31,6 +31,7 @@ import { NotificationsModule } from 'src/modules/notifications/notifications.mod
 import { AbsensiModule } from 'src/modules/absensi/absensi.module';
 import { DashboardModule } from 'src/modules/dashboard/dashboard.module';
 import { ReportModule } from 'src/modules/report/report.module';
+import { ReimburseBbmModule } from 'src/modules/reimburseBbm/reimburseBbm.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { ReportModule } from 'src/modules/report/report.module';
     ProgramModule,
     AbsensiModule,
     DashboardModule,
+    ReimburseBbmModule,
     ReportModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     I18nModule.forRoot({

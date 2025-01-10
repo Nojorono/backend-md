@@ -24,3 +24,4 @@ export { Comments, commentRelations } from './comment.schema';
 export { Program } from './m_program.schema';
 export { SioTypeGalery, SioTypeGaleryRelations } from './sio_type_galery.schema';
 export { Absensi, absensiRelations } from './absensi.schema';
+export { ReimburseBbm, reimburseBbmRelations } from './reimburse.schema';

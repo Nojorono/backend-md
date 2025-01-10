@@ -40,16 +40,6 @@ export const Absensi = pgTable(
   }),
 );
 
-// Validation schema using Zod
-export const absensiValidationSchema = z.object({
-  userId: z.number().min(1),
-  date: z.date(),
-  status: z.string().min(1).optional(),
-  remarks: z.string().max(500).optional(),
-  clockIn: z.date().optional(),
-  clockOut: z.date().optional(),
-});
-
 export const absensiRelations = relations(Absensi, ({ one }) => ({
   user: one(mUser, {
     fields: [Absensi.userId],

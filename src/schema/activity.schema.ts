@@ -60,25 +60,25 @@ export const outletActivityRelations = relations(Activity, ({ one }) => ({
 }));
 
 export const ActivityRelations = relations(Activity, ({ one, many }) => ({
+  user: one(mUser, {
+    fields: [Activity.user_id],
+    references: [mUser.id],
+  }),
   callPlan: one(CallPlan, {
-      fields: [Activity.call_plan_id],
-      references: [CallPlan.id],
+    fields: [Activity.call_plan_id],
+    references: [CallPlan.id],
   }),
   callPlanSchedule: one(CallPlanSchedule, {
     fields: [Activity.call_plan_schedule_id],
     references: [CallPlanSchedule.id],
   }),
   surveyOutlet: one(Survey, {
-      fields: [Activity.survey_outlet_id],
-      references: [Survey.id],
-  }),
-  user: one(mUser, {
-      fields: [Activity.user_id],
-      references: [mUser.id],
+    fields: [Activity.survey_outlet_id],
+    references: [Survey.id],
   }),
   outlet: one(mOutlets, {
-      fields: [Activity.outlet_id],
-      references: [mOutlets.id],
+    fields: [Activity.outlet_id],
+    references: [mOutlets.id],
   }),
   program: one(Program, {
     fields: [Activity.program_id],
