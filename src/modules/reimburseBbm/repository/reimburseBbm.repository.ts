@@ -43,11 +43,8 @@ export class ReimburseBbmRepository {
       throw new Error('Database not initialized');
     }
 
-    const dateNow = new Date();
-
-    return await db.query.ReimburseBbm.findFirst({
-      where: (ReimburseBbm, { eq, and }) =>
-        and(eq(ReimburseBbm.userId, userId), eq(ReimburseBbm.date, dateNow)),
+    return await db.query.ReimburseBbm.findMany({
+      where: (ReimburseBbm, { eq }) => eq(ReimburseBbm.user_id, userId),
     });
   }
 
