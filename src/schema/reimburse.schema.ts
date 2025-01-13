@@ -28,7 +28,7 @@ export const ReimburseBbm = pgTable(
     approved_at: timestamp('approved_at').default(null),
   },
   (table) => ({
-    userIdx: unique().on(table.user_id),
+    dateInIdx: unique().on(table.date_in),
   }),
 );
 
