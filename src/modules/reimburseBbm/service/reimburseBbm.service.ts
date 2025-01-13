@@ -50,7 +50,7 @@ export class ReimburseBbmService {
       }
 
       if (CreateDto.kilometer_in < 0) {
-        throw new BadRequestException('Kilometer in cannot be less than 0');
+        throw new HttpException('Kilometer in cannot be less than 0', HttpStatus.BAD_REQUEST);
       }
 
       CreateDto.date_in = dateIn;
@@ -65,9 +65,7 @@ export class ReimburseBbmService {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new BadRequestException(
-        'Failed to create attendance record: ' + error.message,
-      );
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -94,11 +92,11 @@ export class ReimburseBbmService {
       }
 
       if (UpdateDto.kilometer_out < 0) {
-        throw new BadRequestException('Kilometer out cannot be less than 0');
+        throw new HttpException('Kilometer out cannot be less than 0', HttpStatus.BAD_REQUEST);
       }
 
       if (UpdateDto.kilometer_out < findById.kilometer_in) {
-        throw new BadRequestException('Kilometer out cannot be less than kilometer in');
+        throw new HttpException('Kilometer out cannot be less than kilometer in', HttpStatus.BAD_REQUEST);
       }
 
       await this.ReimburseBbmRepository.updateData(UpdateDto.id, UpdateDto);
@@ -106,13 +104,11 @@ export class ReimburseBbmService {
     } catch (error) {
       if (
         error instanceof NotFoundException ||
-        error instanceof BadRequestException
+        error instanceof HttpException
       ) {
         throw error;
       }
-      throw new BadRequestException(
-        'Failed to update attendance record: ' + error.message,
-      );
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
