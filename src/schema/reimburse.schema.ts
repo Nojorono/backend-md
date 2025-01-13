@@ -2,8 +2,6 @@ import {
   pgTable,
   serial,
   varchar,
-  date,
-  unique,
   timestamp,
   integer,
 } from 'drizzle-orm/pg-core';
@@ -27,9 +25,6 @@ export const ReimburseBbm = pgTable(
     approved_by: varchar('approved_by', { length: 100 }).default(''),
     approved_at: timestamp('approved_at').default(null),
   },
-  (table) => ({
-    dateInIdx: unique().on(table.date_in),
-  }),
 );
 
 export const reimburseBbmRelations = relations(ReimburseBbm, ({ one }) => ({
