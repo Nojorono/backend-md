@@ -3,11 +3,7 @@ import { and, between, desc, eq, isNull, like, or, sql } from 'drizzle-orm';
 import { Activity, CallPlan, mOutlets, mUser, Survey } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { paginate } from '../../../helpers/nojorono.helpers';
-import {
-  CreateMdActivityDto,
-  UpdateMdActivityDto,
-  UpdateStatusDto,
-} from '../dtos/activitymd.dtos';
+import { UpdateStatusApprovalDto } from '../dtos/activitymd.dtos';
 
 @Injectable()
 export class ActivityRepository {
@@ -19,12 +15,11 @@ export class ActivityRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    console.log('createDto', createDto);
 
     return await db.insert(Activity).values(createDto).returning();
   }
 
-  async update(id: number, updateDto: UpdateMdActivityDto) {
+  async update(id: number, updateDto: any) {
     const db = this.drizzleService['db'];
     return await db
       .update(Activity)
@@ -55,6 +50,13 @@ export class ActivityRepository {
     });
 
     return activityWithRelations;
+  }
+
+  async findOneByCallPlanScheduleId(call_plan_schedule_id: number) {
+    const db = this.drizzleService['db'];
+    return await db.query.Activity.findFirst({
+      where: (Activity, { eq }) => eq(Activity.call_plan_schedule_id, call_plan_schedule_id),
+    });
   }
 
   async getRegionAndArea(id: number) {
@@ -121,14 +123,14 @@ export class ActivityRepository {
     if (searchTerm) {
       // Split search term by spaces and create conditions for each word
       const searchWords = searchTerm.trim().split(/\s+/);
-      
-      const searchConditions = searchWords.map(word => 
+
+      const searchConditions = searchWords.map((word) =>
         or(
           like(mOutlets.name, `%${word}%`),
           like(Survey.name, `%${word}%`),
           like(mUser.fullname, `%${word}%`),
           like(CallPlan.code_batch, `%${word}%`),
-        )
+        ),
       );
 
       // Combine all word conditions with AND to match all words
@@ -162,18 +164,23 @@ export class ActivityRepository {
     }
 
     // Apply where conditions
-    const query = whereConditions.length > 0
-      ? baseQuery.where(and(...whereConditions))
-      : baseQuery;
+    const query =
+      whereConditions.length > 0
+        ? baseQuery.where(and(...whereConditions))
+        : baseQuery;
 
     // Get total count for pagination
     const totalRecords = await db
       .select({ count: sql<number>`count(*)` })
       .from(query.as('subquery'))
-      .then(result => Number(result[0].count));
+      .then((result) => Number(result[0].count));
 
     // Apply pagination
-    const { offset, totalPages, currentPage } = paginate(totalRecords, page, limit);
+    const { offset, totalPages, currentPage } = paginate(
+      totalRecords,
+      page,
+      limit,
+    );
 
     const result = await query
       .orderBy(desc(Activity.created_at))
@@ -185,16 +192,15 @@ export class ActivityRepository {
       result,
       totalRecords,
       totalPages,
-      currentPage
+      currentPage,
     };
-    // End of Selection
   }
 
-  async updateStatus(id: number, updateDto: UpdateStatusDto) {
+  async updateStatusApproval(id: number, updateDto: UpdateStatusApprovalDto) {
     const db = this.drizzleService['db'];
     return await db
       .update(Activity)
-      .set({ status_approval: updateDto.status })
+      .set({ status_approval: updateDto.status_approval })
       .where(eq(Activity.id, id))
       .execute();
   }

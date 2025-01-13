@@ -23,6 +23,10 @@ import { QueueService } from './service/queue.service';
 import { ActivityQueueProcessor } from './queue/activity.queue';
 import { ActivityProgramRepository } from './repository/activity_program.repository';
 import { ActivityProgramControllers } from './controllers/activityProgram.controllers';
+import { ActivityProgramService } from './service/activity.program.service';
+import { ActivityBranchService } from './service/activity.branch.service';
+import { ActivitySogService } from './service/activity.sog.service';
+import { ActivitySioService } from './service/activity.sio.service';
 @Module({
   controllers: [
     ActivityControllers,
@@ -69,6 +73,10 @@ import { ActivityProgramControllers } from './controllers/activityProgram.contro
     QueueService,
     ActivityQueueProcessor,
     ActivityProgramRepository,
+    ActivityBranchService,
+    ActivityProgramService,
+    ActivitySogService,
+    ActivitySioService, 
   ],
   exports: [
     ActivityRepository,

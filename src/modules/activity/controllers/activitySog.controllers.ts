@@ -1,18 +1,12 @@
 import {
     Controller,
-    Get,
     Post,
-    Delete,
-    Param,
     Body,
-    Query,
-    Req,
-    Put,
     BadRequestException,
+    Param,
   } from '@nestjs/common';
-  import { Request } from 'express';
-  import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-  import { ActivityService } from '../service/activity.service';
+  import { ApiTags } from '@nestjs/swagger';
+  import { ActivitySogService } from '../service/activity.sog.service';
   import { ActivitySogDto } from '../dtos/activity_sog.dtos';
   import { Public } from 'src/decorators/public.decorator';
   @ApiTags('activity-sog')
@@ -22,14 +16,14 @@ import {
   })
   export class ActivitySogControllers {
     constructor(
-      private readonly service: ActivityService,
+      private readonly service: ActivitySogService,
     ) {}
   
     @Public()
-    @Post()
-    async create(@Body() createDto: ActivitySogDto) {
+    @Post(':call_plan_schedule_id')
+    async create(@Param('call_plan_schedule_id') call_plan_schedule_id: number, @Body() createDto: ActivitySogDto) {
       try {
-        return this.service.createDataSog(createDto);
+        return this.service.createDataSog(call_plan_schedule_id, createDto);
       } catch (error) {
         if (error instanceof BadRequestException) {
           console.error('Validation failed:', error.message);

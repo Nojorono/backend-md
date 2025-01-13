@@ -208,44 +208,13 @@ export class CreateMdActivityDto {
 }
 
 export class UpdateMdActivityDto {
-  @ApiProperty({ example: 1, description: 'Activity Status', required: false })
-  @IsInt()
-  @IsOptional()
-  status?: number;
-
-  @ApiProperty({
-    example: '2023-01-01T13:00:00Z',
-    description: 'Activity End Time',
-    required: false,
-  })
-  @IsDate()
-  @IsOptional()
-  @Type(() => Date)
-  end_time?: Date;
-
-  @ApiProperty({
-    example: 'user_updater',
-    description: 'Updated By User',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @Length(1, 50)
-  updated_by?: string;
-
-  @ApiProperty({
-    example: '2023-01-01T14:00:00Z',
-    description: 'Update Date',
-    required: false,
-  })
-  @IsDate()
-  @IsOptional()
-  @Type(() => Date)
-  updated_at?: Date;
+  
 }
 
-export class UpdateStatusDto {
+export class UpdateStatusApprovalDto {
   @ApiProperty({ example: 1, description: 'Activity Status', required: true })
   @IsNumber()
-  status: number;
+  status_approval: number;
 }
+
+
