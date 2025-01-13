@@ -3,6 +3,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
+  HttpException,
   Param,
   Post,
   Put,
@@ -44,12 +46,9 @@ export class ReimburseBbmControllers {
   ) {
     try {
       const result = await this.reimburseBbmService.create(CreateDto, photo_in);
-      if (!result) {
-        throw new BadRequestException('Failed to create attendance record');
-      }
       return result;
     } catch (error) {
-      throw new BadRequestException(error.response);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -78,12 +77,9 @@ export class ReimburseBbmControllers {
         UpdateDto,
         photo_out,
       );
-      if (!result) {
-        throw new BadRequestException('Failed to update attendance record');
-      }
       return result;
     } catch (error) {
-      throw new BadRequestException(error.response);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
