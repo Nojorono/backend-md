@@ -6,7 +6,6 @@ import {
 import { ActivityRepository } from '../repository/activity.repository';
 import { logger } from 'nestjs-i18n';
 import { ActivitySioRepository } from '../repository/activity_sio.repository';
-import { ActivitySioDto } from '../dtos/activity_sio.dtos';
 import { S3Service } from 'src/modules/s3/service/s3.service';
 
 @Injectable()
@@ -19,7 +18,7 @@ export class ActivitySioService {
 
   async createDataSio(
     call_plan_schedule_id: number,
-    createDto: ActivitySioDto,
+    createDto: any,
     files: {
       photo_before?: Express.Multer.File[];
       photo_after?: Express.Multer.File[];
