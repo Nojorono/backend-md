@@ -18,7 +18,7 @@ export class ReimburseBbmService {
     private readonly s3Service: S3Service,
   ) {}
 
-  async findToday(userId: string) {
+  async findByUserId(userId: string) {
     const user = await this.userRepository.findByIdDecrypted(userId);
     const findByUserId = await this.ReimburseBbmRepository.findByUserId(
       user.id,

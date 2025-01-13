@@ -90,7 +90,7 @@ export class ReimburseBbmControllers {
   @ApiBearerAuth('accessToken')
   @Get('user/:userId')
   async findByUserId(@Param('userId') userId: string) {
-    return this.reimburseBbmService.findToday(userId);
+    return this.reimburseBbmService.findByUserId(userId);
   }
 
   @ApiBearerAuth('accessToken')
