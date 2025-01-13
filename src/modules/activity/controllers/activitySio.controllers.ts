@@ -75,7 +75,7 @@ export class ActivitySioControllers {
   )
   async create(
     @Param('call_plan_schedule_id') call_plan_schedule_id: number,
-    @Body() createDto: ActivitySioDto,
+    @Body() createDto: any,
     @UploadedFiles()
     files: {
       photo_before?: Express.Multer.File[];
