@@ -18,7 +18,7 @@ import { ApiConsumes, ApiBearerAuth, ApiTags, ApiOperation, ApiBody } from '@nes
 import {
   CreateMdActivityDto,
   UpdateMdActivityDto,
-  UpdateStatusDto,
+  UpdateStatusApprovalDto,
 } from '../dtos/activitymd.dtos';
 import { ActivityService } from '../service/activity.service';
 import { Public } from 'src/decorators/public.decorator';
@@ -52,11 +52,11 @@ export class ActivityControllers {
 
   @ApiBearerAuth('accessToken') 
   @Put('status/:id')
-  async updateStatus(
+  async updateStatusApproval(
     @Param('id') id: number,
-    @Body() updateDto: UpdateStatusDto,
+    @Body() updateDto: UpdateStatusApprovalDto,
   ) {
-    return this.service.updateStatus(id, updateDto);
+    return this.service.updateStatusApproval(id, updateDto);
   }
 
   @ApiBearerAuth('accessToken')
@@ -119,6 +119,10 @@ export class ActivityControllers {
           type: 'string', 
           format: 'binary',
           description: 'Optional program photo (max 5MB)'
+        },
+        sale_outlet_weekly: {
+          type: 'integer',
+          description: 'Optional sale outlet weekly'
         },
         range_facility: {
           type: 'object',

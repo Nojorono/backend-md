@@ -1,7 +1,6 @@
 import {
   HttpException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   BadRequestException,
   HttpStatus,
@@ -10,32 +9,21 @@ import { UserRepo } from '../../user/repository/user.repo';
 import {
   CreateMdActivityDto,
   UpdateMdActivityDto,
-  UpdateStatusDto,
+  UpdateStatusApprovalDto,
 } from '../dtos/activitymd.dtos';
 import { ActivityRepository } from '../repository/activity.repository';
 import { logger } from 'nestjs-i18n';
-import { ActivitySioRepository } from '../repository/activity_sio.repository';
-import { ActivitySogRepository } from '../repository/activity_sog.repository';
 import { S3Service } from 'src/modules/s3/service/s3.service';
 import { I18nService } from 'nestjs-i18n';
-import { ActivityBranchRepository } from '../repository/activity_branch.repository';
 import { CallPlanScheduleRepository } from 'src/modules/callplan/repository/callplanschedule.repository';
-import { ActivitySioDto } from '../dtos/activity_sio.dtos';
-import { ActivitySogDto } from '../dtos/activity_sog.dtos';
-import { ActivityBranchDto } from '../dtos/activity_branch.dtos';
 import { STATUS_APPROVED, STATUS_PERM_CLOSED } from 'src/constants';
 import { OutletRepository } from 'src/modules/outlet/repository/outlet.repository';
 import { SurveyRepository } from 'src/modules/survey/repository/survey.repository';
 import { JwtService } from '@nestjs/jwt';
-import { ActivityProgramRepository } from '../repository/activity_program.repository';
 @Injectable()
 export class ActivityService {
   constructor(
     private readonly repository: ActivityRepository,
-    private readonly activitySioRepository: ActivitySioRepository,
-    private readonly activitySogRepository: ActivitySogRepository,
-    private readonly activityBranchRepository: ActivityBranchRepository,
-    private readonly activityProgramRepository: ActivityProgramRepository,
     private readonly jwtService: JwtService,
     private readonly s3Service: S3Service,
     private readonly i18n: I18nService,
@@ -44,98 +32,6 @@ export class ActivityService {
     private readonly surveyOutletRepository: SurveyRepository,
     private readonly userRepository: UserRepo,
   ) {}
-
-  async createDataSio(createDto: ActivitySioDto, files: { 
-    photo_before?: Express.Multer.File[],
-    photo_after?: Express.Multer.File[]
-  }) {
-    try {
-      if (!createDto.activity_id) {
-        throw new BadRequestException(
-          await this.i18n.translate('Activity ID is required'),
-        );
-      }
-
-      if (files.photo_before) {
-        createDto.photo_before = await this.s3Service.uploadImageFlexible(
-          files.photo_before[0],
-          'activity_sio',
-        );
-      }
-
-      if (files.photo_after) {
-        createDto.photo_after = await this.s3Service.uploadImageFlexible(
-          files.photo_after[0],
-          'activity_sio',
-        );
-      }
-
-      const result = await this.activitySioRepository.create(createDto);
-      return result;
-    } catch (error) {
-      logger.error('Error creating SIO activity:', error.message, error.stack);
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async createDataProgram(createDto: any, file: Express.Multer.File) {
-    try {
-      if (!createDto.activity_id) {
-        throw new BadRequestException(
-          await this.i18n.translate('Activity ID is required'),
-        );
-      }
-
-      if (file) {
-        createDto.photo = await this.s3Service.uploadImageFlexible(
-          file,
-          'activity_program',
-        );
-      }
-
-      const result = await this.activityProgramRepository.create(createDto);
-      return result;
-    } catch (error) {
-      logger.error('Error creating Program activity:', error.message, error.stack);
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async createDataSog(createDto: ActivitySogDto) {
-    try {
-      if (!createDto.activity_id) {
-        throw new BadRequestException(
-          await this.i18n.translate('Activity ID is required'),
-        );
-      }
-
-      const result = await this.activitySogRepository.create(createDto);
-      return result;
-    } catch (error) {
-      logger.error('Error creating SOG activity:', error.message, error.stack);
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async createDataBranch(createDto: ActivityBranchDto) {
-    try {
-      if (!createDto.activity_id) {
-        throw new BadRequestException(
-          await this.i18n.translate('Activity ID is required'),
-        );
-      }
-
-      const result = await this.activityBranchRepository.create(createDto);
-      return result;
-    } catch (error) {
-      logger.error(
-        'Error creating branch activity:',
-        error.message,
-        error.stack,
-      );
-      throw new BadRequestException(error.message);
-    }
-  }
 
   async createDataActivity(createDto: any) {
     try {
@@ -362,7 +258,7 @@ export class ActivityService {
     }
   }
 
-  async updateStatus(id: number, updateDto: UpdateStatusDto) {
+  async updateStatusApproval(id: number, updateDto: UpdateStatusApprovalDto) {
     try {
       const activity = await this.repository.getById(id);
       if (!activity) {
@@ -375,7 +271,7 @@ export class ActivityService {
       if (
         activity.outlet_id &&
         activity.status === STATUS_PERM_CLOSED &&
-        updateDto.status === STATUS_APPROVED
+        updateDto.status_approval === STATUS_APPROVED
       ) {
         await this.outletRepository.updateOutletStatus(activity.outlet_id, {
           is_active: 0,
@@ -385,7 +281,7 @@ export class ActivityService {
         });
       }
 
-      if (activity.survey_outlet_id && updateDto.status === STATUS_APPROVED) {
+      if (activity.survey_outlet_id && updateDto.status_approval === STATUS_APPROVED) {
         await this.outletRepository.createOutlet({
           name: activity.surveyOutlet.name,
           unique_name: activity.surveyOutlet.unique_name,
@@ -410,7 +306,7 @@ export class ActivityService {
         });
       }
 
-      const result = await this.repository.updateStatus(id, updateDto);
+      const result = await this.repository.updateStatusApproval(id, updateDto);
       return result;
     } catch (error) {
       throw error;

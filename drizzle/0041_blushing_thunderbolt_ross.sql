@@ -1,0 +1,1 @@
+ALTER TABLE "activity" ADD COLUMN "sale_outlet_weekly" integer;

@@ -44,6 +44,7 @@ export const Activity = pgTable('activity', {
   longitude: varchar('longitude', { length: 100 }),
   notes: text('notes'),
   photo_program: varchar('photo_program', { length: 255 }),
+  sale_outlet_weekly: integer('sale_outlet_weekly'),
   created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 100 }),

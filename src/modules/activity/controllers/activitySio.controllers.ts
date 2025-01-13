@@ -3,14 +3,13 @@ import {
   Post,
   Body,
   BadRequestException,
-  UploadedFile,
   UseInterceptors,
-  ValidationPipe,
   UploadedFiles,
+  Param,
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ActivityService } from '../service/activity.service';
-import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { ActivitySioService } from '../service/activity.sio.service';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ActivitySioDto } from '../dtos/activity_sio.dtos';
 import { Public } from 'src/decorators/public.decorator';
 
@@ -20,10 +19,10 @@ import { Public } from 'src/decorators/public.decorator';
   path: '/activity-sio',
 })
 export class ActivitySioControllers {
-  constructor(private readonly service: ActivityService) {}
+  constructor(private readonly service: ActivitySioService) {}
 
   @Public()
-  @Post()
+  @Post(':call_plan_schedule_id')
   @ApiOperation({ summary: 'Create a new SIO activity' })
   @ApiBody({
     schema: {
@@ -61,28 +60,34 @@ export class ActivitySioControllers {
     },
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileFieldsInterceptor([
-    { name: 'photo_before', maxCount: 1 },
-    { name: 'photo_after', maxCount: 1 }
-  ], {
-    limits: {
-      fileSize: 5 * 1024 * 1024 // 5MB
-    }
-  }))
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'photo_before', maxCount: 1 },
+        { name: 'photo_after', maxCount: 1 },
+      ],
+      {
+        limits: {
+          fileSize: 5 * 1024 * 1024, // 5MB
+        },
+      },
+    ),
+  )
   async create(
-    @Body() createDto: any,
-    @UploadedFiles() files: { 
-      photo_before?: Express.Multer.File[],
-      photo_after?: Express.Multer.File[]
-    }
+    @Param('call_plan_schedule_id') call_plan_schedule_id: number,
+    @Body() createDto: ActivitySioDto,
+    @UploadedFiles()
+    files: {
+      photo_before?: Express.Multer.File[];
+      photo_after?: Express.Multer.File[];
+    },
   ) {
     try {
-      // Convert activity_id from string to number if needed
-      if (typeof createDto.activity_id === 'string') {
-        createDto.activity_id = parseInt(createDto.activity_id, 10);
-      }
-
-      return await this.service.createDataSio(createDto, files);
+      return await this.service.createDataSio(
+        call_plan_schedule_id,
+        createDto,
+        files,
+      );
     } catch (error) {
       throw new BadRequestException({
         success: false,

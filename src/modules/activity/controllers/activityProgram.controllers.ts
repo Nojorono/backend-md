@@ -5,9 +5,10 @@ import {
   BadRequestException,
   UploadedFile,
   UseInterceptors,
+  Param,
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ActivityService } from '../service/activity.service';
+import { ActivityProgramService } from '../service/activity.program.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/decorators/public.decorator';
 
@@ -17,10 +18,10 @@ import { Public } from 'src/decorators/public.decorator';
   path: '/activity-program',
 })
 export class ActivityProgramControllers {
-  constructor(private readonly service: ActivityService) {}
+  constructor(private readonly service: ActivityProgramService) {}
 
   @Public()
-  @Post()
+  @Post(':call_plan_schedule_id')
   @ApiOperation({ summary: 'Create a new Program activity' })
   @ApiBody({
     schema: {
@@ -56,15 +57,12 @@ export class ActivityProgramControllers {
     }),
   )
   async create(
+    @Param('call_plan_schedule_id') call_plan_schedule_id: number,
     @Body() createDto: any,
     @UploadedFile() file: Express.Multer.File,
   ) {
     try {
-      if (typeof createDto.activity_id === 'string') {
-        createDto.activity_id = parseInt(createDto.activity_id, 10);
-      }
-
-      return await this.service.createDataProgram(createDto, file);
+      return await this.service.createDataProgram(call_plan_schedule_id, createDto, file);
     } catch (error) {
       throw new BadRequestException({
         success: false,
