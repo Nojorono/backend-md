@@ -83,7 +83,7 @@ export class ActivityControllers {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['user_id', 'call_plan_id', 'call_plan_schedule_id', 'area', 'region', 'brand', 'type_sio', 'start_time', 'end_time'],
+      required: ['user_id', 'call_plan_id', 'call_plan_schedule_id'],
       properties: {
         user_id: { type: 'integer', description: 'User ID is required' },
         call_plan_id: { type: 'integer', description: 'Call Plan ID is required' },
@@ -141,11 +141,11 @@ export class ActivityControllers {
   })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileFieldsInterceptor([
-    { name: 'photos', maxCount: 2 },
+    { name: 'photos', maxCount: 1 },
     { name: 'photo_program', maxCount: 1 }
   ], {
     limits: {
-      fileSize: 5 * 1024 * 1024 // 5MB
+      fileSize: 5 * 1024 * 1024
     }
   }))
   async create(
@@ -160,9 +160,11 @@ export class ActivityControllers {
       if (files?.photos) {
         createDto.photos = files.photos;
       }
-      if (files?.photo_program?.[0]) {
-        createDto.photo_program = files.photo_program[0];
+      if (files?.photo_program) {
+        createDto.photo_program = files.photo_program;
       }
+
+      console.log(createDto);
       // Use queue service for async processing
       // await this.queueService.addToActivityQueue(createDto);
       
