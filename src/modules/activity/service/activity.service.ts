@@ -36,14 +36,15 @@ export class ActivityService {
   async createDataActivity(createDto: any) {
     try {
       // Convert relevant fields to integers
-      createDto.user_id = parseInt(createDto.user_id, 10);
-      createDto.call_plan_id = parseInt(createDto.call_plan_id, 10);
-      createDto.call_plan_schedule_id = parseInt(createDto.call_plan_schedule_id, 10);
+      createDto.user_id = createDto.user_id ? parseInt(createDto.user_id, 10) : null;
+      createDto.call_plan_id = createDto.call_plan_id ? parseInt(createDto.call_plan_id, 10) : null;
+      createDto.call_plan_schedule_id = createDto.call_plan_schedule_id ? parseInt(createDto.call_plan_schedule_id, 10) : null;
       createDto.outlet_id = createDto.outlet_id ? parseInt(createDto.outlet_id, 10) : null;
       createDto.survey_outlet_id = createDto.survey_outlet_id ? parseInt(createDto.survey_outlet_id, 10) : null;
       createDto.program_id = createDto.program_id ? parseInt(createDto.program_id, 10) : null;
       createDto.status = parseInt(createDto.status, 10);
-      createDto.status_approval = parseInt(createDto.status_approval, 10);
+      createDto.status_approval = createDto.status_approval ? parseInt(createDto.status_approval, 10) : null;
+      createDto.sale_outlet_weekly = createDto.sale_outlet_weekly ? parseInt(createDto.sale_outlet_weekly, 10) : null;
 
       // Validate required fields
       this.validateRequiredFields(createDto);
@@ -160,7 +161,6 @@ export class ActivityService {
   }
 
   private async updateCallPlanSchedule(result: any) {
-    console.log('createDto Update Call Plan Schedule', result);
     await this.callPlanScheduleRepository.updateStatus(
       result.call_plan_schedule_id,
       {
