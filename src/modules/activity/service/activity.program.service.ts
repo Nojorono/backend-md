@@ -29,9 +29,9 @@ export class ActivityProgramService {
       createDto.activity_id = callPlanSchedule.id;
 
       if (file) {
-        createDto.photo = await this.s3Service.uploadImageFlexible(
-          file,
+        createDto.photo = await this.s3Service.uploadCompressedImage(
           'activity_program',
+          file,
         );
       }
 

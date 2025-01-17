@@ -1,24 +1,24 @@
 import { OnWorkerEvent, Processor } from '@nestjs/bullmq';
 import { Logger, Injectable, Inject } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { ActivityService } from '../service/activity.service';
 import { WorkerHostProcessor } from '../worker/worker.host.processor';
+import { ActivityBranchService } from '../service/activity.branch.service';
 
 @Injectable()
-@Processor('activityQueue')
-export class ActivityQueueProcessor extends WorkerHostProcessor {
-  protected readonly logger = new Logger(ActivityQueueProcessor.name);
+@Processor('activityBranchQueue')
+export class ActivityBranchQueueProcessor extends WorkerHostProcessor {
+  protected readonly logger = new Logger(ActivityBranchQueueProcessor.name);
 
   constructor(
-    @Inject(ActivityService)
-    private readonly activityService: ActivityService,
+    @Inject(ActivityBranchService)
+    private readonly activityBranchService: ActivityBranchService,
   ) {
     super();
   }
 
   async process(job: Job): Promise<any> {
     const data = job.data;
-    await this.activityService.createDataActivity(data);
+    await this.activityBranchService.createDataBranch(data.call_plan_schedule_id, data.createDto);
     return job.data;
   }
 
