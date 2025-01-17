@@ -8,9 +8,9 @@ import {
   Param,
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ActivityProgramService } from '../service/activity.program.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/decorators/public.decorator';
+import { QueueService } from '../service/queue.service';
 
 @ApiTags('activity-program')
 @Controller({
@@ -18,7 +18,9 @@ import { Public } from 'src/decorators/public.decorator';
   path: '/activity-program',
 })
 export class ActivityProgramControllers {
-  constructor(private readonly service: ActivityProgramService) {}
+  constructor(
+    private readonly queueService: QueueService,
+  ) {}
 
   @Public()
   @Post(':call_plan_schedule_id')
@@ -62,20 +64,13 @@ export class ActivityProgramControllers {
     @UploadedFile() file: Express.Multer.File,
   ) {
     try {
-      return await this.service.createDataProgram(call_plan_schedule_id, createDto, file);
-    } catch (error) {
-      throw new BadRequestException({
-        success: false,
-        message: error.message,
-        errors: error.response?.message || [
-          'Activity ID must be an integer',
-          'Name is required and must be 2-100 characters',
-          'Description cannot exceed 500 characters',
-          'Notes cannot exceed 1000 characters',
-          'Photo URL must be a valid URL',
-          'File size cannot exceed 5MB',
-        ],
+      return await this.queueService.addToActivityProgramQueue({
+        call_plan_schedule_id,
+        createDto,
+        file,
       });
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 }

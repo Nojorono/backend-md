@@ -35,16 +35,16 @@ export class ActivitySioService {
       createDto.activity_id = callPlanSchedule.id;
 
       if (files.photo_before) {
-        createDto.photo_before = await this.s3Service.uploadImageFlexible(
-          files.photo_before[0],
+        createDto.photo_before = await this.s3Service.uploadCompressedImage(
           'activity_sio',
+          files.photo_before[0]
         );
       }
 
       if (files.photo_after) {
-        createDto.photo_after = await this.s3Service.uploadImageFlexible(
-          files.photo_after[0],
+        createDto.photo_after = await this.s3Service.uploadCompressedImage(
           'activity_sio',
+          files.photo_after[0]
         );
       }
 

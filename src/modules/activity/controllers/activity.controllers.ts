@@ -9,20 +9,18 @@ import {
   Req,
   Put,
   BadRequestException,
-  UploadedFile,
   UseInterceptors,
   UploadedFiles,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiConsumes, ApiBearerAuth, ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import {
-  CreateMdActivityDto,
   UpdateMdActivityDto,
   UpdateStatusApprovalDto,
 } from '../dtos/activitymd.dtos';
 import { ActivityService } from '../service/activity.service';
 import { Public } from 'src/decorators/public.decorator';
-import { FileInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { QueueService } from '../service/queue.service';
 @ApiTags('activity')
 @Controller({
@@ -163,13 +161,9 @@ export class ActivityControllers {
       if (files?.photo_program) {
         createDto.photo_program = files.photo_program;
       }
-
-      console.log(createDto);
       // Use queue service for async processing
-      // await this.queueService.addToActivityQueue(createDto);
+      return this.queueService.addToActivityQueue(createDto);
       
-      return this.service.createDataActivity(createDto);
-
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;

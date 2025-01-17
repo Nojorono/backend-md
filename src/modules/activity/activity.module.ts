@@ -27,6 +27,11 @@ import { ActivityProgramService } from './service/activity.program.service';
 import { ActivityBranchService } from './service/activity.branch.service';
 import { ActivitySogService } from './service/activity.sog.service';
 import { ActivitySioService } from './service/activity.sio.service';
+import { ActivitySioQueueProcessor } from './queue/activitySio.queue';
+import { ActivityBranchQueueProcessor } from './queue/activityBranch.queue';
+import { ActivityProgramQueueProcessor } from './queue/activityProgram.queue';
+import { ActivitySogQueueProcessor } from './queue/activitySog.queue';
+
 @Module({
   controllers: [
     ActivityControllers,
@@ -51,32 +56,48 @@ import { ActivitySioService } from './service/activity.sio.service';
         password: process.env.REDIS_PASSWORD,
       },
     }),
-    BullModule.registerQueue(
-      { name: 'activityQueue' },
-      { name: 'activityBranchQueue' },
-      { name: 'activitySogQueue' },
-      { name: 'activitySioQueue' },
-    ),
+    BullModule.registerQueue({
+      name: 'activityQueue',
+    }),
+    BullModule.registerQueue({
+      name: 'activityBranchQueue',
+    }),
+    BullModule.registerQueue({
+      name: 'activitySogQueue',
+    }),
+    BullModule.registerQueue({
+      name: 'activitySioQueue',
+    }),
+    BullModule.registerQueue({
+      name: 'activityProgramQueue',
+    }),
   ],
   providers: [
     DrizzleService,
-    ActivityRepository,
-    ActivitySioRepository,
-    ActivitySogRepository,
-    ActivityBranchRepository,
-    S3Service,
-    ActivityService,
+
     UserRepo,
     OutletRepository,
     CallPlanScheduleRepository,
     SurveyRepository,
+    ActivityRepository,
+    ActivitySioRepository,
+    ActivitySogRepository,
+    ActivityBranchRepository,
+    
+    S3Service,   
     QueueService,
-    ActivityQueueProcessor,
+    ActivityService,
     ActivityProgramRepository,
     ActivityBranchService,
     ActivityProgramService,
     ActivitySogService,
     ActivitySioService, 
+
+    ActivityQueueProcessor,
+    ActivitySioQueueProcessor,
+    ActivityBranchQueueProcessor,
+    ActivityProgramQueueProcessor,
+    ActivitySogQueueProcessor,
   ],
   exports: [
     ActivityRepository,

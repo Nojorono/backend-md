@@ -2,16 +2,14 @@ import {
   Controller,
   Post,
   Body,
-  BadRequestException,
   UseInterceptors,
   UploadedFiles,
   Param,
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ActivitySioService } from '../service/activity.sio.service';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { ActivitySioDto } from '../dtos/activity_sio.dtos';
 import { Public } from 'src/decorators/public.decorator';
+import { QueueService } from '../service/queue.service';
 
 @ApiTags('activity-sio')
 @Controller({
@@ -19,7 +17,9 @@ import { Public } from 'src/decorators/public.decorator';
   path: '/activity-sio',
 })
 export class ActivitySioControllers {
-  constructor(private readonly service: ActivitySioService) {}
+  constructor(
+    private readonly queueService: QueueService
+  ) {}
 
   @Public()
   @Post(':call_plan_schedule_id')
@@ -28,7 +28,6 @@ export class ActivitySioControllers {
     schema: {
       type: 'object',
       properties: {
-        activity_id: { type: 'number', description: 'Must be an integer' },
         name: {
           type: 'string',
           minLength: 2,
@@ -56,7 +55,7 @@ export class ActivitySioControllers {
           description: 'Optional image file, max 5MB',
         },
       },
-      required: ['activity_id', 'name'],
+      required: ['name'],
     },
   })
   @ApiConsumes('multipart/form-data')
@@ -83,24 +82,14 @@ export class ActivitySioControllers {
     },
   ) {
     try {
-      return await this.service.createDataSio(
-        call_plan_schedule_id,
-        createDto,
-        files,
-      );
-    } catch (error) {
-      throw new BadRequestException({
-        success: false,
-        message: error.message,
-        errors: error.response?.message || [
-          'Activity ID must be an integer',
-          'Name is required and must be 2-100 characters',
-          'Description cannot exceed 500 characters',
-          'Notes cannot exceed 1000 characters',
-          'Photo URL must be a valid URL',
-          'File size cannot exceed 5MB',
-        ],
+      const job = await this.queueService.addToActivitySioQueue({
+        'call_plan_schedule_id': call_plan_schedule_id,
+        'createDto': createDto,
+        'files': files,
       });
+      return job;
+    } catch (error) {
+      console.log('error', error);
     }
   }
 }

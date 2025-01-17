@@ -71,7 +71,7 @@ export class ActivityService {
       }
 
       if (createDto.photo_program) {
-        createDto.photo_program = await this.s3Service.uploadCompressedImage('activity-program', createDto.photo_program);
+        createDto.photo_program = await this.s3Service.uploadCompressedImage('activity-program', createDto.photo_program[0]);
       }
 
       if (createDto.range_facility) {        
@@ -131,6 +131,7 @@ export class ActivityService {
   }
 
   private async processPhotos(photos: any[]): Promise<string[]> {
+    // Handle case where photos is not an array
     if (!Array.isArray(photos)) {
       throw new BadRequestException(
         await this.i18n.translate('translation.Photos must be an array'),
@@ -139,19 +140,34 @@ export class ActivityService {
 
     const photoString: string[] = [];
 
+    // Process each photo in parallel
     await Promise.all(
       photos.map(async (photo) => {
-        if (!photo) {
-          throw new BadRequestException(
-            await this.i18n.translate('translation.Invalid photo data'),
-          );
-        }
         try {
+          // Basic validation of photo object
+          if (!photo || !photo.buffer || !photo.mimetype) {
+            throw new Error('Invalid photo data structure');
+          }
+
+          // Validate file size (5MB limit)
+          const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+          if (photo.size > maxSize) {
+            throw new Error('Photo exceeds 5MB size limit');
+          }
+
+          // Validate mimetype
+          const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+          if (!allowedTypes.includes(photo.mimetype)) {
+            throw new Error('Invalid image format - must be JPG or PNG');
+          }
+
           const photoUrl = await this.s3Service.uploadCompressedImage('activity', photo);
           photoString.push(photoUrl);
+
         } catch (error) {
+          console.error('Photo processing error:', error);
           throw new BadRequestException(
-            await this.i18n.translate('translation.Invalid photo format'),
+            await this.i18n.translate('translation.Failed to process photo')
           );
         }
       }),

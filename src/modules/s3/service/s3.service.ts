@@ -39,27 +39,41 @@ export class S3Service {
     keyDirectory: string,
     file: Express.Multer.File,
   ): Promise<string> {
-    // Compress the image using sharp
-    const compressedImage = await sharp(file.buffer)
-      .resize(800) // Resize to max width of 800 pixels
-      .jpeg({ quality: 80 }) // Set JPEG quality to 80%
-      .toBuffer();
+    try {
+      // Validate file input
+      if (!file || !file.buffer) {
+        throw new Error('Invalid file input');
+      }
 
-    // Generate the full key path
-    const fileExtension = file.originalname.split('.').pop();
-    const uniqueFileName = `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}.${fileExtension}`;
-    const key = `${keyDirectory}/${uniqueFileName}`;
+      // Convert buffer.data array to Buffer if needed
+      const imageBuffer = Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer);
 
-    const params: AWS.S3.PutObjectRequest = {
-      Bucket: this.bucketName,
-      Key: key,
-      Body: compressedImage,
-      ContentType: 'image/jpeg',
-      ACL: 'public-read', // Make the file publicly readable
-    };
+      // Compress the image using sharp
+      const compressedImage = await sharp(imageBuffer)
+        .resize(800) // Resize to max width of 800 pixels
+        .jpeg({ quality: 80 }) // Set JPEG quality to 80%
+        .toBuffer();
 
-    const result = await this.s3.upload(params).promise();
-    return result.Location;
+      // Generate the full key path
+      const fileExtension = file.originalname.split('.').pop();
+      const uniqueFileName = `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}.${fileExtension}`;
+      const key = `${keyDirectory}/${uniqueFileName}`;
+
+      const params: AWS.S3.PutObjectRequest = {
+        Bucket: this.bucketName,
+        Key: key,
+        Body: compressedImage,
+        ACL: 'public-read', // Make the file publicly readable
+        ContentType: 'image/jpeg',
+      };
+
+      const result = await this.s3.upload(params).promise();
+      return result.Location;
+
+    } catch (error) {
+      console.error('Error processing/uploading image:', error);
+      throw new Error(`Failed to process/upload image: ${error.message}`);
+    }
   }
 
   // Method to delete an image from S3
