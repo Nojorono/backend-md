@@ -5,6 +5,7 @@ export class CreateDto {
   is_read?: boolean;
   notification_identifier: string;
   type: number;
+  activity_id?: number;
   created_at?: Date;
 }
 

@@ -31,6 +31,9 @@ import { ActivitySioQueueProcessor } from './queue/activitySio.queue';
 import { ActivityBranchQueueProcessor } from './queue/activityBranch.queue';
 import { ActivityProgramQueueProcessor } from './queue/activityProgram.queue';
 import { ActivitySogQueueProcessor } from './queue/activitySog.queue';
+import { NotificationsService } from '../notifications/service/notifications.service';
+import { NotificationsRepository } from '../notifications/repository/notifications.repository';
+import { AppGateway } from 'src/socket/socket.gateaway';
 
 @Module({
   controllers: [
@@ -74,6 +77,7 @@ import { ActivitySogQueueProcessor } from './queue/activitySog.queue';
   ],
   providers: [
     DrizzleService,
+    AppGateway,
 
     UserRepo,
     OutletRepository,
@@ -83,15 +87,17 @@ import { ActivitySogQueueProcessor } from './queue/activitySog.queue';
     ActivitySioRepository,
     ActivitySogRepository,
     ActivityBranchRepository,
-    
+    NotificationsRepository,
+    ActivityProgramRepository,
+
     S3Service,   
     QueueService,
     ActivityService,
-    ActivityProgramRepository,
     ActivityBranchService,
     ActivityProgramService,
     ActivitySogService,
     ActivitySioService, 
+    NotificationsService,
 
     ActivityQueueProcessor,
     ActivitySioQueueProcessor,

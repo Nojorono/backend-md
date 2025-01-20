@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: "http://localhost:8080",
+    origin: process.env.FRONTEND_URL_SOCKET,
     credentials: true,
     allowedHeaders: ["Content-Type"],
   }
@@ -15,7 +15,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly jwtService: JwtService) {}
 
   handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
-    const token = client.handshake.auth.token; // Extracting token from the handshake auth object
+    const token = client.handshake.auth.token;
 
     if (token) {
       try {
@@ -41,7 +41,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('message', payload);
   }
 
-  public notifyComment(userId: string, payload: any) {
+  public notifyBroadcast(userId: string, payload: any) {
     for (const [clientId, uid] of this.clientMap.entries()) {
       if (uid === userId) {
         this.server.to(clientId).emit('notification', payload);

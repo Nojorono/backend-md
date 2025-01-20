@@ -23,8 +23,7 @@ export class NotificationsRepository {
   async createData(CreateDto: CreateDto) {
 
     const db = this.drizzleService['db'];
-    const user_id = await this.decryptId(CreateDto.user_id);
-
+   
     if (!db) {
       throw new Error('Database not initialized');
     }
@@ -33,7 +32,6 @@ export class NotificationsRepository {
       .insert(Notifications)
       .values({
         ...CreateDto,
-        user_id: user_id,
       })
       .returning();
   }

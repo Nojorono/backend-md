@@ -5,7 +5,6 @@ import { UserRepo } from '../../user/repository/user.repo';
 import { AppGateway } from 'src/socket/socket.gateaway';
 import { JwtService } from '@nestjs/jwt';
 
-
 @Injectable()
 export class NotificationsService {
   constructor(
@@ -15,22 +14,30 @@ export class NotificationsService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // Create notification type 1 = comment
-  async create(CreateDto: CreateDto, user?: any, region?: string, area?: string) {
-    if (CreateDto.type == 1) {
-        const decoded = this.jwtService.verify(user);
-        const findIdUserRegionArea = await this.userRepository.findIdUserRegionArea(decoded.email, region, area);
-        for (const user of findIdUserRegionArea) {
-            CreateDto.user_id = user.id;
-            CreateDto.message = CreateDto.message;
-            CreateDto.is_read = false;
-            CreateDto.created_at = new Date();
-            await this.NotificationsRepository.createData(CreateDto);
-            this.appGateway.notifyComment(user.id, {
-              message: CreateDto.message,
-              notification_identifier: CreateDto.notification_identifier,
-            });
-        }
+  async create(
+    CreateDto: CreateDto,
+    user?: any,
+    region?: string,
+    area?: string,
+  ) {
+    const findIdUserRegionArea = await this.userRepository.findIdUserRegionArea(
+      user.email,
+      region,
+      area,
+    );
+    if (findIdUserRegionArea.length === 0) {
+      return;
+    }
+    for (const user of findIdUserRegionArea) {
+      CreateDto.user_id = user.id;
+      CreateDto.message = CreateDto.message;
+      CreateDto.is_read = false;
+      CreateDto.created_at = new Date();
+      await this.NotificationsRepository.createData(CreateDto);
+      this.appGateway.notifyBroadcast(user.id, {
+        message: CreateDto.message,
+        notification_identifier: CreateDto.notification_identifier,
+      });
     }
   }
 
@@ -48,11 +55,11 @@ export class NotificationsService {
     return this.NotificationsRepository.deleteById(id, decoded.email);
   }
 
-  async getAll(
-   userId: string,
-   limit: string,
-   offset: string
-  ) {
-    return this.NotificationsRepository.getAll(userId, parseInt(limit), parseInt(offset));
+  async getAll(userId: string, limit: string, offset: string) {
+    return this.NotificationsRepository.getAll(
+      userId,
+      parseInt(limit),
+      parseInt(offset),
+    );
   }
 }

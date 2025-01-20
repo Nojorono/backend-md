@@ -8,9 +8,9 @@ export const Notifications = pgTable('notifications', {
   is_read: boolean('is_read').default(false),
   notification_identifier: text('notification_identifier'),
   type: integer('type').notNull(),
+  activity_id: integer('activity_id'),
 }, (table) => {
   return {
     notificationIdentifierIdx: index('notification_identifier_idx').on(table.notification_identifier)
   }
 });
-
