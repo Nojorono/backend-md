@@ -7,12 +7,17 @@ import { ActivityRepository } from '../repository/activity.repository';
 import { logger } from 'nestjs-i18n';
 import { ActivitySioRepository } from '../repository/activity_sio.repository';
 import { S3Service } from 'src/modules/s3/service/s3.service';
+import { UserRepo } from 'src/modules/user/repository/user.repo';
+import { NotificationsService } from 'src/modules/notifications/service/notifications.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ActivitySioService {
   constructor(
     private readonly activityRepository: ActivityRepository,
     private readonly activitySioRepository: ActivitySioRepository,
+    private readonly userRepository: UserRepo,
+    private readonly NotificationsService: NotificationsService,
     private readonly s3Service: S3Service,
   ) {}
 
@@ -37,14 +42,14 @@ export class ActivitySioService {
       if (files.photo_before) {
         createDto.photo_before = await this.s3Service.uploadCompressedImage(
           'activity_sio',
-          files.photo_before[0]
+          files.photo_before[0],
         );
       }
 
       if (files.photo_after) {
         createDto.photo_after = await this.s3Service.uploadCompressedImage(
           'activity_sio',
-          files.photo_after[0]
+          files.photo_after[0],
         );
       }
 
@@ -53,6 +58,32 @@ export class ActivitySioService {
     } catch (error) {
       logger.error('Error creating SIO activity:', error.message, error.stack);
       throw new BadRequestException(error.message);
+    }
+  }
+
+  async validateDataSio(data: any) {
+    let createNotification = 0;
+    if (data.notes) {
+      createNotification = 1;
+    }
+    console.log('data', data);
+    console.log('createNotification', createNotification);
+    if (createNotification == 1) {
+      const findActivity = await this.activityRepository.getById(data.activity_id);
+      const user = await this.userRepository.findById(findActivity.user_id);
+      const notification_identifier = uuidv4();
+      console.log('notification_identifier', notification_identifier);
+      this.NotificationsService.create(
+        {
+          type: 2,
+          notification_identifier: notification_identifier,
+          message: 'SIO butuh pemeriksaan',
+          activity_id: data.activity_id,
+        },
+        user,
+        findActivity.region,
+        findActivity.area,
+      );
     }
   }
 }

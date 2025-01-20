@@ -31,40 +31,22 @@ export class UserRepo {
     });
   }
 
-  async findIdUserRegionArea(user: any, region?: string, area?: string) {
+  async findIdUserRegionArea(email: any, region?: string, area?: string) {
     const db = this.drizzleService['db'];
     const conditions = [];
     
     conditions.push(isNull(mUser.deleted_at));
-    conditions.push(not(eq(mUser.email, user.email)));
-    // Filter users by matching region and area if provided
-    // Or find users with no region/area set
-    if (region && area) {
-       conditions.push(
-         and(
-           or(
-             isNull(mUser.region),
-             eq(mUser.region, region)
-           ),
-           or(
-             isNull(mUser.area),
-             arrayContained(mUser.area, [area])
-           )
-         )
-       );
+    conditions.push(not(eq(mUser.email, email)));
+    if (region) {
+      conditions.push(eq(mUser.region, region) || isNull(mUser.region));
+    }
+    if (area) {
+      conditions.push(or(arrayContained(mUser.area, [area]), isNull(mUser.area)));
     }
 
     const query =  db.select().from(mUser).where(and(...conditions))
     const result = await query.execute();
-    const encryptedResult = await Promise.all(
-      result.map(async (item: { id: number }) => {
-        return {
-          ...item,
-          id: await this.encryptedId(item.id),
-        };
-      }),
-    );
-    return encryptedResult;
+    return result;
   }
 
   // List all active users with pagination and search
@@ -95,7 +77,7 @@ export class UserRepo {
     // Get allowed roles based on user's role
     const allowedRoles = roleHierarchy[user.Roles.name] || [];
     if (allowedRoles.length === 0) {
-      allowedRoles.push(user.Roles.name); // Include user's own role if not in hierarchy
+      allowedRoles.push(user.Roles.name);
     }
 
     // Build base query with joins

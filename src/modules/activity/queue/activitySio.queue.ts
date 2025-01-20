@@ -18,8 +18,11 @@ export class ActivitySioQueueProcessor extends WorkerHostProcessor {
 
   async process(job: Job): Promise<any> {
     const data = job.data;
-    await this.activitySioService.createDataSio(data.call_plan_schedule_id, data.createDto, data.files);
-    return job.data;
+    const result = await this.activitySioService.createDataSio(data.call_plan_schedule_id, data.createDto, data.files);
+    console.log(result[0].activity_id);
+    const resultValidate = await this.activitySioService.validateDataSio(result[0]);
+    console.log(resultValidate);
+    return result;
   }
 
   @OnWorkerEvent('active')
