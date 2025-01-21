@@ -66,13 +66,10 @@ export class ActivitySioService {
     if (data.notes) {
       createNotification = 1;
     }
-    console.log('data', data);
-    console.log('createNotification', createNotification);
     if (createNotification == 1) {
       const findActivity = await this.activityRepository.getById(data.activity_id);
       const user = await this.userRepository.findById(findActivity.user_id);
       const notification_identifier = uuidv4();
-      console.log('notification_identifier', notification_identifier);
       this.NotificationsService.create(
         {
           type: 2,
@@ -84,6 +81,10 @@ export class ActivitySioService {
         findActivity.region,
         findActivity.area,
       );
+
+      await this.activityRepository.update(data.activity_id, {
+        status_approval: 0,
+      });
     }
   }
 }
