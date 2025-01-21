@@ -52,6 +52,14 @@ export class ActivityService {
       // Validate user exists
       const user = await this.validateUser(createDto.user_id);
 
+      if(createDto.survey_outlet_id) {
+        createDto.status_approval = 0;
+      }
+
+      if(createDto.outlet_id) {
+        createDto.status_approval = 3;
+      }
+
       // Validate and convert dates
       if (createDto.start_time) {
         createDto.start_time = new Date(createDto.start_time);  

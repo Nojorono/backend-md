@@ -10,6 +10,7 @@ import {
   Activity,
   mOutlets,
 } from '../../../schema';
+import { EXISTING_SURVEY_STATUS } from '../../../constants';
 import * as xlsx from 'xlsx';
 
 @Injectable()
@@ -26,7 +27,6 @@ export class ReportService {
       where: and(isNull(Activity.deleted_at)),
       with: {
         callPlanSchedule: true,
-        surveyOutlet: true,
         outlet: true,
         user: true,
         callPlan: {
@@ -35,6 +35,7 @@ export class ReportService {
         activitySios: true,
         activitySogs: true,
         activityBranches: true,
+        activityPrograms: true,
       },
 
       orderBy: (Activity, { asc, desc }) => [
@@ -43,80 +44,215 @@ export class ReportService {
       ],
     });
 
-    // Format data into a worksheet
+    // Format data into a worksheet with proper cell types and formats
     const data = result.map((row, index) => {
+      // Format dates consistently
+      const startTime = row.start_time ? new Date(row.start_time).toLocaleString('id-ID', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }) : '';
+      const endTime = row.end_time ? new Date(row.end_time).toLocaleString('id-ID', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }) : '';
 
+      // Handle photo URLs with hyperlinks and safe checks
       const photoColumns = {};
-      row.photos.forEach((photo, i) => {
-        photoColumns[`Foto Activity${i + 1}`] = {
-          t: 's',
-          v: photo,
-          l: { Target: photo, Tooltip: `Click to view Foto${i + 1}` },
-        };
-      });
+      if (Array.isArray(row?.photos)) {
+        row.photos.forEach((photo, i) => {
+          if (photo) {
+            photoColumns[`Foto Check-In${i + 1}`] = {
+              t: 's',
+              v: photo,
+              l: { Target: photo, Tooltip: `Click to view Foto${i + 1}` },
+              s: { font: { color: { rgb: '0563C1' }, underline: true } }
+            };
+          }
+        });
+      }
 
+      // Handle SIO data with proper validation
       const activitySioColumns = {};
-      row.activitySios.forEach((sio, i) => {  
-        activitySioColumns[`SIO Name${i + 1}`] = {
-          t: 's',
-          v: sio.name,
-        };
-        activitySioColumns[`SIO Photo${i + 1}`] = {
-          t: 's',
-          v: sio.photo,
-        };
-      });
+      if (Array.isArray(row?.activitySios)) {
+        row.activitySios.forEach((sio, i) => {  
+          activitySioColumns[`Materi Branding SIO${i + 1}`] = {
+            t: 's',
+            v: sio.name || '',
+          };
+          if (sio.photo_before) {
+            activitySioColumns[`Foto Sebelum ${i + 1}`] = {
+              t: 's',
+              v: sio.photo_before,
+              l: { Target: sio.photo_before, Tooltip: `Click to view photo` },
+              s: { font: { color: { rgb: '0563C1' }, underline: true } }
+            };
+          }
+          if (sio.photo_after) {
+            activitySioColumns[`Foto Sesudah ${i + 1}`] = {
+              t: 's',
+              v: sio.photo_after,
+              l: { Target: sio.photo_after, Tooltip: `Click to view photo` },
+              s: { font: { color: { rgb: '0563C1' }, underline: true } }
+            };
+          }
+        });
+      }
 
+      // Handle SOG data with numeric validation
       const activitySogColumns = {};
-      row.activitySogs.forEach((sog, i) => {
-        activitySogColumns[`SOG Name${i + 1}`] = {
-          t: 's',
-          v: sog.name,
-        };
-        activitySogColumns[`Stock`] = {
-          t: 's',
-          v: sog.value,
-        };
-      });
+      if (Array.isArray(row?.activitySogs)) {
+        row.activitySogs.forEach((sog, i) => {
+          activitySogColumns[`SOG Name ${i + 1}`] = {
+            t: 's',
+            v: sog.name || '',
+          };
+          activitySogColumns[`SOG Stock ${i + 1}`] = {
+            t: 'n',
+            v: Number(sog.value) || 0,
+            z: '#,##0' // Apply number format
+          };
+        });
+      }
 
+      // Handle Branch data with numeric validation
       const activityBranchColumns = {};
-      row.activityBranches.forEach((branch, i) => {
-        activityBranchColumns[`Branch Name${i + 1}`] = {
-          t: 's',
-          v: branch.name,
-        };
-        activityBranchColumns[`Branch Value${i + 1}`] = {
-          t: 's',
-          v: branch.value,
-        };
-      });
+      if (Array.isArray(row?.activityBranches)) {
+        row.activityBranches.forEach((branch, i) => {
+          activityBranchColumns[`Brand Family${i + 1}`] = {
+            t: 's',
+            v: branch.name || '',
+          };
+          activityBranchColumns[`Brand Family Stock${i + 1}`] = {
+            t: 'n',
+            v: Number(branch.value) || 0,
+            z: '#,##0' // Apply number format
+          };
+        });
+      }
+
+      // Handle Program data with safe URL handling
+      const activityProgramColumns = {};
+      if (Array.isArray(row?.activityPrograms)) {
+        row.activityPrograms.forEach((program, i) => {
+          activityProgramColumns[`Program Kompetitor${i + 1}`] = {
+            t: 's',
+            v: program.name || '',
+          };
+          if (program.photo) {
+            activityProgramColumns[`Foto${i + 1}`] = {
+              t: 's',
+              v: program.photo,
+              l: { Target: program.photo, Tooltip: `Click to view photo` },
+              s: { font: { color: { rgb: '0563C1' }, underline: true } }
+            };
+          }
+        });
+      }
 
       return {
-        No: index + 1,
-        Email: row.user.email,
-        'Nama MD': row.user.fullname,
-        Region: row.region,
-        Area: row.area,
-        Brand: row.brand,
-        'SIO Type': row.type_sio,
-        'Nama Outlet': row.outlet.name,
-        'Code Outlet': row.outlet.outlet_code,
-        Alamat: row.outlet.address_line,
-        Cycle: row.outlet.cycle,
-        'Hari Kunjungan': row.outlet.visit_day,
-        Keterangan: row.outlet.remarks,
-        'Start Time': row.start_time,
-        'End Time': row.end_time,
-        Latitude: row.latitude,
-        Longitude: row.longitude,
-        Notes: row.notes,
-        Photos: row.photos,
-        Status: row.status,
-        'Status Approval': row.status_approval,
+        No: {
+          t: 'n',
+          v: index + 1,
+          z: '0' // Format as simple number
+        },
+        Email: {
+          t: 's',
+          v: row.user?.email || ''
+        },
+        'Nama MD': {
+          t: 's',
+          v: row.user?.fullname || ''
+        },
+        Region: {
+          t: 's',
+          v: row.region || ''
+        },
+        Area: {
+          t: 's',
+          v: row.area || ''
+        },
+        Brand: {
+          t: 's',
+          v: row.brand || ''
+        },
+        'SIO Type': {
+          t: 's',
+          v: row.type_sio || ''
+        },
+        'Nama Outlet': {
+          t: 's',
+          v: row.outlet?.name || ''
+        },
+        'Kode Outlet': {
+          t: 's',
+          v: row.outlet?.outlet_code || ''
+        },
+        Alamat: {
+          t: 's',
+          v: row.outlet?.address_line || ''
+        },
+        Cycle: {
+          t: 's',
+          v: row.outlet?.cycle || ''
+        },
+        'Hari Kunjungan': {
+          t: 's',
+          v: row.outlet?.visit_day || ''
+        },
+        Keterangan: {
+          t: 's',
+          v: row.outlet?.remarks || ''
+        },
+        'Waktu Check-In': {
+          t: 's',
+          v: startTime
+        },
+        'Waktu Check-Out': {
+          t: 's',
+          v: endTime
+        },
+        Latitude: {
+          t: 's',
+          v: row.latitude || ''
+        },
+        Longitude: {
+          t: 's',
+          v: row.longitude || ''
+        },
+        Notes: {
+          t: 's',
+          v: row.notes || ''
+        },
+        'Foto Outlet': {
+          t: 's',
+          v: Array.isArray(row.photos) ? row.photos.join(', ') : ''
+        },
+        Status: {
+          t: 's',
+          v: row.status ? EXISTING_SURVEY_STATUS[row.status] : ''
+        },
+        'Status Approval': {
+          t: 's',
+          v: row.status_approval ? EXISTING_SURVEY_STATUS[row.status_approval] : ''
+        },
+        'Total Penjualan': {
+          t: 'n',
+          v: Number(row.sale_outlet_weekly) || 0,
+          z: '#,##0' // Apply number format
+        },
         ...photoColumns,
-        ...activitySioColumns,
         ...activitySogColumns,
         ...activityBranchColumns,
+        ...activityProgramColumns,
+        ...activitySioColumns,
       };
     });
 
