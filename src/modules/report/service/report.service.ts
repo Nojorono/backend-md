@@ -51,7 +51,7 @@ export class ReportService {
     // Format data into a worksheet with proper cell types and formats
     const data = result.map((row, index) => {
       // Format dates consistently
-      const startTime = row.start_time ? new Date(row.start_time).toLocaleString('id-ID', {
+      const startTimeStr = row.start_time ? new Date(row.start_time).toLocaleString('id-ID', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -59,7 +59,7 @@ export class ReportService {
         minute: '2-digit',
         hour12: false
       }) : '';
-      const endTime = row.end_time ? new Date(row.end_time).toLocaleString('id-ID', {
+      const endTimeStr = row.end_time ? new Date(row.end_time).toLocaleString('id-ID', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -67,6 +67,13 @@ export class ReportService {
         minute: '2-digit',
         hour12: false
       }) : '';
+
+      const startTimeMs = row.start_time ? new Date(row.start_time).getTime() : 0;
+      const endTimeMs = row.end_time ? new Date(row.end_time).getTime() : 0;
+      const diffMs = startTimeMs && endTimeMs ? endTimeMs - startTimeMs : 0;
+      const minutes = Math.floor(diffMs / (1000 * 60));
+      const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+      const timeMotionStr = startTimeMs && endTimeMs ? `${minutes} Menit ${seconds} Detik` : '';
 
       // Handle photo URLs with hyperlinks and safe checks
       const photoColumns = {};
@@ -217,11 +224,15 @@ export class ReportService {
         },
         'Waktu Check-In': {
           t: 's',
-          v: startTime
+          v: startTimeStr
         },
         'Waktu Check-Out': {
           t: 's',
-          v: endTime
+          v: endTimeStr
+        },
+        'Waktu Perjalanan': {
+          t: 's',
+          v: timeMotionStr
         },
         Latitude: {
           t: 's',
