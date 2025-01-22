@@ -64,4 +64,38 @@ export class ReportControllers {
     );
     res.send(excelBuffer);
   }
+
+  @ApiBearerAuth('accessToken')
+  @Get('reimbursement')
+  async getReportReimbursement(
+    @Query('filter') filter: { area: string, region: string } = { area: '', region: '' },
+    @Res() res: Response,
+  ) {
+    const excelBuffer = await this.reportService.getReportReimbursement(filter);
+
+    const date = new Date().toISOString().split('T')[0];
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-Disposition', `attachment; filename="reimbursement_report_${date}.xlsx"`);
+    res.send(excelBuffer);
+  }
+
+  @ApiBearerAuth('accessToken')
+  @Get('absent')
+  async getReportAbsent(
+    @Query('filter') filter: { area: string, region: string } = { area: '', region: '' },
+    @Res() res: Response,
+  ) {
+    const excelBuffer = await this.reportService.getReportAbsent(filter);
+
+    const date = new Date().toISOString().split('T')[0];
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-Disposition', `attachment; filename="absent_report_${date}.xlsx"`);
+    res.send(excelBuffer);
+  }
 }

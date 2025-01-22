@@ -22,17 +22,14 @@ export class CreateDto {
   @ApiProperty({ description: 'Clock in time', example: new Date().toISOString() })
   clockIn: Date;
 
-  @ApiProperty({ description: 'Clock out time', example: new Date().toISOString() })
-  clockOut?: Date;
-
   @ApiProperty({ description: 'Longitude coordinate', required: false, example: '106.816666' })
   longitude: string;
 
   @ApiProperty({ description: 'Latitude coordinate', required: false, example: '-6.200000' })
   latitude: string;
 
-  @ApiProperty({ description: 'Photo In', required: false, example: '1' })
-  photoIn?: string;
+  @ApiProperty({ description: 'Photo file upload', required: false, type: 'string', format: 'binary' })
+  file?: Express.Multer.File;
 }
 
 export class UpdateDto {
@@ -52,6 +49,6 @@ export class UpdateDto {
   @ApiProperty({ description: 'Latitude coordinate', required: false, example: '-6.200000' })
   latitude: string;
 
-  @ApiProperty({ description: 'Photo Out', required: false, example: '1' })
-  photoOut?: string;
+  @ApiProperty({ description: 'Photo Out', required: false, type: 'string', format: 'binary' })
+  file?: Express.Multer.File;
 }
