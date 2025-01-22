@@ -1,7 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { mUser, mUserRoles } from '../../../schema';
-import { and, arrayContained, arrayOverlaps, eq, inArray, isNull, not, notInArray, or } from 'drizzle-orm';
+import {
+  and,
+  arrayContained,
+  arrayOverlaps,
+  eq,
+  inArray,
+  isNull,
+  not,
+  notInArray,
+  or,
+} from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dtos';
 import {
   buildSearchQuery,
@@ -34,19 +44,35 @@ export class UserRepo {
   async findIdUserRegionArea(email: any, region?: string, area?: string) {
     const db = this.drizzleService['db'];
     const conditions = [];
-    
+
     conditions.push(isNull(mUser.deleted_at));
     conditions.push(not(eq(mUser.email, email)));
     if (region) {
-      conditions.push(eq(mUser.region, region) || isNull(mUser.region));
+      conditions.push(or(isNull(mUser.region), eq(mUser.region, region)));
     }
     if (area) {
-      conditions.push(or(arrayContained(mUser.area, [area]), isNull(mUser.area)));
+      conditions.push(
+        or(isNull(mUser.area), arrayContained(mUser.area, [area])),
+      );
     }
 
-    const query =  db.select().from(mUser).where(and(...conditions))
+    const query = db
+      .select()
+      .from(mUser)
+      .where(and(...conditions));
     const result = await query.execute();
+
     return result;
+
+    // // Encrypt IDs in the result
+    // const encryptedResult = await Promise.all(
+    //   result.map(async (item: { id: number; [key: string]: any }) => ({
+    //     ...item,
+    //     id: await this.encryptedId(item.id),
+    //   })),
+    // );
+
+    // return encryptedResult;
   }
 
   // List all active users with pagination and search
@@ -66,12 +92,12 @@ export class UserRepo {
 
     // Define role-based access hierarchy
     const roleHierarchy = {
-      'TL': ['MD'],
-      'AMO': ['MD', 'TL'],
-      'REGIONAL': ['MD', 'TL', 'AMO'],
-      'NASIONAL': ['MD', 'TL', 'AMO', 'REGIONAL'],
-      'ADMIN': ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL'],
-      'SUPERADMIN': ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL', 'ADMIN'],
+      TL: ['MD'],
+      AMO: ['MD', 'TL'],
+      REGIONAL: ['MD', 'TL', 'AMO'],
+      NASIONAL: ['MD', 'TL', 'AMO', 'REGIONAL'],
+      ADMIN: ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL'],
+      SUPERADMIN: ['MD', 'TL', 'AMO', 'REGIONAL', 'NASIONAL', 'ADMIN'],
     };
 
     // Get allowed roles based on user's role
@@ -146,7 +172,7 @@ export class UserRepo {
       result.map(async (item: { id: number; [key: string]: any }) => ({
         ...item,
         id: await this.encryptedId(item.id),
-      }))
+      })),
     );
 
     // Return paginated results with metadata
@@ -172,8 +198,12 @@ export class UserRepo {
         region: createUserDto.region,
         type_md: createUserDto.type_md,
         is_active: 1,
-        valid_from: createUserDto.valid_from ? new Date(createUserDto.valid_from) : null,
-        valid_to: createUserDto.valid_to ? new Date(createUserDto.valid_to) : null  ,
+        valid_from: createUserDto.valid_from
+          ? new Date(createUserDto.valid_from)
+          : null,
+        valid_to: createUserDto.valid_to
+          ? new Date(createUserDto.valid_to)
+          : null,
         created_at: new Date(),
         created_by: userEmail,
       })

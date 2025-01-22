@@ -16,12 +16,12 @@ export class NotificationsService {
 
   async create(
     CreateDto: CreateDto,
-    user?: any,
+    userData?: any,
     region?: string,
     area?: string,
   ) {
     const findIdUserRegionArea = await this.userRepository.findIdUserRegionArea(
-      user.email,
+      userData.email,
       region,
       area,
     );

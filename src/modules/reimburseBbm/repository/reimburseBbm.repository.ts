@@ -97,17 +97,15 @@ export class ReimburseBbmRepository {
     const whereConditions = [];
 
     if (searchTerm) {
+      console.log(searchTerm);
       // Split search term by spaces and create conditions for each word
       const searchWords = searchTerm.trim().split(/\s+/);
 
       const searchConditions = searchWords.map((word) =>
         or(
-          like(ReimburseBbm.status, `%${word}%`),
           like(ReimburseBbm.description, `%${word}%`),
           like(mUser.fullname, `%${word}%`),
           like(mUser.email, `%${word}%`),
-          like(mUser.area, `%${word}%`),
-          like(mUser.region, `%${word}%`),
         ),
       );
 
@@ -119,6 +117,14 @@ export class ReimburseBbmRepository {
       const dateStart = new Date(filter.date_start);
       const dateEnd = new Date(filter.date_end);
       whereConditions.push(between(ReimburseBbm.date_in, dateStart, dateEnd));
+    }
+
+    if (filter.area) {
+      whereConditions.push(eq(mUser.area, filter.area));
+    }
+
+    if (filter.region) {
+      whereConditions.push(eq(mUser.region, filter.region));
     }
 
     if (filter.status) {

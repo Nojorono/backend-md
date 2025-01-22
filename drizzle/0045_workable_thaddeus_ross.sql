@@ -1,0 +1,1 @@
+ALTER TABLE "m_sio_type" DROP COLUMN IF EXISTS "component";
