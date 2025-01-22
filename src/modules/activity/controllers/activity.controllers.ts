@@ -141,11 +141,7 @@ export class ActivityControllers {
   @UseInterceptors(FileFieldsInterceptor([
     { name: 'photos', maxCount: 1 },
     { name: 'photo_program', maxCount: 1 }
-  ], {
-    limits: {
-      fileSize: 10 * 1024 * 1024 // Reduced to 2MB
-    }
-  }))
+  ]))
   async create(
     @Body() createDto: any,
     @UploadedFiles() files: { 
