@@ -4,11 +4,15 @@ import {
   and,
   desc,
   eq,
+  exists,
   isNull,
 } from 'drizzle-orm';
 import {
   Activity,
   mOutlets,
+  ReimburseBbm,
+  mUser,
+  Absensi,
 } from '../../../schema';
 import { EXISTING_SURVEY_STATUS } from '../../../constants';
 import * as xlsx from 'xlsx';
@@ -466,5 +470,246 @@ export class ReportService {
     });
 
     return excelBuffer;
+  }
+
+  async getReportReimbursement(filter: {
+    area: string;
+    region: string;
+  }) {
+
+    const db = this.drizzleService['db'];
+
+    const result = await db.query.ReimburseBbm.findMany({
+      with: {
+        user: true,
+      },
+    });
+
+    const data = result.map((row, index) => {
+      const photos = {
+        'Foto In': {
+          t: 's', 
+          v: row.photo_in,
+          l: { Target: row.photo_in, Tooltip: 'Click to view Foto In' }
+        },
+        'Foto Out': {
+          t: 's',
+          v: row.photo_out || '',
+          l: row.photo_out ? { Target: row.photo_out, Tooltip: 'Click to view Foto Out' } : undefined
+        }
+      };
+
+      return {
+        No: index + 1,
+        Username: row.user.username,
+        'Full Name': row.user.fullname,
+        Region: row.user.region,
+        'Type MD': row.user.type_md,
+        'Kilometer In': row.kilometer_in,
+        'Kilometer Out': row.kilometer_out,
+        'Total Kilometer': row.total_kilometer,
+        'Date In': row.date_in ? new Date(row.date_in).toLocaleString() : '',
+        'Date Out': row.date_out ? new Date(row.date_out).toLocaleString() : '',
+        Description: row.description,
+        Status: row.status === 0 ? 'Pending' : row.status === 1 ? 'Approved' : 'Rejected',
+        'Approved By': row.approved_by,
+        'Approved At': row.approved_at ? new Date(row.approved_at).toLocaleString() : '',
+        ...photos
+      };
+    });
+
+    // Create worksheet and workbook
+    const worksheet = xlsx.utils.json_to_sheet(data);
+    const workbook = xlsx.utils.book_new();
+
+    // Get the range of the worksheet
+    const range = xlsx.utils.decode_range(worksheet['!ref']);
+
+    // Create header style
+    const headerStyle = {
+      fill: {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { rgb: '4F81BD' }
+      },
+      font: {
+        color: { rgb: 'FFFFFF' },
+        bold: true
+      },
+      border: {
+        top: { style: 'thin', color: { rgb: '000000' } },
+        bottom: { style: 'thin', color: { rgb: '000000' } },
+        left: { style: 'thin', color: { rgb: '000000' } },
+        right: { style: 'thin', color: { rgb: '000000' } }
+      }
+    };
+
+    // Apply styles to headers and add borders to all cells
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      for (let row = range.s.r; row <= range.e.r; row++) {
+        const cellRef = xlsx.utils.encode_cell({ r: row, c: col });
+        if (!worksheet[cellRef]) {
+          worksheet[cellRef] = { v: '' };
+        }
+        
+        worksheet[cellRef].s = {
+          border: {
+            top: { style: 'thin', color: { rgb: '000000' } },
+            bottom: { style: 'thin', color: { rgb: '000000' } },
+            left: { style: 'thin', color: { rgb: '000000' } },
+            right: { style: 'thin', color: { rgb: '000000' } }
+          }
+        };
+
+        // Apply header style to first row
+        if (row === 0) {
+          worksheet[cellRef].s = headerStyle;
+        }
+      }
+    }
+
+    // Add filter to headers
+    worksheet['!autofilter'] = { ref: `A1:${xlsx.utils.encode_cell({ r: 0, c: range.e.c })}` };
+
+    // Set column widths
+    const cols = [];
+    for (let i = 0; i <= range.e.c; i++) {
+      cols.push({ wch: 15 }); // Set width to 15 characters
+    }
+    worksheet['!cols'] = cols;
+
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Outlet Report');
+
+    // Generate Excel buffer
+    const excelBuffer = xlsx.write(workbook, {
+      type: 'buffer',
+      bookType: 'xlsx',
+      bookSST: false,
+      cellStyles: true
+    });
+
+    return excelBuffer;
+
+  }
+
+  async getReportAbsent(filter: {
+    area: string;
+    region: string;
+  }) {
+
+    const db = this.drizzleService['db'];
+
+    const result = await db.query.Absensi.findMany({
+        with: {
+            user: true,
+        }
+    });
+
+    const data = result.map((row, index) => {
+      const photos = {
+        'Foto In': {
+          t: 's',
+          v: row.photoIn || '',
+          l: row.photoIn ? { Target: row.photoIn, Tooltip: 'Click to view Foto In' } : undefined
+        },
+        'Foto Out': {
+          t: 's', 
+          v: row.photoOut || '',
+          l: row.photoOut ? { Target: row.photoOut, Tooltip: 'Click to view Foto Out' } : undefined
+        }
+      };
+
+      return {
+        No: index + 1,
+        Username: row.user.username,
+        'Full Name': row.user.fullname,
+        Region: row.region,
+        Area: row.area,
+        'Type MD': row.user.type_md,
+        Date: new Date(row.date).toLocaleDateString(),
+        'Clock In': row.clockIn ? new Date(row.clockIn).toLocaleString() : '',
+        'Clock Out': row.clockOut ? new Date(row.clockOut).toLocaleString() : '',
+        Status: row.status,
+        Remarks: row.remarks || '',
+        'Longitude In': row.longitudeIn || '',
+        'Latitude In': row.latitudeIn || '',
+        'Longitude Out': row.longitudeOut || '',
+        'Latitude Out': row.latitudeOut || '',
+        ...photos
+      };
+    });
+
+    // Create worksheet and workbook
+    const worksheet = xlsx.utils.json_to_sheet(data);
+    const workbook = xlsx.utils.book_new();
+
+    // Get the range of the worksheet
+    const range = xlsx.utils.decode_range(worksheet['!ref']);
+
+    // Create header style
+    const headerStyle = {
+      fill: {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { rgb: '4F81BD' }
+      },
+      font: {
+        color: { rgb: 'FFFFFF' },
+        bold: true
+      },
+      border: {
+        top: { style: 'thin', color: { rgb: '000000' } },
+        bottom: { style: 'thin', color: { rgb: '000000' } },
+        left: { style: 'thin', color: { rgb: '000000' } },
+        right: { style: 'thin', color: { rgb: '000000' } }
+      }
+    };
+
+    // Apply styles to headers and add borders to all cells
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      for (let row = range.s.r; row <= range.e.r; row++) {
+        const cellRef = xlsx.utils.encode_cell({ r: row, c: col });
+        if (!worksheet[cellRef]) {
+          worksheet[cellRef] = { v: '' };
+        }
+        
+        worksheet[cellRef].s = {
+          border: {
+            top: { style: 'thin', color: { rgb: '000000' } },
+            bottom: { style: 'thin', color: { rgb: '000000' } },
+            left: { style: 'thin', color: { rgb: '000000' } },
+            right: { style: 'thin', color: { rgb: '000000' } }
+          }
+        };
+
+        // Apply header style to first row
+        if (row === 0) {
+          worksheet[cellRef].s = headerStyle;
+        }
+      }
+    }
+
+    // Add filter to headers
+    worksheet['!autofilter'] = { ref: `A1:${xlsx.utils.encode_cell({ r: 0, c: range.e.c })}` };
+
+    // Set column widths
+    const cols = [];
+    for (let i = 0; i <= range.e.c; i++) {
+      cols.push({ wch: 15 }); // Set width to 15 characters
+    }
+    worksheet['!cols'] = cols;
+
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Outlet Report');
+
+    // Generate Excel buffer
+    const excelBuffer = xlsx.write(workbook, {
+      type: 'buffer',
+      bookType: 'xlsx',
+      bookSST: false,
+      cellStyles: true
+    });
+
+    return excelBuffer;
+
   }
 }

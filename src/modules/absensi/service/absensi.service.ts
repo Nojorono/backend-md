@@ -72,7 +72,7 @@ export class AbsensiService {
     }
   }
 
-  async update(UpdateDto: UpdateDto, file: Express.Multer.File) {
+  async update(UpdateDto: any, file: Express.Multer.File) {
     try {
       const user = await this.userRepository.findByIdDecrypted(UpdateDto.userId);
       if (!user) {

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { AbsensiService } from '../service/absensi.service';
 import { CreateDto, UpdateDto } from '../dtos/absensi.dtos';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('absensi')
@@ -26,6 +26,9 @@ export class AbsensiControllers {
 
   @ApiBearerAuth('accessToken')
   @Post()
+  @ApiOperation({ summary: 'Create a new attendance record' })
+  @ApiBody({ type: CreateDto })
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   async create(@Body() CreateDto: any, @UploadedFile() file: Express.Multer.File) {
     try {
@@ -41,6 +44,9 @@ export class AbsensiControllers {
 
   @ApiBearerAuth('accessToken')
   @Put()
+  @ApiOperation({ summary: 'Update an attendance record' })
+  @ApiBody({ type: UpdateDto })
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   async update(@Body() UpdateDto: any, @UploadedFile() file: Express.Multer.File) {
     try {
