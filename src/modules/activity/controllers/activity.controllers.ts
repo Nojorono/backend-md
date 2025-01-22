@@ -98,7 +98,7 @@ export class ActivityControllers {
         photos: { 
           type: 'array', 
           items: { type: 'string', format: 'binary' },
-          description: 'Optional activity photos (max 5MB each)'
+          description: 'Optional activity photos (max 2MB each)'
         },
         start_time: { 
           type: 'string', 
@@ -116,7 +116,7 @@ export class ActivityControllers {
         photo_program: { 
           type: 'string', 
           format: 'binary',
-          description: 'Optional program photo (max 5MB)'
+          description: 'Optional program photo (max 2MB)'
         },
         sale_outlet_weekly: {
           type: 'integer',
@@ -143,7 +143,7 @@ export class ActivityControllers {
     { name: 'photo_program', maxCount: 1 }
   ], {
     limits: {
-      fileSize: 5 * 1024 * 1024
+      fileSize: 10 * 1024 * 1024 // Reduced to 2MB
     }
   }))
   async create(
