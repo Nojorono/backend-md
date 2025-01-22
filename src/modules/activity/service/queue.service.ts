@@ -21,13 +21,13 @@ export class QueueService {
   async addToActivityQueue(createDto: any) {
     try {
       const job = await this.activityQueue.add('activityQueue', createDto, {
-        attempts: 3,
+        attempts: 5,
         backoff: {
           type: 'exponential',
-          delay: 1000,
+          delay: 5000 // Initial delay of 5 seconds
         },
         removeOnComplete: true,
-        removeOnFail: false,
+        removeOnFail: false
       });
       return { id: job.id, name: job.name };
     } catch (error) {
@@ -43,13 +43,13 @@ export class QueueService {
         'activityBranchQueue',
         createDto,
         {
-          attempts: 3,
+          attempts: 5,
           backoff: {
             type: 'exponential',
-            delay: 3000,
+            delay: 5000
           },
           removeOnComplete: true,
-          removeOnFail: false,
+          removeOnFail: false
         },
       );
       return { id: job.id, name: job.name };
@@ -66,13 +66,13 @@ export class QueueService {
         'activitySogQueue',
         createDto,
         {
-          attempts: 3,
+          attempts: 5,
           backoff: {
             type: 'exponential',
-            delay: 3000,
+            delay: 5000
           },
           removeOnComplete: true,
-          removeOnFail: false,
+          removeOnFail: false
         },
       );
       return { id: job.id, name: job.name };
@@ -89,13 +89,13 @@ export class QueueService {
         'activitySioQueue',
         createDto,
         {
-          attempts: 3,
+          attempts: 5,
           backoff: {
             type: 'exponential',
-            delay: 3000,
+            delay: 5000
           },
           removeOnComplete: true,
-          removeOnFail: false,
+          removeOnFail: false
         },
       );
       return { id: job.id, name: job.name };
@@ -112,13 +112,13 @@ export class QueueService {
         'activityProgramQueue',
         createDto,
         {
-          attempts: 3,
+          attempts: 5,
           backoff: {
             type: 'exponential',
-            delay: 3000,
+            delay: 5000
           },
           removeOnComplete: true,
-          removeOnFail: false,
+          removeOnFail: false
         },
       );
       return { id: job.id, name: job.name };
