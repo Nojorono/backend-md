@@ -57,7 +57,11 @@ export class ActivityService {
       }
 
       if(createDto.outlet_id) {
-        createDto.status_approval = 3;
+        if(createDto.status === 200) {
+          createDto.status_approval = 3;
+        }else{
+          createDto.status_approval = 0;
+        }
       }
 
       // Validate and convert dates
@@ -155,12 +159,6 @@ export class ActivityService {
           // Basic validation of photo object
           if (!photo || !photo.buffer || !photo.mimetype) {
             throw new Error('Invalid photo data structure');
-          }
-
-          // Validate file size (5MB limit)
-          const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-          if (photo.size > maxSize) {
-            throw new Error('Photo exceeds 5MB size limit');
           }
 
           // Validate mimetype
