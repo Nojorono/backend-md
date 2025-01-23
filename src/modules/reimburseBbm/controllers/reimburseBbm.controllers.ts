@@ -64,6 +64,7 @@ export class ReimburseBbmControllers {
         kilometer_out: { type: 'number' },
         photo_out: { type: 'string', format: 'binary' },
         description: { type: 'string' },
+        total_kilometer: { type: 'number' },
       },
     },
   })

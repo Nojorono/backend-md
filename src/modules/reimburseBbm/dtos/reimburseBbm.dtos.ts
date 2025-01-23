@@ -24,4 +24,6 @@ export class UpdateDto {
   photo_out: string;
   @ApiProperty({ type: String })
   description: string;
+  @ApiProperty({ type: Number })
+  total_kilometer: number;
 }
