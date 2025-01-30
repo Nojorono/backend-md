@@ -26,7 +26,6 @@ export class ReimburseBbmControllers {
 
   @ApiBearerAuth('accessToken')
   @Post()
-  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
@@ -39,6 +38,7 @@ export class ReimburseBbmControllers {
       },
     },
   })
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('photo_in'))
   async create(
     @Body() CreateDto: CreateDto,

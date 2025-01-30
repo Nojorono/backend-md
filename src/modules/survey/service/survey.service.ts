@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 export class SurveyService {
   constructor(
     private readonly SurveyRepository: SurveyRepository,
-    private readonly outletRepository: OutletRepository,  
+    private readonly outletRepository: OutletRepository,
     private readonly callPlanRepository: CallPlanRepository,
     private readonly jwtService: JwtService,
   ) {}
@@ -33,11 +33,21 @@ export class SurveyService {
     const decoded = this.jwtService.verify(accessToken);
     UpdateDto.updated_by = decoded.email;
     UpdateDto.updated_at = new Date();
-    return this.SurveyRepository.updateData(id, UpdateDto);
+    const result = this.SurveyRepository.updateData(id, UpdateDto);
+    if (UpdateDto.outlet_id) {
+      await this.outletRepository.updateOutlet(UpdateDto.outlet_id, {
+        survey_outlet_id: id,
+      });
+    }
+    return result;
   }
 
   async delete(id: number, accessToken: string) {
     const decoded = this.jwtService.verify(accessToken);
+    const findData = await this.SurveyRepository.getById(id);
+    await this.outletRepository.updateOutlet(findData.outlet_id, {
+      survey_outlet_id: null,
+    });
     return this.SurveyRepository.deleteById(id, decoded.email);
   }
 
@@ -47,15 +57,26 @@ export class SurveyService {
     limit: string = '10',
     searchTerm: string = '',
     isActive: string = '',
-    filter: { area: string; region: string; brand: string; sio_type: string } = { area: '', region: '', brand: '', sio_type: '' },
-  ) { 
+    filter: {
+      area: string;
+      region: string;
+      brand: string;
+      sio_type: string;
+    } = { area: '', region: '', brand: '', sio_type: '' },
+  ) {
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
-    return this.SurveyRepository.getAll(pageInt, limitInt, searchTerm, isActive, filter);
+    return this.SurveyRepository.getAll(
+      pageInt,
+      limitInt,
+      searchTerm,
+      isActive,
+      filter,
+    );
   }
 
   async getSchedule(callPlanId: string) {
     const callPlan = await this.callPlanRepository.getById(callPlanId);
-    return this.SurveyRepository.getSchedule(callPlan.area, callPlan.region);  
+    return this.SurveyRepository.getSchedule(callPlan.area, callPlan.region);
   }
 }
