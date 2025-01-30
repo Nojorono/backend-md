@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
@@ -50,7 +49,10 @@ export class ReimburseBbmService {
       }
 
       if (CreateDto.kilometer_in < 0) {
-        throw new HttpException('Kilometer in cannot be less than 0', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Kilometer in cannot be less than 0',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       CreateDto.date_in = dateIn;
@@ -92,12 +94,21 @@ export class ReimburseBbmService {
       }
 
       if (UpdateDto.kilometer_out < 0) {
-        throw new HttpException('Kilometer out cannot be less than 0', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Kilometer out cannot be less than 0',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       if (UpdateDto.kilometer_out < findById.kilometer_in) {
-        throw new HttpException('Kilometer out cannot be less than kilometer in', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Kilometer out cannot be less than kilometer in',
+          HttpStatus.BAD_REQUEST,
+        );
       }
+
+      UpdateDto.total_kilometer =
+        UpdateDto.kilometer_out - findById.kilometer_in;
 
       await this.ReimburseBbmRepository.updateData(UpdateDto.id, UpdateDto);
       return UpdateDto;

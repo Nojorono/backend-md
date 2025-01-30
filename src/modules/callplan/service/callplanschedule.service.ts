@@ -106,4 +106,8 @@ export class CallPlanScheduleService {
   async getByIdUser(id: string) {
     return this.callPlanScheduleRepository.getByIdUser(id);
   }
+
+  async historyGetByIdUser(id: string) {
+    return this.callPlanScheduleRepository.getHistoryByIdUser(id);
+  }
 }

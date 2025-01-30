@@ -12,7 +12,7 @@ import {
   CreateCallPlanScheduleDto,
   UpdateCallPlanScheduleDto,
 } from '../dtos/callplanschedule.dtos';
-import { STATUS_NOT_VISITED } from 'src/constants';
+import { STATUS_NOT_VISITED, STATUS_VISITED } from 'src/constants';
 
 @Injectable()
 export class CallPlanScheduleRepository {
@@ -199,6 +199,28 @@ export class CallPlanScheduleRepository {
         and(
           eq(CallPlanSchedule.user_id, idDecrypted),
           eq(CallPlanSchedule.status, STATUS_NOT_VISITED),
+          isNull(CallPlanSchedule.deleted_at),
+        ),
+      with: {
+        callPlanOutlet: true,
+        callPlanSurvey: true,
+        callPlanProgram: true,
+      },
+    });
+  }
+
+  // Get Schedule by callPlanId
+  async getHistoryByIdUser(id: string) {
+    const db = this.drizzleService['db'];
+    const idDecrypted = await this.decryptId(id);
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.query.CallPlanSchedule.findMany({
+      where: (CallPlanSchedule, { eq, and }) =>
+        and(
+          eq(CallPlanSchedule.user_id, idDecrypted),
+          eq(CallPlanSchedule.status, STATUS_VISITED),
           isNull(CallPlanSchedule.deleted_at),
         ),
       with: {
