@@ -88,7 +88,7 @@ export class CallPlanScheduleControllers {
   @ApiBearerAuth('accessToken')
   @Get('md-history/:id')
   async historyGetByIdUser(@Param('id') id: string) {
-    return this.callPlanService.getByIdUser(id);
+    return this.callPlanService.historyGetByIdUser(id);
   }
 
 
