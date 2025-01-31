@@ -54,6 +54,7 @@ export class ActivityService {
 
       if(createDto.survey_outlet_id) {
         createDto.status_approval = 0;
+        createDto.status = 202
       }
 
       if(createDto.outlet_id) {
@@ -100,7 +101,12 @@ export class ActivityService {
         if(createDto.outlet_id) {
           await this.outletRepository.updateOutlet(createDto.outlet_id, rangeFacility);
         } else if(createDto.survey_outlet_id) {
-          await this.surveyOutletRepository.updateData(createDto.survey_outlet_id, rangeFacility);
+          await this.surveyOutletRepository.updateData(createDto.survey_outlet_id, {
+            ...rangeFacility,
+            latitude: createDto.latitude,
+            longitude: createDto.longitude,
+            photos: createDto.photo
+          });
         }
       }
 

@@ -46,6 +46,7 @@ export class ActivityRepository {
         activitySios: true,
         activitySogs: true,
         activityBranches: true,
+        activityPrograms: true,
       },
     });
 
