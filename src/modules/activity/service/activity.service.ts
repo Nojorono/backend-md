@@ -36,15 +36,31 @@ export class ActivityService {
   async createDataActivity(createDto: any) {
     try {
       // Convert relevant fields to integers
-      createDto.user_id = createDto.user_id ? parseInt(createDto.user_id, 10) : null;
-      createDto.call_plan_id = createDto.call_plan_id ? parseInt(createDto.call_plan_id, 10) : null;
-      createDto.call_plan_schedule_id = createDto.call_plan_schedule_id ? parseInt(createDto.call_plan_schedule_id, 10) : null;
-      createDto.outlet_id = createDto.outlet_id ? parseInt(createDto.outlet_id, 10) : null;
-      createDto.survey_outlet_id = createDto.survey_outlet_id ? parseInt(createDto.survey_outlet_id, 10) : null;
-      createDto.program_id = createDto.program_id ? parseInt(createDto.program_id, 10) : null;
+      createDto.user_id = createDto.user_id
+        ? parseInt(createDto.user_id, 10)
+        : null;
+      createDto.call_plan_id = createDto.call_plan_id
+        ? parseInt(createDto.call_plan_id, 10)
+        : null;
+      createDto.call_plan_schedule_id = createDto.call_plan_schedule_id
+        ? parseInt(createDto.call_plan_schedule_id, 10)
+        : null;
+      createDto.outlet_id = createDto.outlet_id
+        ? parseInt(createDto.outlet_id, 10)
+        : null;
+      createDto.survey_outlet_id = createDto.survey_outlet_id
+        ? parseInt(createDto.survey_outlet_id, 10)
+        : null;
+      createDto.program_id = createDto.program_id
+        ? parseInt(createDto.program_id, 10)
+        : null;
       createDto.status = parseInt(createDto.status, 10);
-      createDto.status_approval = createDto.status_approval ? parseInt(createDto.status_approval, 10) : null;
-      createDto.sale_outlet_weekly = createDto.sale_outlet_weekly ? parseInt(createDto.sale_outlet_weekly, 10) : null;
+      createDto.status_approval = createDto.status_approval
+        ? parseInt(createDto.status_approval, 10)
+        : null;
+      createDto.sale_outlet_weekly = createDto.sale_outlet_weekly
+        ? parseInt(createDto.sale_outlet_weekly, 10)
+        : null;
 
       // Validate required fields
       this.validateRequiredFields(createDto);
@@ -52,22 +68,22 @@ export class ActivityService {
       // Validate user exists
       const user = await this.validateUser(createDto.user_id);
 
-      if(createDto.survey_outlet_id) {
+      if (createDto.survey_outlet_id) {
         createDto.status_approval = 0;
-        createDto.status = 202
+        createDto.status = 202;
       }
 
-      if(createDto.outlet_id) {
-        if(createDto.status === 200) {
+      if (createDto.outlet_id) {
+        if (createDto.status === 200) {
           createDto.status_approval = 3;
-        }else{
+        } else {
           createDto.status_approval = 0;
         }
       }
 
       // Validate and convert dates
       if (createDto.start_time) {
-        createDto.start_time = new Date(createDto.start_time);  
+        createDto.start_time = new Date(createDto.start_time);
       }
       if (createDto.end_time) {
         createDto.end_time = new Date(createDto.end_time);
@@ -78,40 +94,65 @@ export class ActivityService {
 
       // Process photos if present
       if (createDto.photos) {
-        if(Array.isArray(createDto.photos)) {
+        if (Array.isArray(createDto.photos)) {
           createDto.photos = await this.processPhotos(createDto.photos);
         }
       }
 
       if (createDto.photo_program) {
-        createDto.photo_program = await this.s3Service.uploadCompressedImage('activity-program', createDto.photo_program[0]);
+        createDto.photo_program = await this.s3Service.uploadCompressedImage(
+          'activity-program',
+          createDto.photo_program[0],
+        );
       }
 
-      if (createDto.range_facility) {        
+      if (createDto.range_facility) {
         // Parse range facility values with default 0
         const rangeFacility = {
-          range_health_facilities: parseInt(createDto.range_facility.range_health_facilities, 10) || 0,
-          range_work_place: parseInt(createDto.range_facility.range_work_place, 10) || 0, 
-          range_public_transportation_facilities: parseInt(createDto.range_facility.range_public_transportation_facilities, 10) || 0,
-          range_worship_facilities: parseInt(createDto.range_facility.range_worship_facilities, 10) || 0,
-          range_playground_facilities: parseInt(createDto.range_facility.range_playground_facilities, 10) || 0,
-          range_educational_facilities: parseInt(createDto.range_facility.range_educational_facilities, 10) || 0
+          range_health_facilities:
+            parseInt(createDto.range_facility.range_health_facilities, 10) || 0,
+          range_work_place:
+            parseInt(createDto.range_facility.range_work_place, 10) || 0,
+          range_public_transportation_facilities:
+            parseInt(
+              createDto.range_facility.range_public_transportation_facilities,
+              10,
+            ) || 0,
+          range_worship_facilities:
+            parseInt(createDto.range_facility.range_worship_facilities, 10) ||
+            0,
+          range_playground_facilities:
+            parseInt(
+              createDto.range_facility.range_playground_facilities,
+              10,
+            ) || 0,
+          range_educational_facilities:
+            parseInt(
+              createDto.range_facility.range_educational_facilities,
+              10,
+            ) || 0,
         };
 
-        if(createDto.outlet_id) {
-          await this.outletRepository.updateOutlet(createDto.outlet_id, rangeFacility);
-        } else if(createDto.survey_outlet_id) {
-          await this.surveyOutletRepository.updateData(createDto.survey_outlet_id, {
-            ...rangeFacility,
-            latitude: createDto.latitude,
-            longitude: createDto.longitude,
-            photos: createDto.photo
-          });
+        if (createDto.outlet_id) {
+          await this.outletRepository.updateOutlet(
+            createDto.outlet_id,
+            rangeFacility,
+          );
+        } else if (createDto.survey_outlet_id) {
+          await this.surveyOutletRepository.updateData(
+            createDto.survey_outlet_id,
+            {
+              ...rangeFacility,
+              latitude: createDto.latitude,
+              longitude: createDto.longitude,
+              photos: createDto.photo,
+            },
+          );
         }
       }
 
-       // Create main activity record
-       const [result] = await this.repository.create(createDto);
+      // Create main activity record
+      const [result] = await this.repository.create(createDto);
 
       // Update call plan schedule status
       await this.updateCallPlanSchedule(result);
@@ -119,7 +160,10 @@ export class ActivityService {
       return result;
     } catch (error) {
       logger.error('Error in create activity:', error.message, error.stack);
-      if (error instanceof HttpException || error instanceof BadRequestException) {
+      if (
+        error instanceof HttpException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
       throw new BadRequestException(error.message);
@@ -173,13 +217,15 @@ export class ActivityService {
             throw new Error('Invalid image format - must be JPG or PNG');
           }
 
-          const photoUrl = await this.s3Service.uploadCompressedImage('activity', photo);
+          const photoUrl = await this.s3Service.uploadCompressedImage(
+            'activity',
+            photo,
+          );
           photoString.push(photoUrl);
-
         } catch (error) {
           console.error('Photo processing error:', error);
           throw new BadRequestException(
-            await this.i18n.translate('translation.Failed to process photo')
+            await this.i18n.translate('translation.Failed to process photo'),
           );
         }
       }),
@@ -229,7 +275,10 @@ export class ActivityService {
       return await this.repository.update(id, updateDto);
     } catch (error) {
       logger.error('Error in update activity:', error.message, error.stack);
-      if (error instanceof HttpException || error instanceof BadRequestException) {
+      if (
+        error instanceof HttpException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
       throw new BadRequestException(error.message);
@@ -309,10 +358,14 @@ export class ActivityService {
         });
       }
 
-      if (activity.survey_outlet_id && updateDto.status_approval === STATUS_APPROVED) {
+      if (
+        activity.surveyOutlet &&
+        updateDto.status_approval === STATUS_APPROVED
+      ) {
         await this.outletRepository.createOutlet({
           name: activity.surveyOutlet.name,
           unique_name: activity.surveyOutlet.unique_name,
+          outlet_code: activity.surveyOutlet.outlet_code,
           brand: activity.surveyOutlet.brand,
           address_line: activity.surveyOutlet.address_line,
           sub_district: activity.surveyOutlet.sub_district,
