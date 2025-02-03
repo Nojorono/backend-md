@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from 'src/common/services/drizzle.service';
-import { and, count, desc, count as drizzleCount, eq, isNull } from 'drizzle-orm';
+import { and, count, desc, count as drizzleCount, eq, gte, isNotNull, isNull, or } from 'drizzle-orm';
 import {
   Mbatch,
   MbatchTarget,
@@ -8,7 +8,9 @@ import {
   CallPlan,
   mOutlets,
   MBrand,
+  CallPlanSchedule,
 } from '../../../schema';
+import { decrypt } from 'src/helpers/nojorono.helpers';
 
 @Injectable()
 export class DashboardService {
@@ -137,5 +139,69 @@ export class DashboardService {
       data: result,
       totalItems: totalRecords,
     };
+  }
+
+  async getMdDashboard(user_id: string) {
+    const db = this.drizzleService['db'];
+    const idDecrypt = decrypt(user_id);
+    const dateNow = new Date();
+    const result = await db
+      .select({
+        status: CallPlanSchedule.status,
+      })
+      .from(CallPlanSchedule)
+      .where(and(
+        eq(CallPlanSchedule.user_id, Number(idDecrypt)),
+        // gte(CallPlanSchedule.time_end, dateNow),
+      ));
+
+      let belum_dikunjungi = 0;
+      let sudah_dikunjungi = 0;
+
+      result.map((item) => {
+        
+        if (item.status === 400) {
+          belum_dikunjungi++;
+        } else if (item.status === 200) {
+          sudah_dikunjungi++;
+        }
+      });
+
+      const activity = await db
+        .select({
+          id: Activity.id,
+          outlet_id: Activity.outlet_id,
+          survey_outlet_id: Activity.survey_outlet_id,
+        })
+        .from(Activity)
+        .where(
+          and(
+            eq(Activity.user_id, idDecrypt),
+            // gte(Activity.start_time, dateNow),
+          ),
+        );
+
+      let total_activity_outlet = 0; 
+      let total_activity_survey = 0;
+
+      activity.map((item) => {
+        if (item.outlet_id) {
+          total_activity_outlet++;
+        }
+        if (item.survey_outlet_id) {
+          total_activity_survey++;
+        }
+      });
+
+      const data = {
+        belum_dikunjungi: belum_dikunjungi,
+        sudah_dikunjungi: sudah_dikunjungi,
+        total_schedule: belum_dikunjungi + sudah_dikunjungi,
+        total_activity_outlet: total_activity_outlet,
+        total_activity_survey: total_activity_survey,
+      };
+
+      return data;
+
   }
 }
