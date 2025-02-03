@@ -23,4 +23,10 @@ export class DashboardControllers {
   ) {
     return this.DashboardService.getOutletByFilter(filter);
   }
+
+  @ApiBearerAuth('accessToken')
+  @Get('md-dashboard')
+  async getMdDashboard(@Query('user_id') user_id: string) {
+    return this.DashboardService.getMdDashboard(user_id);
+  }
 }

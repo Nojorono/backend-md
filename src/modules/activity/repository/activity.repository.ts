@@ -161,7 +161,10 @@ export class ActivityRepository {
     }
 
     if (filter.status) {
-      whereConditions.push(eq(Activity.status, filter.status));
+      whereConditions.push(or(
+        eq(Activity.status, filter.status),
+        eq(Activity.status_approval, filter.status)
+      ));
     }
 
     // Apply where conditions
