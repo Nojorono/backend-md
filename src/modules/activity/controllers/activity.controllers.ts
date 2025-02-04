@@ -139,7 +139,7 @@ export class ActivityControllers {
   })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileFieldsInterceptor([
-    { name: 'photos', maxCount: 1 },
+    { name: 'photos', maxCount: 3 },
     { name: 'photo_program', maxCount: 1 }
   ]))
   async create(
