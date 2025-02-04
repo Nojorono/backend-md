@@ -95,10 +95,20 @@ export class ActivityControllers {
         region: { type: 'string', maxLength: 100, description: 'Region name is required' },
         brand: { type: 'string', maxLength: 100, description: 'Brand name is required' },
         type_sio: { type: 'string', maxLength: 100, description: 'SIO type is required' },
-        photos: { 
-          type: 'array', 
-          items: { type: 'string', format: 'binary' },
-          description: 'Optional activity photos (max 2MB each)'
+        photo_first: { 
+          type: 'string', 
+          format: 'binary',
+          description: 'Optional activity photo (max 2MB)'
+        },
+        photo_second: { 
+          type: 'string', 
+          format: 'binary',
+          description: 'Optional activity photo (max 2MB)'
+        },
+        photo: { 
+          type: 'string', 
+          format: 'binary',
+          description: 'Optional activity photo (max 2MB)'
         },
         start_time: { 
           type: 'string', 
@@ -139,27 +149,37 @@ export class ActivityControllers {
   })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileFieldsInterceptor([
-    { name: 'photos', maxCount: 3 },
+    { name: 'photo_first', maxCount: 1 },
+    { name: 'photo_second', maxCount: 1 },
+    { name: 'photo', maxCount: 1 },
     { name: 'photo_program', maxCount: 1 }
   ]))
   async create(
     @Body() createDto: any,
     @UploadedFiles() files: { 
-      photos?: Express.Multer.File[],
+      photo_first?: Express.Multer.File[],
+      photo_second?: Express.Multer.File[],
+      photo?: Express.Multer.File[],
       photo_program?: Express.Multer.File[]
     }
   ) {
     try {
       // Add files to DTO if present
-      if (files?.photos) {
-        createDto.photos = files.photos;
+      if (files?.photo) {
+        createDto.photo = files.photo[0];
+      }
+      if (files?.photo_first) {
+        createDto.photo_first = files.photo_first[0];
+      }
+      if (files?.photo_second) {
+        createDto.photo_second = files.photo_second[0];
       }
       if (files?.photo_program) {
-        createDto.photo_program = files.photo_program;
+        createDto.photo_program = files.photo_program[0];
       }
       // Use queue service for async processing
       return this.queueService.addToActivityQueue(createDto);
-      
+     
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
