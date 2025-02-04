@@ -362,7 +362,7 @@ export class ActivityService {
         activity.surveyOutlet &&
         updateDto.status_approval === STATUS_APPROVED
       ) {
-        await this.outletRepository.createOutlet({
+        const newOutlet = await this.outletRepository.createOutlet({
           name: activity.surveyOutlet.name,
           unique_name: activity.surveyOutlet.unique_name,
           outlet_code: activity.surveyOutlet.outlet_code,
@@ -382,8 +382,17 @@ export class ActivityService {
           odd_even: activity.surveyOutlet.odd_even,
           remarks: activity.surveyOutlet.remarks,
           photos: activity.photos,
-          created_by: activity.created_by,
+          range_health_facilities: activity.surveyOutlet.range_health_facilities,
+          range_work_place: activity.surveyOutlet.range_work_place,
+          range_public_transportation_facilities: activity.surveyOutlet.range_public_transportation_facilities,
+          range_worship_facilities: activity.surveyOutlet.range_worship_facilities,
+          range_playground_facilities: activity.surveyOutlet.range_playground_facilities,
+          range_educational_facilities: activity.surveyOutlet.range_educational_facilities,
+          created_by: activity.updated_by,
           created_at: new Date(),
+        });
+        await this.outletRepository.updateOutlet(activity.surveyOutlet.outlet_id, {
+          new_outlet_id: newOutlet.id,
         });
       }
 

@@ -291,7 +291,7 @@ export class OutletRepository {
     const data = await db
       .select()
       .from(mOutlets)
-      .where(and(eq(mOutlets.is_active, 0), isNull(mOutlets.survey_outlet_id)));
+      .where(and(eq(mOutlets.is_active, 0)));
     return {
       data,
     };
