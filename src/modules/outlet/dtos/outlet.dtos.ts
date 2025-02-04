@@ -26,6 +26,7 @@ export class CreateOutletDto {
   range_playground_facilities?: number;
   range_educational_facilities?: number;
   photos?: [];
+  new_outlet_id?: number;
   created_by?: string;
   created_at?: Date;
   updated_by?: string;
@@ -62,6 +63,7 @@ export class UpdateOutletDto {
   range_playground_facilities?: number;
   range_educational_facilities?: number;
   photos?: [];
+  new_outlet_id?: number;
   created_by?: string;
   created_at?: Date;
   updated_by?: string;
