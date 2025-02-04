@@ -91,18 +91,37 @@ export class ActivityService {
       // Set metadata
       createDto.created_by = user.email;
       createDto.created_at = new Date();
+      createDto.photos = [];
 
       // Process photos if present
-      if (createDto.photos) {
-        if (Array.isArray(createDto.photos)) {
-          createDto.photos = await this.processPhotos(createDto.photos);
-        }
+      if (createDto.photo) {
+        createDto.photo = await this.s3Service.uploadCompressedImage(
+          'activity',
+          createDto.photo,
+        );
+        createDto.photos.push(createDto.photo);
+      }
+
+      if (createDto.photo_first) {
+        createDto.photo_first = await this.s3Service.uploadCompressedImage(
+          'activity',
+          createDto.photo_first,
+        );
+        createDto.photos.push(createDto.photo_first);
+      }
+
+      if (createDto.photo_second) {
+        createDto.photo_second = await this.s3Service.uploadCompressedImage(
+          'activity',
+          createDto.photo_second,
+        );
+        createDto.photos.push(createDto.photo_second);
       }
 
       if (createDto.photo_program) {
         createDto.photo_program = await this.s3Service.uploadCompressedImage(
           'activity-program',
-          createDto.photo_program[0],
+          createDto.photo_program,
         );
       }
 
@@ -192,7 +211,8 @@ export class ActivityService {
     return user;
   }
 
-  private async processPhotos(photos: any[]): Promise<string[]> {
+  private async processPhotos(photos: any[]): Promise<[string, string]> {
+    console.log(photos);
     // Handle case where photos is not an array
     if (!Array.isArray(photos)) {
       throw new BadRequestException(
@@ -200,38 +220,40 @@ export class ActivityService {
       );
     }
 
-    const photoString: string[] = [];
+    // Initialize result array with empty strings
+    let result: [string, string] = ['', ''];
 
-    // Process each photo in parallel
-    await Promise.all(
-      photos.map(async (photo) => {
-        try {
-          // Basic validation of photo object
-          if (!photo || !photo.buffer || !photo.mimetype) {
-            throw new Error('Invalid photo data structure');
-          }
-
-          // Validate mimetype
-          const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-          if (!allowedTypes.includes(photo.mimetype)) {
-            throw new Error('Invalid image format - must be JPG or PNG');
-          }
-
-          const photoUrl = await this.s3Service.uploadCompressedImage(
-            'activity',
-            photo,
-          );
-          photoString.push(photoUrl);
-        } catch (error) {
-          console.error('Photo processing error:', error);
-          throw new BadRequestException(
-            await this.i18n.translate('translation.Failed to process photo'),
-          );
+    // Process photos sequentially to maintain order
+    for (let i = 0; i < Math.min(photos.length, 2); i++) {
+      try {
+        const photo = photos[i];
+        
+        // Basic validation of photo object
+        if (!photo || !photo.buffer || !photo.mimetype) {
+          throw new Error('Invalid photo data structure');
         }
-      }),
-    );
 
-    return photoString;
+        // Validate mimetype
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedTypes.includes(photo.mimetype)) {
+          throw new Error('Invalid image format - must be JPG or PNG');
+        }
+
+        console.log(photo);
+
+        const photoUrl = await this.s3Service.uploadCompressedImage(
+          'activity',
+          photo,
+        );
+        result[i] = photoUrl;
+      } catch (error) {
+        console.error('Photo processing error:', error);
+        throw new BadRequestException(
+          await this.i18n.translate('translation.Failed to process photo'),
+        );
+      }
+    }
+    return result;
   }
 
   private async updateCallPlanSchedule(result: any) {
