@@ -152,7 +152,7 @@ export class DashboardService {
       .from(CallPlanSchedule)
       .where(and(
         eq(CallPlanSchedule.user_id, Number(idDecrypt)),
-        // gte(CallPlanSchedule.time_end, dateNow),
+        gte(CallPlanSchedule.created_at, dateNow),
       ));
 
       let belum_dikunjungi = 0;
@@ -177,7 +177,7 @@ export class DashboardService {
         .where(
           and(
             eq(Activity.user_id, idDecrypt),
-            // gte(Activity.start_time, dateNow),
+            gte(Activity.created_at, dateNow),
           ),
         );
 
