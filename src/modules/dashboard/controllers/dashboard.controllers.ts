@@ -11,6 +11,24 @@ export class DashboardControllers {
   constructor(private readonly DashboardService: DashboardService) {}
 
   @ApiBearerAuth('accessToken')
+  @Get('all-component')
+  async getAllComponent() {
+    return this.DashboardService.getAllComponent();
+  }
+
+  @ApiBearerAuth('accessToken')
+  @Get('outlet-distribution')
+  async getOutletDistribution() {
+    return this.DashboardService.getOutletDistribution();
+  }
+
+  @ApiBearerAuth('accessToken')
+  @Get('time-motion')
+  async getTimeMotion() {
+    return this.DashboardService.getTimeMotion();
+  }
+
+  @ApiBearerAuth('accessToken')
   @Get('batch-target')
   async getDashboardBatchTarget(@Query('code_batch') codeBatch: string) {
     return this.DashboardService.getDashboardBatchTarget(codeBatch);
