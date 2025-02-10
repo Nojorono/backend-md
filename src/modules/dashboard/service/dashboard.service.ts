@@ -1,6 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { DrizzleService } from 'src/common/services/drizzle.service';
-import { and, count, desc, count as drizzleCount, eq, gte, isNotNull, isNull, or } from 'drizzle-orm';
+import {
+  and,
+  count,
+  desc,
+  count as drizzleCount,
+  eq,
+  gte,
+  isNotNull,
+  isNull,
+  or,
+  sql,
+} from 'drizzle-orm';
 import {
   Mbatch,
   MbatchTarget,
@@ -9,12 +20,244 @@ import {
   mOutlets,
   MBrand,
   CallPlanSchedule,
+  mUser,
 } from '../../../schema';
 import { decrypt } from 'src/helpers/nojorono.helpers';
 
 @Injectable()
 export class DashboardService {
   constructor(private readonly drizzleService: DrizzleService) {}
+
+  async getTimeMotion() {
+    const db = this.drizzleService['db'];
+    const queryTimeMotion = await db
+      .select({
+        time_start: CallPlanSchedule.time_start,
+        time_end: CallPlanSchedule.time_end,
+        region: mUser.region,
+        area: mUser.area,
+        user_id: mUser.id,
+      })
+      .from(CallPlanSchedule)
+      .leftJoin(mUser, eq(CallPlanSchedule.user_id, mUser.id))
+      .where(isNull(CallPlanSchedule.deleted_at));
+
+    // Group data by region and area
+    const regionAreaStats: {
+      [key: string]: {
+        region: string;
+        area: string;
+        totalTime: number;
+        validRecords: number;
+        uniqueUsers: Set<number>;
+      };
+    } = {};
+    let totalTime = 0;
+    let validRecords = 0;
+
+    queryTimeMotion.forEach((item) => {
+      const key = `${item.region}-${item.area}`;
+
+      if (!regionAreaStats[key]) {
+        regionAreaStats[key] = {
+          region: item.region,
+          area: item.area,
+          totalTime: 0,
+          validRecords: 0,
+          uniqueUsers: new Set(),
+        };
+      }
+
+      if (item.time_start && item.time_end) {
+        const diffInMinutes =
+          (item.time_end.getTime() - item.time_start.getTime()) / (1000 * 60);
+        regionAreaStats[key].totalTime += diffInMinutes;
+        regionAreaStats[key].validRecords++;
+        regionAreaStats[key].uniqueUsers.add(item.user_id);
+
+        totalTime += diffInMinutes;
+        validRecords++;
+      }
+    });
+
+    // Calculate averages and format results
+    const stats = Object.values(regionAreaStats).map((stat) => ({
+      region: stat.region,
+      area: stat.area,
+      total_user_md: stat.uniqueUsers.size,
+      average_time:
+        stat.validRecords > 0 ? stat.totalTime / stat.validRecords : 0,
+    }));
+
+    return stats;
+  }
+
+  async getOutletDistribution() {
+    const db = this.drizzleService['db'];
+
+    let totalOutlet = 0;
+    let totalOutletActive = 0;
+    let totalOutletInactive = 0;
+
+    const queryOutletDistribution = await db
+      .select({
+        outlet_id: mOutlets.id,
+      })
+      .from(mOutlets)
+      .where(isNull(mOutlets.deleted_at));
+
+    totalOutlet = queryOutletDistribution.length;
+
+    const queryOutletDistributionActive = await db
+      .select({
+        outlet_id: mOutlets.id,
+      })
+      .from(mOutlets)
+      .where(isNull(mOutlets.deleted_at) && eq(mOutlets.is_active, 1));
+
+    totalOutletActive = queryOutletDistributionActive.length;
+
+    const queryOutletDistributionInactive = await db
+      .select({
+        outlet_id: mOutlets.id,
+      })
+      .from(mOutlets)
+      .where(isNull(mOutlets.deleted_at) && eq(mOutlets.is_active, 0));
+
+    totalOutletInactive = queryOutletDistributionInactive.length;
+
+    const totalOutletType = await db
+      .select({
+        sio_type: mOutlets.sio_type,
+        count: sql<number>`count(${mOutlets.id})::int`,
+      })
+      .from(mOutlets)
+      .where(isNull(mOutlets.deleted_at))
+      .groupBy(mOutlets.sio_type);
+
+    return {
+      outletDistribution: {
+        totalOutlet: totalOutlet,
+        totalOutletActive: totalOutletActive,
+        totalOutletInactive: totalOutletInactive,
+      },
+      outletDistributionType: {
+        totalOutletType: totalOutletType,
+      },
+    };
+  }
+
+  async getAllComponent() {
+    const db = this.drizzleService['db'];
+
+    let timeMotion = 0;
+
+    let totalOutlet = 0;
+    let totalOutletActive = 0;
+    let totalOutletInactive = 0;
+
+    let totalRouteSurvey = 0;
+    let totalRouteSurveyActive = 0;
+    let totalRouteSurveyInactive = 0;
+
+    const queryTimeMotion = await db
+      .select({
+        time_start: CallPlanSchedule.time_start,
+        time_end: CallPlanSchedule.time_end,
+        region: mUser.region,
+        area: mUser.area,
+        user_id: mUser.id,
+      })
+      .from(CallPlanSchedule)
+      .leftJoin(mUser, eq(CallPlanSchedule.user_id, mUser.id))
+      .where(isNull(CallPlanSchedule.deleted_at));
+
+    // Group data by region and area
+    const regionAreaStats: {
+      [key: string]: {
+        region: string;
+        area: string;
+        totalTime: number;
+        validRecords: number;
+        uniqueUsers: Set<number>;
+      };
+    } = {};
+    let totalTime = 0;
+    let validRecords = 0;
+
+    queryTimeMotion.forEach((item) => {
+      const key = `${item.region}-${item.area}`;
+
+      if (!regionAreaStats[key]) {
+        regionAreaStats[key] = {
+          region: item.region,
+          area: item.area,
+          totalTime: 0,
+          validRecords: 0,
+          uniqueUsers: new Set(),
+        };
+      }
+
+      if (item.time_start && item.time_end) {
+        const diffInMinutes =
+          (item.time_end.getTime() - item.time_start.getTime()) / (1000 * 60);
+        regionAreaStats[key].totalTime += diffInMinutes;
+        regionAreaStats[key].validRecords++;
+        regionAreaStats[key].uniqueUsers.add(item.user_id);
+
+        totalTime += diffInMinutes;
+        validRecords++;
+      }
+    });
+
+    // Calculate averages and format results
+    const stats = Object.values(regionAreaStats).map((stat) => ({
+      region: stat.region,
+      area: stat.area,
+      total_user_md: stat.uniqueUsers.size,
+      average_time:
+        stat.validRecords > 0 ? stat.totalTime / stat.validRecords : 0,
+    }));
+
+    timeMotion = validRecords > 0 ? totalTime / validRecords : 0;
+
+    const queryTotalOutlet = await db
+      .select({
+        outlet_id: mOutlets.id,
+      })
+      .from(mOutlets)
+      .where(isNull(mOutlets.deleted_at));
+
+    totalOutlet = queryTotalOutlet.length;
+
+    const queryTotalOutletActive = await db
+      .select({
+        outlet_id: mOutlets.id,
+      })
+      .from(mOutlets)
+      .where(isNull(mOutlets.deleted_at) && eq(mOutlets.is_active, 1));
+
+    totalOutletActive = queryTotalOutletActive.length;
+
+    const queryTotalOutletInactive = await db
+      .select({
+        outlet_id: mOutlets.id,
+      })
+      .from(mOutlets)
+      .where(isNull(mOutlets.deleted_at) && eq(mOutlets.is_active, 0));
+
+    totalOutletInactive = queryTotalOutletInactive.length;
+
+    return {
+      timeMotion: stats,
+      Outlet: {
+        totalOutlet: totalOutlet,
+        totalOutletActive: totalOutletActive,
+        totalOutletInactive: totalOutletInactive,
+      },
+    };
+  }
+
   async getDashboardBatchTarget(codeBatch: string) {
     const db = this.drizzleService['db'];
     // Get batch data with targets in a single query
@@ -96,7 +339,7 @@ export class DashboardService {
 
     const baseConditions = [
       isNull(mOutlets.deleted_at),
-      eq(mOutlets.is_active, 1)
+      eq(mOutlets.is_active, 1),
     ];
 
     if (filter.region) {
@@ -150,58 +393,55 @@ export class DashboardService {
         status: CallPlanSchedule.status,
       })
       .from(CallPlanSchedule)
-      .where(and(
-        eq(CallPlanSchedule.user_id, Number(idDecrypt)),
-        gte(CallPlanSchedule.created_at, dateNow),
-      ));
+      .where(
+        and(
+          eq(CallPlanSchedule.user_id, Number(idDecrypt)),
+          gte(CallPlanSchedule.created_at, dateNow),
+        ),
+      );
 
-      let belum_dikunjungi = 0;
-      let sudah_dikunjungi = 0;
+    let belum_dikunjungi = 0;
+    let sudah_dikunjungi = 0;
 
-      result.map((item) => {
-        
-        if (item.status === 400) {
-          belum_dikunjungi++;
-        } else if (item.status === 200) {
-          sudah_dikunjungi++;
-        }
-      });
+    result.map((item) => {
+      if (item.status === 400) {
+        belum_dikunjungi++;
+      } else if (item.status === 200) {
+        sudah_dikunjungi++;
+      }
+    });
 
-      const activity = await db
-        .select({
-          id: Activity.id,
-          outlet_id: Activity.outlet_id,
-          survey_outlet_id: Activity.survey_outlet_id,
-        })
-        .from(Activity)
-        .where(
-          and(
-            eq(Activity.user_id, idDecrypt),
-            gte(Activity.created_at, dateNow),
-          ),
-        );
+    const activity = await db
+      .select({
+        id: Activity.id,
+        outlet_id: Activity.outlet_id,
+        survey_outlet_id: Activity.survey_outlet_id,
+      })
+      .from(Activity)
+      .where(
+        and(eq(Activity.user_id, idDecrypt), gte(Activity.created_at, dateNow)),
+      );
 
-      let total_activity_outlet = 0; 
-      let total_activity_survey = 0;
+    let total_activity_outlet = 0;
+    let total_activity_survey = 0;
 
-      activity.map((item) => {
-        if (item.outlet_id) {
-          total_activity_outlet++;
-        }
-        if (item.survey_outlet_id) {
-          total_activity_survey++;
-        }
-      });
+    activity.map((item) => {
+      if (item.outlet_id) {
+        total_activity_outlet++;
+      }
+      if (item.survey_outlet_id) {
+        total_activity_survey++;
+      }
+    });
 
-      const data = {
-        belum_dikunjungi: belum_dikunjungi,
-        sudah_dikunjungi: sudah_dikunjungi,
-        total_schedule: belum_dikunjungi + sudah_dikunjungi,
-        total_activity_outlet: total_activity_outlet,
-        total_activity_survey: total_activity_survey,
-      };
+    const data = {
+      belum_dikunjungi: belum_dikunjungi,
+      sudah_dikunjungi: sudah_dikunjungi,
+      total_schedule: belum_dikunjungi + sudah_dikunjungi,
+      total_activity_outlet: total_activity_outlet,
+      total_activity_survey: total_activity_survey,
+    };
 
-      return data;
-
+    return data;
   }
 }
