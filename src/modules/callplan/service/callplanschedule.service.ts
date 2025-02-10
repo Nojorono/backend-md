@@ -155,7 +155,7 @@ export class CallPlanScheduleService {
           throw new NotFoundException('User not found');
         }
 
-        if (user.region !== row[0] && user.area !== row[1]) {
+        if (user.region !== row[0] && user.area[0] !== row[1]) {
           throw new NotFoundException('User not equal with region and area');
         }
 
