@@ -8,7 +8,10 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
@@ -17,6 +20,7 @@ import {
 } from '../dtos/callplanschedule.dtos';
 import { Request } from 'express';
 import { CallPlanScheduleService } from '../service/callplanschedule.service';
+import { Express } from 'express';
 
 @ApiTags('schedule-plan')
 @Controller({
@@ -91,5 +95,18 @@ export class CallPlanScheduleControllers {
     return this.callPlanService.historyGetByIdUser(id);
   }
 
-
+  @ApiBearerAuth('accessToken')
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('import-schedule/:call_plan_id')
+  async importSchedule(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('call_plan_id') call_plan_id: string,
+    @Req() request: Request,
+  ) {
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    if (!file) {
+      throw new Error('No file uploaded');
+    }
+    return this.callPlanService.importSchedule(file, call_plan_id, accessToken);
+  }
 }

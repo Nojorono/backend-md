@@ -142,8 +142,10 @@ export class CallPlanScheduleRepository {
       .leftJoin(Survey, eq(CallPlanSchedule.survey_outlet_id, Survey.id))
       .leftJoin(mUser, eq(CallPlanSchedule.user_id, mUser.id))
       .where(
-        and(eq(CallPlanSchedule.call_plan_id, idDecrypted)),
-        isNull(CallPlanSchedule.deleted_at),
+        and(
+          eq(CallPlanSchedule.call_plan_id, idDecrypted),
+          isNull(CallPlanSchedule.deleted_at)
+        )
       )
       .orderBy(desc(CallPlanSchedule.id))
       .orderBy(
@@ -163,6 +165,7 @@ export class CallPlanScheduleRepository {
     if (userId) {
       query.where(eq(CallPlanSchedule.user_id, userId));
     }
+
     const records = await query.execute();
     const totalRecords = parseInt(records.length) || 0;
     const { offset } = paginate(totalRecords, page, limit);

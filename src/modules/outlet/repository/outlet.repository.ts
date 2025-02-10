@@ -91,6 +91,14 @@ export class OutletRepository {
       .returning();
   }
 
+  async findByCode(code: string) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.query.mOutlets.findFirst({ where: eq(mOutlets.outlet_code, code) });
+  }
+
   async getAllActiveOutlets(
     page: number = 1,
     limit: number = 10,
