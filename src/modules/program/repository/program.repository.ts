@@ -65,6 +65,14 @@ export class ProgramRepository {
       .returning();
   }
 
+  async findByName(name: string) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.query.Program.findFirst({ where: eq(Program.name, name) });
+  }
+
   async getAllActive(
     page: number = 1,
     limit: number = 10,

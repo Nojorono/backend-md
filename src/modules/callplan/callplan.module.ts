@@ -11,6 +11,8 @@ import { CallPlanScheduleService } from './service/callplanschedule.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '@nestjs/config';
+import { OutletRepository } from '../outlet/repository/outlet.repository';
+import { ProgramRepository } from '../program/repository/program.repository';
 
 @Module({
   controllers: [CallPlanControllers, CallPlanScheduleControllers],
@@ -28,6 +30,8 @@ import { ConfigModule } from '@nestjs/config';
     UserRepo,
     CallPlanService,
     CallPlanScheduleService,
+    OutletRepository,
+    ProgramRepository,
   ],
   exports: [
     CallPlanScheduleRepository,

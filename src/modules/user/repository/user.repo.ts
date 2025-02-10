@@ -279,6 +279,14 @@ export class UserRepo {
   //   return null;
   // }
 
+  async findByEmail(email: string) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.query.mUser.findFirst({ where: eq(mUser.email, email) });
+  }
+
   // Read user by Email
   async getUserByEmail(email: string) {
     const db = this.drizzleService['db'];

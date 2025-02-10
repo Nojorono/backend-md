@@ -11,12 +11,6 @@ export class DashboardControllers {
   constructor(private readonly DashboardService: DashboardService) {}
 
   @ApiBearerAuth('accessToken')
-  @Get('all-component')
-  async getAllComponent() {
-    return this.DashboardService.getAllComponent();
-  }
-
-  @ApiBearerAuth('accessToken')
   @Get('outlet-distribution')
   async getOutletDistribution() {
     return this.DashboardService.getOutletDistribution();
@@ -37,7 +31,13 @@ export class DashboardControllers {
   @ApiBearerAuth('accessToken')
   @Get('outlet')
   async getOutletByFilter(
-    @Query('filter') filter: { area: string; region: string; brand: string; sio_type: string } = { area: '', region: '', brand: '', sio_type: '' },
+    @Query('filter')
+    filter: {
+      area: string;
+      region: string;
+      brand: string;
+      sio_type: string;
+    } = { area: '', region: '', brand: '', sio_type: '' },
   ) {
     return this.DashboardService.getOutletByFilter(filter);
   }
