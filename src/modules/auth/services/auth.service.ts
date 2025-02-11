@@ -56,7 +56,7 @@ export class AuthService implements IAuthService {
       const data = await this.jwtService.verifyAsync(accessToken, {
         secret: this.accessTokenSecret,
       });
-      return data as IAuthPayload; // Ensure the returned data conforms to IAuthPayload
+      return data as IAuthPayload;
     } catch (error) {
       // Handle specific JWT errors
       if (error.name === 'JsonWebTokenError') {
@@ -149,6 +149,7 @@ export class AuthService implements IAuthService {
       });
       await this.userRepo.updateUser(userFind.id, {
         remember_token: accessToken,
+        last_login: new Date(),
         updated_by: 'system',
         updated_at: new Date(),
       });
