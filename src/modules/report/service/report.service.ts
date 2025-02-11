@@ -497,6 +497,10 @@ export class ReportService {
     });
 
     const data = result.map((row, index) => {
+      if (row.user.area !== filter.area || row.user.region !== filter.region) {
+        return;
+      }
+
       const photos = {
         'Foto In': {
           t: 's', 
@@ -515,6 +519,7 @@ export class ReportService {
         Username: row.user.username,
         'Full Name': row.user.fullname,
         Region: row.user.region,
+        Area: row.user.area,
         'Type MD': row.user.type_md,
         'Kilometer In': row.kilometer_in,
         'Kilometer Out': row.kilometer_out,
@@ -613,7 +618,11 @@ export class ReportService {
     const result = await db.query.Absensi.findMany({
         with: {
             user: true,
-        }
+        },
+        where: and(
+          eq(Absensi.area, filter.area),
+          eq(Absensi.region, filter.region)
+        )
     });
 
     const data = result.map((row, index) => {
