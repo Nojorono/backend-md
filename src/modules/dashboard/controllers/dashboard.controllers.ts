@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DashboardService } from '../service/dashboard.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
