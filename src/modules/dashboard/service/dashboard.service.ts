@@ -388,15 +388,17 @@ export class DashboardService {
     const db = this.drizzleService['db'];
     const idDecrypt = decrypt(user_id);
     const dateNow = new Date();
+    dateNow.setHours(0, 0, 0, 0);
     const result = await db
       .select({
         status: CallPlanSchedule.status,
+        updated_at: CallPlanSchedule.updated_at,
       })
       .from(CallPlanSchedule)
       .where(
         and(
           eq(CallPlanSchedule.user_id, Number(idDecrypt)),
-          gte(CallPlanSchedule.created_at, dateNow),
+          gte(CallPlanSchedule.updated_at, dateNow),
         ),
       );
 
@@ -416,6 +418,7 @@ export class DashboardService {
         id: Activity.id,
         outlet_id: Activity.outlet_id,
         survey_outlet_id: Activity.survey_outlet_id,
+        created_at: Activity.created_at,
       })
       .from(Activity)
       .where(
