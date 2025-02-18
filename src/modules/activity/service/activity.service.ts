@@ -416,6 +416,12 @@ export class ActivityService {
         await this.outletRepository.updateOutlet(activity.surveyOutlet.outlet_id, {
           new_outlet_id: newOutlet.id,
         });
+
+        await this.surveyOutletRepository.updateData(activity.surveyOutlet.id, {
+          is_approved: 1,
+          updated_by: activity.updated_by,
+          updated_at: new Date(),
+        });
       }
 
       const result = await this.repository.updateStatusApproval(id, updateDto);
