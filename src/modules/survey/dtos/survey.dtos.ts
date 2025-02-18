@@ -59,6 +59,7 @@ export class UpdateDto {
   range_educational_facilities?: number;
   outlet_id?: number;
   status?: string;
+  is_approved?: number;
   updated_by?: string;
   updated_at?: Date;
   deleted_by?: string;
