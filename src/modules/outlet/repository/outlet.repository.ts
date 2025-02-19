@@ -274,6 +274,7 @@ export class OutletRepository {
         district: mOutlets.district,
         city_or_regency: mOutlets.city_or_regency,
         postal_code: mOutlets.postal_code,
+        visit_day: mOutlets.visit_day,
       })
       .from(mOutlets)
       .where(eq(mOutlets.is_active, 1));

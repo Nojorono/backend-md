@@ -1,10 +1,11 @@
-import { Injectable, HttpException, HttpStatus, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CallPlanScheduleRepository } from '../repository/callplanschedule.repository';
 import { generateCode } from '../../../helpers/nojorono.helpers';
 import { logger } from 'nestjs-i18n';
 import {
   CreateCallPlanScheduleDto,
   UpdateCallPlanScheduleDto,
+  validateScheduleDto,
 } from '../dtos/callplanschedule.dtos';
 import { STATUS_NOT_VISITED } from 'src/constants';
 import { JwtService } from '@nestjs/jwt';
@@ -63,10 +64,20 @@ export class CallPlanScheduleService {
           code_call_plan,
           status: STATUS_NOT_VISITED,
         };
+        await this.validateScheduleExistToday({
+          day_plan: createCallPlaScheduleDto.day_plan,
+          outlet_id: null,
+          survey_outlet_id: createCallPlaScheduleDto.survey_outlet_id,
+        });
         await this.callPlanScheduleRepository.createData(newScheduleDto);
         results.push(newScheduleDto);
       } else if (createCallPlaScheduleDto.outlet_id && createCallPlaScheduleDto.outlet_id.length > 0) {
         for (const outletId of createCallPlaScheduleDto.outlet_id) {
+          await this.validateScheduleExistToday({
+            day_plan: createCallPlaScheduleDto.day_plan,
+            outlet_id: outletId,
+            survey_outlet_id: createCallPlaScheduleDto.survey_outlet_id,
+          });
           const code_call_plan = generateCode('CL', currentId++);
           const newScheduleDto = {
             ...createCallPlaScheduleDto,
@@ -84,7 +95,13 @@ export class CallPlanScheduleService {
       return results;
     } catch (e) {
       logger.error('Error creating call plan schedule:', e.message, e.stack);
-      throw new InternalServerErrorException('Failed to create call plan schedule');
+      if (e instanceof HttpException) {
+        throw e;
+      } else if (e instanceof BadRequestException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException('Failed to create call plan schedule');
+      }
     }
   }
 
@@ -195,4 +212,10 @@ export class CallPlanScheduleService {
     return data;
   }
 
+  async validateScheduleExistToday(scheduleDto: validateScheduleDto) {
+    const schedule = await this.callPlanScheduleRepository.findByDayPlanExistOutlet(scheduleDto.day_plan, scheduleDto.outlet_id, scheduleDto.survey_outlet_id);
+    if (schedule) {
+      throw new BadRequestException('Schedule already exists');
+    }
+  }
 } 

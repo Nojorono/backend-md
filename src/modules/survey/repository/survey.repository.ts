@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { eq, inArray, isNull } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { mOutlets, Survey } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateDto, UpdateDto } from '../dtos/survey.dtos';
@@ -79,7 +79,7 @@ export class SurveyRepository {
       throw new Error('Database not initialized');
     }
 
-    const query = db.select().from(Survey).where(isNull(Survey.deleted_at));
+    const query = db.select().from(Survey).where(and(isNull(Survey.deleted_at), eq(Survey.is_approved, 0)));
 
     // Apply region filter if provided
     if (region) {

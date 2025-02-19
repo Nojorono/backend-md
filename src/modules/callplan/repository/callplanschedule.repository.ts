@@ -71,6 +71,20 @@ export class CallPlanScheduleRepository {
       .returning();
   }
 
+  async findByDayPlanExistOutlet(day_plan: Date, outlet_id: number, survey_outlet_id: number) {
+    const db = this.drizzleService['db'];
+    return await db.query.CallPlanSchedule.findFirst({
+      where: (CallPlanSchedule, { eq, and, or }) => 
+        and(
+          eq(CallPlanSchedule.day_plan, day_plan),
+          or(
+            eq(CallPlanSchedule.outlet_id, outlet_id),
+            eq(CallPlanSchedule.survey_outlet_id, survey_outlet_id)
+          )
+        ),
+    });
+  }
+
   async findLastId() {
     const db = this.drizzleService['db'];
     if (!db) {
