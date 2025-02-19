@@ -28,3 +28,9 @@ export class UpdateCallPlanScheduleDto {
   deleted_by?: string;
   deleted_at?: Date | null;
 }
+
+export class validateScheduleDto {
+  day_plan: Date;
+  outlet_id: number;
+  survey_outlet_id: number;
+}
