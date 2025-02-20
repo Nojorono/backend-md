@@ -322,6 +322,7 @@ export class DashboardService {
       batch_target_total_master: item.batch_target_total_master,
       batch_target_allocation_ho: item.batch_target_allocation_ho,
       actual_outlet: Number(item.actual_outlet) || 0,
+      gap_allocation: Number(item.actual_outlet) - Number(item.batch_target_allocation_ho) || 0,
     }));
   }
 
@@ -384,11 +385,23 @@ export class DashboardService {
     };
   }
 
-  async getMdDashboard(user_id: string) {
+  async getMdDashboard(user_id: string, filter: string) {
     const db = this.drizzleService['db'];
     const idDecrypt = decrypt(user_id);
+    
     const dateNow = new Date();
     dateNow.setHours(0, 0, 0, 0);
+
+    let startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+
+    // Set date range based on filter type
+    if (filter === 'weekly') {
+      startDate.setDate(dateNow.getDate() - 7);
+    } else if (filter === 'all') {
+      startDate = new Date(0); // Beginning of time
+    }
+
     const result = await db
       .select({
         status: CallPlanSchedule.status,
@@ -398,7 +411,7 @@ export class DashboardService {
       .where(
         and(
           eq(CallPlanSchedule.user_id, Number(idDecrypt)),
-          gte(CallPlanSchedule.updated_at, dateNow),
+          gte(CallPlanSchedule.updated_at, startDate),
         ),
       );
 
@@ -422,7 +435,10 @@ export class DashboardService {
       })
       .from(Activity)
       .where(
-        and(eq(Activity.user_id, idDecrypt), gte(Activity.created_at, dateNow)),
+        and(
+          eq(Activity.user_id, idDecrypt), 
+          gte(Activity.created_at, startDate)
+        ),
       );
 
     let total_activity_outlet = 0;
