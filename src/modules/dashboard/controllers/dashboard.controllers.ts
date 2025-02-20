@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DashboardService } from '../service/dashboard.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('dashboard')
 @Controller({
@@ -43,8 +43,12 @@ export class DashboardControllers {
   }
 
   @ApiBearerAuth('accessToken')
+  @ApiQuery({ name: 'filter', required: false })
   @Get('md-dashboard')
-  async getMdDashboard(@Query('user_id') user_id: string) {
-    return this.DashboardService.getMdDashboard(user_id);
+  async getMdDashboard(
+    @Query('user_id') user_id: string,
+    @Query('filter') filter?: string,
+  ) {
+    return this.DashboardService.getMdDashboard(user_id, filter);
   }
 }
