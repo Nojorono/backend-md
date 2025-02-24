@@ -66,6 +66,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
+      'https://md.koneksi.co.id',
       'http://localhost:8080',
       'http://10.0.63.205:8080', 
       'http://127.0.0.1:8080',
