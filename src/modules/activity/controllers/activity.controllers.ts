@@ -51,10 +51,12 @@ export class ActivityControllers {
   @ApiBearerAuth('accessToken') 
   @Put('status/:id')
   async updateStatusApproval(
+    @Req() request: Request,
     @Param('id') id: number,
     @Body() updateDto: UpdateStatusApprovalDto,
   ) {
-    return this.service.updateStatusApproval(id, updateDto);
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    return this.service.updateStatusApproval(id, updateDto, accessToken);
   }
 
   @ApiBearerAuth('accessToken')
