@@ -41,7 +41,7 @@ export class OutletRepository {
     const db = this.drizzleService['db'];
     return await db
       .update(mOutlets)
-      .set(updateOutletDto)
+      .set({...updateOutletDto, updated_at: new Date()})
       .where(eq(mOutlets.id, id))
       .execute();
   }

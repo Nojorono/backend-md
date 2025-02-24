@@ -20,6 +20,7 @@ import { STATUS_APPROVED, STATUS_PERM_CLOSED } from 'src/constants';
 import { OutletRepository } from 'src/modules/outlet/repository/outlet.repository';
 import { SurveyRepository } from 'src/modules/survey/repository/survey.repository';
 import { JwtService } from '@nestjs/jwt';
+import { DrizzleService } from 'src/common/services/drizzle.service';
 @Injectable()
 export class ActivityService {
   constructor(
@@ -31,6 +32,7 @@ export class ActivityService {
     private readonly outletRepository: OutletRepository,
     private readonly surveyOutletRepository: SurveyRepository,
     private readonly userRepository: UserRepo,
+    private readonly drizzleService: DrizzleService,
   ) {}
 
   async createDataActivity(createDto: any) {
@@ -357,8 +359,14 @@ export class ActivityService {
     }
   }
 
-  async updateStatusApproval(id: number, updateDto: UpdateStatusApprovalDto) {
+  async updateStatusApproval(id: number, updateDto: UpdateStatusApprovalDto, accessToken: string) {
     try {
+      const decoded = this.jwtService.verify(accessToken);
+      if (!decoded) {
+        throw new NotFoundException(
+          await this.i18n.translate('translation.User not found'),
+        );
+      }
       const activity = await this.repository.getById(id);
       if (!activity) {
         throw new HttpException(
@@ -375,7 +383,7 @@ export class ActivityService {
         await this.outletRepository.updateOutletStatus(activity.outlet_id, {
           is_active: 0,
           remarks: 'Outlet Tutup Permanen',
-          updated_by: activity.created_by,
+          updated_by: decoded.email,
           updated_at: new Date(),
         });
       }
@@ -410,16 +418,27 @@ export class ActivityService {
           range_worship_facilities: activity.surveyOutlet.range_worship_facilities,
           range_playground_facilities: activity.surveyOutlet.range_playground_facilities,
           range_educational_facilities: activity.surveyOutlet.range_educational_facilities,
-          created_by: activity.updated_by,
+          created_by: decoded.email,
           created_at: new Date(),
         });
+
         await this.outletRepository.updateOutlet(activity.surveyOutlet.outlet_id, {
           new_outlet_id: newOutlet.id,
+          updated_by: decoded.email,
+          updated_at: new Date(),
         });
 
-        await this.surveyOutletRepository.updateData(activity.surveyOutlet.id, {
-          is_approved: 1,
-          updated_by: activity.updated_by,
+        if (activity.survey_outlet_id) {
+          await this.surveyOutletRepository.updateData(activity.survey_outlet_id, {
+            is_approved: updateDto.status_approval,
+            updated_by: decoded.email,
+            updated_at: new Date(),
+          });
+        }
+      } else if (activity.survey_outlet_id) {
+        await this.surveyOutletRepository.updateData(activity.survey_outlet_id, {
+          is_approved: updateDto.status_approval,
+          updated_by: decoded.email,
           updated_at: new Date(),
         });
       }
