@@ -11,7 +11,6 @@ import helmet from 'helmet';
 async function bootstrap() {
   // Set timezone to Asia/Jakarta
   process.env.TZ = 'Asia/Jakarta';
-  
   const logger = new Logger();
   const app = await NestFactory.create(
     AppModule,
@@ -33,13 +32,14 @@ async function bootstrap() {
   const versionEnable: string = configService.get<string>(
     'app.versioning.enable',
   );
-
   expressApp.get('/', (_req: Request, res: Response) => {
     res.status(200).json({
       status: 200,
       message: `Message from ${configService.get('app.name')}`,
       data: {
-        timestamp: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+        timestamp: new Date().toLocaleString('id-ID', {
+          timeZone: 'Asia/Jakarta',
+        }),
       },
     });
   });
@@ -55,20 +55,20 @@ async function bootstrap() {
     });
   }
   await setupSwagger(app);
-  app.use(helmet(
-    {
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    crossOriginOpenerPolicy: false,
-  }
-));
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginOpenerPolicy: false,
+    }),
+  );
 
   app.enableCors({
     origin: [
       'https://md.koneksi.co.id',
       'http://localhost:8080',
-      'http://10.0.63.205:8080', 
+      'http://10.0.63.205:8080',
       'http://127.0.0.1:8080',
       'http://192.168.1.100:8080',
       'http://192.168.0.102:8080',
@@ -81,14 +81,21 @@ async function bootstrap() {
       'http://10.0.63.88:*',
       'http://192.168.0.102:*',
       'http://192.168.1.102:*',
-      '*'
+      '*',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Origin',
+      'X-Requested-With',
+    ],
     exposedHeaders: ['Authorization'],
     credentials: true,
-    maxAge: 3600
+    maxAge: 3600,
   });
+
   // app.connectMicroservice({
   //   transport: Transport.RMQ,
   //   options: {
@@ -99,7 +106,8 @@ async function bootstrap() {
   //   },
   // });
   // await app.startAllMicroservices();
-  await app.listen(port, '0.0.0.0');
+  
+  await app.listen(port, host);
   logger.log(
     `🚀 ${configService.get(
       'app.name',
