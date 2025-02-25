@@ -3,13 +3,10 @@ import { DrizzleService } from 'src/common/services/drizzle.service';
 import {
   and,
   count,
-  desc,
   count as drizzleCount,
   eq,
   gte,
-  isNotNull,
   isNull,
-  or,
   sql,
 } from 'drizzle-orm';
 import {
@@ -40,7 +37,7 @@ export class DashboardService {
       })
       .from(CallPlanSchedule)
       .leftJoin(mUser, eq(CallPlanSchedule.user_id, mUser.id))
-      .where(isNull(CallPlanSchedule.deleted_at));
+      .where(and(isNull(CallPlanSchedule.deleted_at), eq(CallPlanSchedule.status, 200)));
 
     // Group data by region and area
     const regionAreaStats: {

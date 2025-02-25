@@ -2,7 +2,6 @@ import { OnWorkerEvent, Processor } from '@nestjs/bullmq';
 import { Logger, Injectable, Inject } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { WorkerHostProcessor } from '../worker/worker.host.processor';
-import { ActivitySioService } from '../service/activity.sio.service';
 import { ActivitySogService } from '../service/activity.sog.service';
 
 @Injectable()
