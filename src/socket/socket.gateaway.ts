@@ -1,18 +1,25 @@
 import { JwtService } from '@nestjs/jwt';
-import { WebSocketGateway, SubscribeMessage, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, ConnectedSocket, MessageBody } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  WebSocketServer,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  ConnectedSocket,
+} from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { decrypt } from 'src/helpers/nojorono.helpers';
 @WebSocketGateway({
   cors: {
     origin: process.env.FRONTEND_URL_SOCKET,
     credentials: true,
-    allowedHeaders: ["Content-Type"],
-  }
+    allowedHeaders: ['Content-Type'],
+  },
 })
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private clientMap = new Map<string, string>(); // Maps client IDs to user IDs
-  
+
   constructor(private readonly jwtService: JwtService) {
     // Set max listeners to avoid memory leak warning
     this.server?.sockets?.setMaxListeners(0);
@@ -21,7 +28,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
     // Set max listeners for individual socket
     client.setMaxListeners(0);
-    
+
     const token = client.handshake.auth.token;
 
     if (token) {
@@ -51,7 +58,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   public notifyBroadcast(userId: number, payload: any) {
     for (const [clientId, uid] of this.clientMap.entries()) {
       const decryptedId = decrypt(uid);
-        if (decryptedId == userId) {
+      if (decryptedId == userId) {
         this.server.to(clientId).emit('notification', payload);
       }
     }
