@@ -330,6 +330,13 @@
       "when": 1738640050963,
       "tag": "0046_sticky_hardball",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1740540493620,
+      "tag": "0047_spooky_big_bertha",
+      "breakpoints": true
     }
   ]
 }

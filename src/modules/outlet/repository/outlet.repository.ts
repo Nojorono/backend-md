@@ -38,6 +38,7 @@ export class OutletRepository {
   }
   // Update Outlet by ID
   async updateOutlet(id: number, updateOutletDto: UpdateOutletDto) {
+    console.log(updateOutletDto);
     const db = this.drizzleService['db'];
     return await db
       .update(mOutlets)

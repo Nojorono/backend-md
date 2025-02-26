@@ -229,7 +229,7 @@ export class ActivityService {
     for (let i = 0; i < Math.min(photos.length, 2); i++) {
       try {
         const photo = photos[i];
-        
+
         // Basic validation of photo object
         if (!photo || !photo.buffer || !photo.mimetype) {
           throw new Error('Invalid photo data structure');
@@ -359,7 +359,11 @@ export class ActivityService {
     }
   }
 
-  async updateStatusApproval(id: number, updateDto: UpdateStatusApprovalDto, accessToken: string) {
+  async updateStatusApproval(
+    id: number,
+    updateDto: UpdateStatusApprovalDto,
+    accessToken: string,
+  ) {
     try {
       const decoded = this.jwtService.verify(accessToken);
       if (!decoded) {
@@ -412,35 +416,41 @@ export class ActivityService {
           odd_even: activity.surveyOutlet.odd_even,
           remarks: activity.surveyOutlet.remarks,
           photos: activity.photos,
-          range_health_facilities: activity.surveyOutlet.range_health_facilities,
+          range_health_facilities:
+            activity.surveyOutlet.range_health_facilities,
           range_work_place: activity.surveyOutlet.range_work_place,
-          range_public_transportation_facilities: activity.surveyOutlet.range_public_transportation_facilities,
-          range_worship_facilities: activity.surveyOutlet.range_worship_facilities,
-          range_playground_facilities: activity.surveyOutlet.range_playground_facilities,
-          range_educational_facilities: activity.surveyOutlet.range_educational_facilities,
+          range_public_transportation_facilities:
+            activity.surveyOutlet.range_public_transportation_facilities,
+          range_worship_facilities:
+            activity.surveyOutlet.range_worship_facilities,
+          range_playground_facilities:
+            activity.surveyOutlet.range_playground_facilities,
+          range_educational_facilities:
+            activity.surveyOutlet.range_educational_facilities,
+          old_outlet_id: activity.surveyOutlet.outlet_id,
           created_by: decoded.email,
           created_at: new Date(),
         });
 
-        await this.outletRepository.updateOutlet(activity.surveyOutlet.outlet_id, {
-          new_outlet_id: newOutlet.id,
-          updated_by: decoded.email,
-          updated_at: new Date(),
-        });
-
-        if (activity.survey_outlet_id) {
-          await this.surveyOutletRepository.updateData(activity.survey_outlet_id, {
+        if (newOutlet) {
+          await this.surveyOutletRepository.updateData(
+            activity.survey_outlet_id,
+            {
+              is_approved: updateDto.status_approval,
+              updated_by: decoded.email,
+              updated_at: new Date(),
+            },
+          );
+        }
+      } else {
+        await this.surveyOutletRepository.updateData(
+          activity.survey_outlet_id,
+          {
             is_approved: updateDto.status_approval,
             updated_by: decoded.email,
             updated_at: new Date(),
-          });
-        }
-      } else if (activity.survey_outlet_id) {
-        await this.surveyOutletRepository.updateData(activity.survey_outlet_id, {
-          is_approved: updateDto.status_approval,
-          updated_by: decoded.email,
-          updated_at: new Date(),
-        });
+          },
+        );
       }
 
       const result = await this.repository.updateStatusApproval(id, updateDto);
