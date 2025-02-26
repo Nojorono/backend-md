@@ -158,7 +158,8 @@ export class CallPlanScheduleRepository {
       .where(
         and(
           eq(CallPlanSchedule.call_plan_id, idDecrypted),
-          isNull(CallPlanSchedule.deleted_at)
+          isNull(CallPlanSchedule.deleted_at),
+          userId ? eq(CallPlanSchedule.user_id, userId) : undefined
         )
       )
       .orderBy(desc(CallPlanSchedule.id))
@@ -175,9 +176,6 @@ export class CallPlanScheduleRepository {
     // Apply search condition if available
     if (searchCondition) {
       query.where(searchCondition);
-    }
-    if (userId) {
-      query.where(eq(CallPlanSchedule.user_id, userId));
     }
 
     const records = await query.execute();
