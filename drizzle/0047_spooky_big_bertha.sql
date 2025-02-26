@@ -1,0 +1,1 @@
+ALTER TABLE "m_outlet" RENAME COLUMN "new_outlet_id" TO "old_outlet_id";

@@ -79,17 +79,26 @@ export class SurveyRepository {
       throw new Error('Database not initialized');
     }
 
-    const query = db.select().from(Survey).where(and(isNull(Survey.deleted_at), eq(Survey.is_approved, 0)));
+    const conditions = [
+      isNull(Survey.deleted_at),
+      eq(Survey.is_approved, 0)
+    ];
 
     // Apply region filter if provided
     if (region) {
-      query.where(eq(Survey.region, region));
+      conditions.push(eq(Survey.region, region));
     }
-    // Apply area filter if provided
+
+    // Apply area filter if provided 
     if (area) {
-      query.where(eq(Survey.area, area));
+      conditions.push(eq(Survey.area, area));
     }
-    
+
+    const query = db
+      .select()
+      .from(Survey)
+      .where(and(...conditions));
+
     return await query.execute();
   }
 
