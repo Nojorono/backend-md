@@ -33,7 +33,7 @@ async function seedUsers() {
       },
       {
         username: 'admin',
-        user_role_id: 2,
+        user_role_id: 1,
         fullname: 'Regular Admin',
         password: await bcrypt.hash('123123', 10),
         email: 'admin@nna.1',
