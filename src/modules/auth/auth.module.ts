@@ -18,16 +18,30 @@ import { S3Service } from '../s3/service/s3.service';
       session: false,
     }),
     JwtModule.register({}),
+    // MailerModule.forRoot({
+    //   transport: {
+    //     service: 'gmail',
+    //     auth: {
+    //       user: process.env.GMAIL_ACCESS_ID,
+    //       pass: process.env.GMAIL_ACCESS_SECRET,
+    //     },
+    //   },
+    //   defaults: {
+    //     from: `"VTrack Assistants" <noreply@gmail.com>`,
+    //   },
+    // }),
     MailerModule.forRoot({
       transport: {
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465, // Gunakan 587 untuk STARTTLS atau 465 untuk SSL
+        secure: true, // true untuk 465, false untuk 587
         auth: {
           user: process.env.GMAIL_ACCESS_ID,
           pass: process.env.GMAIL_ACCESS_SECRET,
         },
       },
       defaults: {
-        from: `"VTrack Assistants" <noreply@gmail.com>`,
+        from: `"VTrack Assistants" <${process.env.GMAIL_ACCESS_ID}>`,
       },
     }),
   ],
