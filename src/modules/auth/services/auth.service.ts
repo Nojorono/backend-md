@@ -132,6 +132,17 @@ export class AuthService implements IAuthService {
       if (!userFind) {
         throw new HttpException('userNotFound', HttpStatus.NOT_FOUND);
       }
+      const dateNow = new Date();
+
+      if (userFind.valid_from) {
+        const validFrom = new Date(userFind.valid_from);
+        const validTo = userFind.valid_to ? new Date(userFind.valid_to) : null;
+    
+        if (dateNow < validFrom || (validTo && dateNow > validTo)) {
+          throw new HttpException('userNotValid', HttpStatus.FORBIDDEN);
+        }
+      }
+
       const match = await this.helperHashService.match(
         password,
         userFind.password,
