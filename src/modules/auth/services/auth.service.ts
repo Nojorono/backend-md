@@ -184,7 +184,7 @@ export class AuthService implements IAuthService {
     if (!user) {
       throw new NotFoundException('User with this email not found');
     }
-    const frontendBaseUrl = this.configService.get<string>('FRONTEND_BASE_URL');
+    const frontendBaseUrl = process.env.FRONTEND_BASE_URL ? process.env.FRONTEND_BASE_URL : '';
     const { accessToken } = await this.generateTokens({
       id: user.id,
       user_role_id: user.user_role_id,
