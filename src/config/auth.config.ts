@@ -1,9 +1,11 @@
 import { registerAs } from '@nestjs/config';
 import ms from 'ms';
 
-function seconds(msValue: string): number {
-  return ms(msValue as any) / 1000;
-}
+const seconds = (value: string): number => {
+  const milliseconds = ms(value);
+  // Ensure we have a number before division
+  return typeof milliseconds === 'number' ? milliseconds / 1000 : 0;
+};
 
 export default registerAs(
   'auth',
