@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 import ms from 'ms';
 
 function seconds(msValue: string): number {
-  return ms(msValue) / 1000;
+  return ms(msValue as any) / 1000;
 }
 
 export default registerAs(
