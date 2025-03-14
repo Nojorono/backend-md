@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { desc, eq } from 'drizzle-orm';
-import { Comments, Notifications, mOutlets, mUser } from '../../../schema';
+import { Activity, Comments, Notifications, Survey, mOutlets, mUser } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { CreateDto, UpdateDto } from '../dtos/notifications.dtos';
 import {
@@ -99,12 +99,17 @@ export class NotificationsRepository {
       ...Notifications,
       comments: Comments,
       user: mUser,
-      outlet: mOutlets
+      activity: Activity,
+      outletExist: mOutlets,
+      outletNew: Survey
     })
     .from(Notifications)
     .leftJoin(Comments, eq(Notifications.notification_identifier, Comments.notification_identifier))
     .leftJoin(mUser, eq(Comments.user_id, mUser.id))
-    .leftJoin(mOutlets, eq(Comments.outlet_id, mOutlets.id))
+    // .leftJoin(mOutlets, eq(Comments.outlet_id, mOutlets.id), 'commentOutlet')
+    .leftJoin(Activity, eq(Notifications.activity_id, Activity.id))
+    .leftJoin(mOutlets, eq(Activity.outlet_id, mOutlets.id), 'outletExist')
+    .leftJoin(Survey, eq(Activity.survey_outlet_id, Survey.id), 'outletNew')
     .where(eq(Notifications.user_id, userIdDecrypted))
     .orderBy(desc(Notifications.created_at))
     .orderBy(desc(Notifications.is_read))
