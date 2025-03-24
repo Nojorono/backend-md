@@ -209,7 +209,7 @@ export class AuthService implements IAuthService {
     // Send the email using the MailerService
     await this.mailerService.sendMail({
       to: user.email,
-      subject: 'Password Reset Request VTrack',
+      subject: 'Password Reset Request VIMEPS',
       html: emailBody,
     });
   }
