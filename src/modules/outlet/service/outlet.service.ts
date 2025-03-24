@@ -130,16 +130,20 @@ export class OutletService {
     const expectedHeaders = [
       'id',
       'user_id',
+      'nama_user',
       'nama_outlet',
       'kode_outlet',
       'brand',
       'regional',
       'area',
+      'kabupaten',
       'kecamatan',
       'alamat',
       'tipe_outlet',
+      'status',
       'long',
       'lat',
+      'outlet_radius',
       'cycle',
       'hari_kunjungan',
       'week',
@@ -147,83 +151,53 @@ export class OutletService {
       'foto2',
       'foto3',
       'foto4',
+      'BRAND_CODE',
+      'Tipe_Outlet_Upload'
     ];
-    let isHeaderRow = true;
-    let headersValidated = false;
 
     // Create a readable stream from the file buffer
     const stream = new Readable();
     stream.push(file.buffer);
-    stream.push(null); // Signal the end of the stream
-
-    // Function to validate header row
-    function validateHeaders(row: any): boolean {
-      const headers = Object.keys(row);
-      return headers.every(
-        (header, index) => header === expectedHeaders[index],
-      );
-    }
-
-    // Validation function for row data based on mOutlets schema
-    function isValidRow(data: any) {
-      return (
-        data['nama_outlet'] &&
-        data['kode_outlet'] &&
-        data['brand'] &&
-        data['regional'] &&
-        data['area'] &&
-        data['kecamatan']
-      );
-    }
+    stream.push(null); // Signal the end of the stream   
 
     return new Promise((resolve, reject) => {
       stream
         .pipe(csvParser({ headers: expectedHeaders, skipLines: 1 }))
         .on('data', (data) => {
-          if (isHeaderRow) {
-            // Validate the headers of the first row
-            headersValidated = validateHeaders(data);
-            if (!headersValidated) {
-              reject(new Error('Invalid headers in CSV file.'));
-              return;
-            }
-            isHeaderRow = false;
+          // Process each row
+          if (data) {
+            const outlet = {
+              name: data['nama_outlet'],
+              outlet_code: data['kode_outlet'],
+              brand: data['brand'] ? data['brand'].toUpperCase() : '',
+              region: data['regional'] ? data['regional'].toUpperCase() : '',
+              area: data['area'] ? data['area'].toUpperCase() : '',
+              sub_district: data['kecamatan']
+                ? data['kecamatan'].toUpperCase()
+                : '',
+              address_line: data['alamat'] || '',
+              sio_type: data['Tipe_Outlet_Upload']
+                ? data['Tipe_Outlet_Upload'].toUpperCase()
+                : '',
+              longitude: data['long'] || '',
+              latitude: data['lat'] || '',
+              cycle: data['cycle'] || '',
+              visit_day: data['hari_kunjungan']
+                ? data['hari_kunjungan'].toUpperCase()
+                : '',
+              odd_even: data['week'] ? data['week'].toUpperCase() : '',
+              photos: [
+                data['foto1'],
+                data['foto2'],
+                data['foto3'],
+                data['foto4'],
+              ].filter(Boolean),
+              created_at: new Date(),
+              created_by: 'system upload csv',
+            };
+            results.push(outlet);
           } else {
-            // Validate and format each row if headers are correct
-            if (isValidRow(data)) {
-              const outlet = {
-                name: data['nama_outlet'],
-                outlet_code: data['kode_outlet'],
-                brand: data['brand'] ? data['brand'].toUpperCase() : '',
-                region: data['regional'] ? data['regional'].toUpperCase() : '',
-                area: data['area'] ? data['area'].toUpperCase() : '',
-                sub_district: data['kecamatan']
-                  ? data['kecamatan'].toUpperCase()
-                  : '',
-                address_line: data['alamat'] || '',
-                sio_type: data['tipe_outlet']
-                  ? data['tipe_outlet'].toUpperCase()
-                  : '',
-                longitude: data['long'] || '',
-                latitude: data['lat'] || '',
-                cycle: data['cycle'] || '',
-                visit_day: data['hari_kunjungan']
-                  ? data['hari_kunjungan'].toUpperCase()
-                  : '',
-                odd_even: data['week'] ? data['week'].toUpperCase() : '',
-                photos: [
-                  data['foto1'],
-                  data['foto2'],
-                  data['foto3'],
-                  data['foto4'],
-                ].filter(Boolean),
-                created_at: new Date(),
-                created_by: 'system upload csv',
-              };
-              results.push(outlet);
-            } else {
-              invalidRows.push(data);
-            }
+            invalidRows.push(data);
           }
         })
         .on('end', async () => {

@@ -27,7 +27,7 @@ import { S3Service } from '../s3/service/s3.service';
         },
       },
       defaults: {
-        from: `"VTrack Assistants" <noreply@gmail.com>`,
+        from: `"VIMEPS Assistants" <noreply@gmail.com>`,
       },
     }),
     // MailerModule.forRoot({
