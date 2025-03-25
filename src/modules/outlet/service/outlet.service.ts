@@ -87,41 +87,168 @@ export class OutletService {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
-    // Type the jsonData as an array of arrays
-    const jsonData: (string | number | undefined)[][] =
+    // Expected headers according to system requirements
+    const expectedHeaders = [
+      'id',
+      'user_id',
+      'nama_user',
+      'nama_outlet',
+      'kode_outlet',
+      'brand',
+      'regional',
+      'area',
+      'kabupaten',
+      'kecamatan',
+      'alamat',
+      'tipe_outlet',
+      'status',
+      'long',
+      'lat',
+      'outlet_radius',
+      'cycle',
+      'hari_kunjungan',
+      'week',
+      'foto1',
+      'foto2',
+      'foto3',
+      'foto4',
+      'BRAND_CODE',
+      'Tipe_Outlet_Upload'
+    ];
+
+    // Get the JSON data, convert to array format
+    const jsonData: (string | number | undefined)[][] = 
       xlsx.utils.sheet_to_json(worksheet, { header: 1 });
 
-    // Process the data according to your field order
-    for (const row of jsonData) {
-      if (row.length > 0) {
+    // Skip processing if the file is empty
+    if (jsonData.length === 0) {
+      throw new Error('File is empty or has invalid format');
+    }
+
+    // Determine if the first row is a header row by checking if it matches expected headers
+    const firstRow = jsonData[0];
+    let startRowIndex = 0;
+    
+    // If first row appears to be headers, skip it when processing data
+    if (typeof firstRow[0] === 'string' && !isNaN(Number(firstRow[0]))) {
+      // If first column is a numeric string, likely not a header
+      startRowIndex = 0;
+    } else {
+      // Check if any cell in first row matches expected column names
+      const possibleHeaderRow = firstRow.map(cell => 
+        typeof cell === 'string' ? cell.toLowerCase().trim() : ''
+      );
+      
+      // Check if this looks like a header row by comparing with expected headers
+      const containsHeaderTerms = expectedHeaders.some(header => 
+        possibleHeaderRow.some(cell => 
+          cell.includes(header.toLowerCase())
+        )
+      );
+      
+      startRowIndex = containsHeaderTerms ? 1 : 0;
+    }
+
+    // Create a header mapping from the first row if it exists
+    let headerMapping: { [key: string]: number } = {};
+    
+    if (startRowIndex > 0 && jsonData[0]) {
+      // If we detected a header row, use it to create a mapping
+      jsonData[0].forEach((header, index) => {
+        if (typeof header === 'string') {
+          const headerLower = header.toLowerCase().trim();
+          headerMapping[headerLower] = index;
+        }
+      });
+    } else {
+      // If no header row, map expected headers to their positions
+      expectedHeaders.forEach((header, index) => {
+        headerMapping[header.toLowerCase()] = index;
+      });
+    }
+    
+    console.log('Header mapping:', headerMapping);
+    
+    // Process data rows using the header mapping
+    for (let i = startRowIndex; i < jsonData.length; i++) {
+      const row = jsonData[i];
+      
+      // Skip empty rows or rows with insufficient data
+      if (row.length < 5) continue;
+
+      try {
+        const photoArray = [];
+        
+        // Get field indices from header mapping or use defaults
+        const getField = (field: string, defaultValue: string = '') => {
+          const index = headerMapping[field.toLowerCase()];
+          return index !== undefined && row[index] !== undefined ? String(row[index]) : defaultValue;
+        };
+        
+        // Add photos if they exist
+        const foto1 = getField('foto1');
+        const foto2 = getField('foto2');
+        const foto3 = getField('foto3');
+        const foto4 = getField('foto4');
+        
+        if (foto1) photoArray.push(foto1);
+        if (foto2) photoArray.push(foto2);
+        if (foto3) photoArray.push(foto3);
+        if (foto4) photoArray.push(foto4);
+
+        // Map data from Excel to database schema using header mapping
         const outlet = {
-          name: row[0], // Column 0: name
-          outlet_code: row[1], // Column 1: outlet_code
-          brand: row[2], // Column 2: brand
-          region: row[3], // Column 3: region
-          area: row[4], // Column 4: area
-          district: row[5], // Column 5: district
-          address_line: row[6], // Column 6: address_line
-          outlet_type: row[7] || '', // Column 7: outlet_type
-          longitude: row[8] || '', // Column 8: longitude
-          latitude: row[9] || '', // Column 9: latitude
-          cycle: row[10] || '', // Column 10: cycle
-          visit_day: row[11], // Column 11: visit_day
-          odd_even: row[12], // Column 12: odd_even
-          unique_name: row[13], // Column 13: unique_name
-          photos: row[14] || [], // Column 14: photos
-          remarks: row[15] || '', // Column 15: remarks
-          created_by: 'system', // Or derive from your context
+          outlet_code: getField('kode_outlet'),
+          name: getField('nama_outlet'),
+          brand: getField('brand'),
+          region: getField('regional'),
+          area: getField('area'),
+          district: getField('kecamatan'),
+          sub_district: getField('kabupaten'),
+          address_line: getField('alamat'),
+          sio_type: getField('Tipe_Outlet_Upload'),
+          longitude: getField('long'),
+          latitude: getField('lat'),
+          cycle: getField('cycle'),
+          visit_day: getField('hari_kunjungan'),
+          odd_even: getField('week'),
+          photos: photoArray.length > 0 ? photoArray : [],
+          created_by: 'system',
           created_at: new Date(),
           updated_by: 'system',
-          updated_at: new Date(),
+          updated_at: new Date()
         };
-        data.push(outlet);
+
+        // Validate required fields before adding to data array
+        if (outlet.name && outlet.outlet_code && outlet.brand) {
+          data.push(outlet);
+        } else {
+          console.warn(`Skipping row ${i+1}: Missing required fields`);
+        }
+      } catch (error) {
+        console.error(`Error processing row ${i+1}:`, error);
+        // Continue processing other rows
       }
     }
 
+    if (data.length === 0) {
+      throw new Error('No valid data found in the uploaded file');
+    }
+
     // Save data to the database using the Drizzle service
-    await this.drizzleService['db'].insert(mOutlets).values(data);
+    // Use batch inserts if there are many records to optimize performance
+    if (data.length <= 100) {
+      await this.drizzleService['db'].insert(mOutlets).values(data);
+    } else {
+      // Process in batches of 100 records to prevent issues with large datasets
+      const batchSize = 100;
+      for (let i = 0; i < data.length; i += batchSize) {
+        const batch = data.slice(i, i + batchSize);
+        await this.drizzleService['db'].insert(mOutlets).values(batch);
+      }
+    }
+
+    return { success: true, recordsInserted: data.length };
   }
 
   async uploadCSV(file: Express.Multer.File) {
