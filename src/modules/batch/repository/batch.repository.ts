@@ -60,6 +60,7 @@ export class BatchRepository {
       .select()
       .from(Mbatch)
       .orderBy(desc(Mbatch.id))
+      .where(isNull(Mbatch.deleted_at))
       .limit(1);
 
     return lastEntry[0] ?? null;
