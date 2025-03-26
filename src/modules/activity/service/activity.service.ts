@@ -398,14 +398,11 @@ export class ActivityService {
       ) {
         const newOutlet = await this.outletRepository.createOutlet({
           name: activity.surveyOutlet.name,
-          unique_name: activity.surveyOutlet.unique_name,
           outlet_code: activity.surveyOutlet.outlet_code,
           brand: activity.surveyOutlet.brand,
           address_line: activity.surveyOutlet.address_line,
           sub_district: activity.surveyOutlet.sub_district,
           district: activity.surveyOutlet.district,
-          city_or_regency: activity.surveyOutlet.city_or_regency,
-          postal_code: activity.surveyOutlet.postal_code,
           latitude: activity.latitude,
           longitude: activity.longitude,
           sio_type: activity.surveyOutlet.sio_type,
