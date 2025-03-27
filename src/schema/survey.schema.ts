@@ -18,8 +18,6 @@ export const Survey = pgTable('survey', {
   address_line: varchar('address_line', { length: 300 }),
   sub_district: varchar('sub_district', { length: 255 }),
   district: varchar('district', { length: 255 }),
-  city_or_regency: varchar('city_or_regency', { length: 255 }),
-  postal_code: integer('postal_code').default(0),
   latitude: varchar('latitude', { length: 225 }),
   longitude: varchar('longitude', { length: 225 }),
   sio_type: varchar('sio_type', { length: 150 }),
