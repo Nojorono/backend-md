@@ -28,8 +28,9 @@ export class ActivityQueueProcessor extends WorkerHostProcessor {
   }
 
   @OnWorkerEvent('completed')
-  onCompleted(job: Job) {
+  async onCompleted(job: Job) {
     this.logger.log(`Job ${job.id} of type ${job.name} completed`);
+    // await job.remove();
   }
 
   @OnWorkerEvent('failed')
