@@ -5,8 +5,6 @@ export class CreateDto {
   address_line?: string;
   sub_district?: string;
   district?: string;
-  city_or_regency?: string;
-  postal_code?: number;
   latitude?: string;
   longitude?: string;
   outlet_code?: string;
@@ -37,8 +35,6 @@ export class UpdateDto {
   address_line?: string;
   sub_district?: string;
   district?: string;
-  city_or_regency?: string;
-  postal_code?: number;
   latitude?: string;
   longitude?: string;
   outlet_code?: string;
