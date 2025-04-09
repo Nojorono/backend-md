@@ -141,7 +141,6 @@ export class OutletRepository {
       'area', 
       'region', 
       'outlet_code',
-      'unique_name',
       'district'
     ];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
