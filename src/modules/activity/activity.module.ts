@@ -78,7 +78,6 @@ import { AppGateway } from 'src/socket/socket.gateaway';
   providers: [
     DrizzleService,
     AppGateway,
-
     UserRepo,
     OutletRepository,
     CallPlanScheduleRepository,
@@ -89,7 +88,6 @@ import { AppGateway } from 'src/socket/socket.gateaway';
     ActivityBranchRepository,
     NotificationsRepository,
     ActivityProgramRepository,
-
     S3Service,   
     QueueService,
     ActivityService,
@@ -98,7 +96,6 @@ import { AppGateway } from 'src/socket/socket.gateaway';
     ActivitySogService,
     ActivitySioService, 
     NotificationsService,
-
     ActivityQueueProcessor,
     ActivitySioQueueProcessor,
     ActivityBranchQueueProcessor,
