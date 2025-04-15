@@ -34,6 +34,7 @@ export class UserService {
       }      
       // Check if user with the provided email already exists
       const findExist = await this.userRepo.getUserByEmail(createUserDto.email);
+      console.log(findExist)
       if (findExist) {
         // Throw a conflict error if the email is already taken
         throw new HttpException('userExists', HttpStatus.CONFLICT);

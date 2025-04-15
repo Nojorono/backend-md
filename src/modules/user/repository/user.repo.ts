@@ -290,20 +290,24 @@ export class UserRepo {
   // Read user by Email
   async getUserByEmail(email: string) {
     const db = this.drizzleService['db'];
-    const user = await db.query.mUser.findFirst({
-      where: (mUser, { eq }) => eq(mUser.email, email),
-      with: {
-        Roles: true,
-      },
-    });
+    
+    // Check for both active and deleted users with this email
+    const users = await db
+      .select()
+      .from(mUser)
+      .where(eq(mUser.email, email))
+      .execute();
 
-    if (user) {
-      const encryptedId = await this.encryptedId(user.id);
+    // Return first active user found
+    const activeUser = users.find(user => !user.deleted_at);
+    if (activeUser) {
+      const encryptedId = await this.encryptedId(activeUser.id);
       return {
-        ...user,
-        id: encryptedId,
+        ...activeUser,
+        id: encryptedId
       };
     }
+
     return null;
   }
 
