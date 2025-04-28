@@ -51,18 +51,33 @@ export class ReportControllers {
     } = { area: '', region: '', brand: '', sio_type: '' },
     @Res() res: Response,
   ) {
-    const excelBuffer = await this.reportService.getReportOutlet(filter);
+    try {
+      // Set a longer timeout for the response to prevent timeouts on large datasets
+      res.setTimeout(300000); // 5 minutes timeout
 
-    const date = new Date().toISOString().split('T')[0];
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    );
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="outlet_report_${date}.xlsx"`,
-    );
-    res.send(excelBuffer);
+      console.log('Starting outlet report generation with filters:', filter);
+      const excelBuffer = await this.reportService.getReportOutlet(filter);
+      console.log('Report generation completed, size:', excelBuffer.length);
+
+      const date = new Date().toISOString().split('T')[0];
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="outlet_report_${date}.xlsx"`,
+      );
+      // Set no-cache headers to ensure the file is always downloaded fresh
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      res.send(excelBuffer);
+    } catch (error) {
+      console.error('Error generating outlet report:', error);
+      return res.status(500).json({ message: 'Internal server error.' });
+    }
   }
 
   @ApiBearerAuth('accessToken')

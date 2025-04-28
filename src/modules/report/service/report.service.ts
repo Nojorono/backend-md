@@ -380,32 +380,34 @@ export class ReportService {
 
     const data = result.map((row, index) => {
       const photoColumns = {};
-      row.photos.forEach((photo, i) => {
-        photoColumns[`Foto${i + 1}`] = {
-          t: 's',
-          v: photo,
-          l: { Target: photo, Tooltip: `Click to view Foto${i + 1}` },
-        };
-      });
+      // Add safety check to ensure photos is an array
+      if (row.photos && Array.isArray(row.photos)) {
+        row.photos.forEach((photo, i) => {
+          if (photo) {
+            photoColumns[`Foto${i + 1}`] = {
+              t: 's',
+              v: photo,
+              l: { Target: photo, Tooltip: `Click to view Foto${i + 1}` },
+            };
+          }
+        });
+      }
 
       return {
         No: index + 1,
-        'Nama Outlet': row.name,
-        'Code Outlet': row.outlet_code,
-        Brand: row.brand,
-        'SIO Type': row.sio_type,
-        Region: row.region,
-        Area: row.area,
-        Alamat: row.address_line,
-        Kecamatan: row.sub_district,
-        Kelurahan: row.district,
-        Kota: row.city_or_regency,
-        Latitude: row.latitude,
-        Longitude: row.longitude,
-        Cycle: row.cycle,
-        'Hari Kunjungan': row.visit_day,
-        'Genap/Ganjil': row.odd_even,
-        Keterangan: row.remarks,
+        'Nama Outlet': row.name || '',
+        'Code Outlet': row.outlet_code || '',
+        Brand: row.brand || '',
+        'SIO Type': row.sio_type || '',
+        Region: row.region || '',
+        Area: row.area || '',
+        Alamat: row.address_line || '',
+        Latitude: row.latitude || '',
+        Longitude: row.longitude || '',
+        Cycle: row.cycle || '',
+        'Hari Kunjungan': row.visit_day || '',
+        'Genap/Ganjil': row.odd_even || '',
+        Keterangan: row.remarks || '',
         ...photoColumns,
       };
     });
