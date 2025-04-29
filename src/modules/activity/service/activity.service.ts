@@ -429,6 +429,12 @@ export class ActivityService {
           created_at: new Date(),
         });
 
+        await this.repository.update(id, {
+          on_survey_complete: 1,
+          updated_by: decoded.email,
+          updated_at: new Date(),
+        });
+
         if (newOutlet) {
           await this.surveyOutletRepository.updateData(
             activity.survey_outlet_id,

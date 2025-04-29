@@ -44,6 +44,7 @@ export const mOutlets = pgTable('m_outlet', {
   ),
   survey_outlet_id: integer('survey_outlet_id').references(() => Survey.id),
   old_outlet_id: integer('old_outlet_id'),
+  on_survey_complete: integer('on_survey_complete').default(0),
   created_by: varchar('created_by', { length: 100 }),
   created_at: timestamp('created_at').defaultNow(),
   updated_by: varchar('updated_by', { length: 100 }),

@@ -1,0 +1,1 @@
+ALTER TABLE "m_outlet" ADD COLUMN "on_survey_complete" integer DEFAULT 0;
