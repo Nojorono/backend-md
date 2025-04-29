@@ -286,7 +286,7 @@ export class OutletRepository {
     return await query;
   }
 
-  async getAll() {
+  async getAll(region: string, area: string) {
     const db = this.drizzleService['db'];
 
     if (!db) {
@@ -296,7 +296,7 @@ export class OutletRepository {
     const data = await db
       .select()
       .from(mOutlets)
-      .where(and(eq(mOutlets.is_active, 0)));
+      .where(and(eq(mOutlets.is_active, 0), eq(mOutlets.region, region), eq(mOutlets.area, area)));
     return {
       data,
     };

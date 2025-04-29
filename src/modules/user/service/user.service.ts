@@ -34,7 +34,6 @@ export class UserService {
       }      
       // Check if user with the provided email already exists
       const findExist = await this.userRepo.getUserByEmail(createUserDto.email);
-      console.log(findExist)
       if (findExist) {
         // Throw a conflict error if the email is already taken
         throw new HttpException('userExists', HttpStatus.CONFLICT);
@@ -80,6 +79,18 @@ export class UserService {
           throw new HttpException('userExists', HttpStatus.CONFLICT);
         }
       }
+      if (updateUserDto.valid_to) {
+        const dateTo = new Date(updateUserDto.valid_to);
+        updateUserDto.valid_to = isNaN(dateTo.getTime()) ? null : dateTo;
+      } else {
+        updateUserDto.valid_to = null;
+      }
+      if (updateUserDto.valid_from) {
+        const dateFrom = new Date(updateUserDto.valid_from);
+        updateUserDto.valid_from = isNaN(dateFrom.getTime()) ? null : dateFrom;
+      } else {
+        updateUserDto.valid_from = null;
+      }
       updateUserDto.updated_by = decoded.email;
       updateUserDto.updated_at = new Date();
       if (photo) {
@@ -89,8 +100,6 @@ export class UserService {
         );
         return await this.userRepo.updateUserReturn(id, updateUserDto);
       } else {
-        updateUserDto.valid_to = new Date(updateUserDto.valid_to);
-        updateUserDto.valid_from = new Date(updateUserDto.valid_from);
         return await this.userRepo.updateUser(id, updateUserDto);
       }
     } catch (e) {
