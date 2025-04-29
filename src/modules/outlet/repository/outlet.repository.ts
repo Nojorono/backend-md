@@ -138,9 +138,8 @@ export class OutletRepository {
     const searchColumns = [
       'name', 
       'address_line', 
-      'area', 
-      'region', 
       'outlet_code',
+      'sub_district',
       'district'
     ];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
