@@ -151,38 +151,44 @@ export class CallPlanRepository {
     searchTerm: string = '',
     filter: { area: string; region: string; } = { area: '', region: '' },
   ) {
+    // Debug logs for troubleshooting filter issues
+    console.log('[getAllCallPlan] filter.region:', filter.region, 'type:', typeof filter.region);
+    console.log('[getAllCallPlan] filter.area:', filter.area, 'type:', typeof filter.area);
     const db = this.drizzleService['db'];
 
     if (!db) {
       throw new Error('Database not initialized');
     }
 
-    const query = db.select().from(CallPlan).where(isNull(CallPlan.deleted_at));
-
-    // Apply region filter if provided
-    if (filter.region) {
-      query.where(eq(CallPlan.region, filter.region));
-    }
-
-    // Apply area filter if provided (assuming 'area' is an array in filter)
-    if (filter.area) {
-      query.where(eq(CallPlan.area, filter.area));
-    }
-
     // Apply search condition if available
     const searchColumns = ['region', 'code_batch', 'area'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
-    // Apply search condition if available
-    if (searchCondition) {
-      query.where(searchCondition);
-    }
-    const records = await query.execute();
-    const totalRecords = parseInt(records.length) || 0;
-    const { offset } = paginate(totalRecords, page, limit);
-    query.limit(limit).offset(offset);
+    const conditions = [isNull(CallPlan.deleted_at)];
 
-    const result = await query;
+    if (searchCondition) {
+      conditions.push(searchCondition);
+    }
+    if (filter.region && Array.isArray(filter.region) && filter.region.length > 0) {
+      conditions.push(inArray(CallPlan.region, filter.region));
+    } else if (filter.region && typeof filter.region === 'string' && filter.region !== '') {
+      conditions.push(eq(CallPlan.region, filter.region));
+    }
+    if (filter.area && Array.isArray(filter.area) && filter.area.length > 0) {
+      conditions.push(inArray(CallPlan.area, filter.area));
+    } else if (filter.area && typeof filter.area === 'string' && filter.area !== '') {
+      conditions.push(eq(CallPlan.area, filter.area));
+    }
+
+    const paginatedQuery = db.select().from(CallPlan).where(and(...conditions));
+    
+    const records = await paginatedQuery.execute();
+    const totalRecords = parseInt(records.length) || 0;
+    
+    const { offset } = paginate(totalRecords, page, limit);
+    paginatedQuery.limit(limit).offset(offset);
+
+    const result = await paginatedQuery.execute();
 
     const encryptedResult = await Promise.all(
       result.map(async (item) => {
