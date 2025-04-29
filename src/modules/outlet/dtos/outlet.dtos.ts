@@ -24,6 +24,7 @@ export class CreateOutletDto {
   range_educational_facilities?: number;
   photos?: [];
   old_outlet_id?: number;
+  on_survey_complete?: number;
   created_by?: string;
   created_at?: Date;
   updated_by?: string;
@@ -58,6 +59,7 @@ export class UpdateOutletDto {
   range_educational_facilities?: number;
   photos?: [];
   old_outlet_id?: number;
+  on_survey_complete?: number;
   created_by?: string;
   created_at?: Date;
   updated_by?: string;
