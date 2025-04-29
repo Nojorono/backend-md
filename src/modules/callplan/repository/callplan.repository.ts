@@ -151,9 +151,6 @@ export class CallPlanRepository {
     searchTerm: string = '',
     filter: { area: string; region: string; } = { area: '', region: '' },
   ) {
-    // Debug logs for troubleshooting filter issues
-    console.log('[getAllCallPlan] filter.region:', filter.region, 'type:', typeof filter.region);
-    console.log('[getAllCallPlan] filter.area:', filter.area, 'type:', typeof filter.area);
     const db = this.drizzleService['db'];
 
     if (!db) {
