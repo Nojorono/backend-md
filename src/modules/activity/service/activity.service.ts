@@ -72,7 +72,7 @@ export class ActivityService {
 
       if (createDto.survey_outlet_id) {
         createDto.status_approval = 0;
-        createDto.status = 202;
+        createDto.status = createDto.status || 202;
       }
 
       if (createDto.outlet_id) {
