@@ -31,8 +31,8 @@ export class OutletController {
   
   @ApiBearerAuth('accessToken')
   @Get('survey-list')
-  async getAll() {
-    return this.outletRepository.getAll();
+  async getAll(@Query() query: { region: string, area: string } ) {
+    return this.outletRepository.getAll(query.region, query.area);
   }
   @ApiBearerAuth('accessToken')
   @Get('sio')
