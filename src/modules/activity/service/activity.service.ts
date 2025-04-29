@@ -396,6 +396,13 @@ export class ActivityService {
         activity.surveyOutlet &&
         updateDto.status_approval === STATUS_APPROVED
       ) {
+        const findOutlet = await this.outletRepository.findByCode(activity.surveyOutlet.outlet_code);
+        if (findOutlet) {
+          throw new HttpException(
+            await this.i18n.translate('translation.Outlet already exists'),
+            HttpStatus.BAD_REQUEST,
+          );
+        }
         const newOutlet = await this.outletRepository.createOutlet({
           name: activity.surveyOutlet.name,
           outlet_code: activity.surveyOutlet.outlet_code,
