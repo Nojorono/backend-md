@@ -12,9 +12,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AbsensiService } from '../service/absensi.service';
-import { CreateDto, UpdateDto } from '../dtos/absensi.dtos';
+import { CreateDto, TimezoneDto, UpdateDto } from '../dtos/absensi.dtos';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { string } from 'zod';
 
 @ApiTags('absensi')
 @Controller({
@@ -82,8 +83,10 @@ export class AbsensiControllers {
   }
 
   @ApiBearerAuth('accessToken')
+  @ApiOperation({ summary: 'Find today timezone' })
+  @ApiBody({ type: TimezoneDto })
   @Post('today-timezone')
-  async findTodayTimezone(@Body() body: { timezone: string }) {
+  async findTodayTimezone(@Body() body: TimezoneDto) {
     return this.absensiService.findTodayTimezone(body.timezone);
   }
 }
