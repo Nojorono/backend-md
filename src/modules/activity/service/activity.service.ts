@@ -405,13 +405,13 @@ export class ActivityService {
             HttpStatus.BAD_REQUEST,
           );
         }
-        const CONCAT_AREA_BRAND_TYPE = activity.surveyOutlet.area + '-' + activity.surveyOutlet.brand + '-' + activity.surveyOutlet.amo_brand_type;
-        const findBatchTarget = await this.batchTargetRepository.findBatchAmoBrandType(CONCAT_AREA_BRAND_TYPE);
-        const findOutletSummary = await this.batchTargetRepository.findSummaryAmoBrandType(CONCAT_AREA_BRAND_TYPE);
-        if (findBatchTarget || findOutletSummary) {
-           const allocationHo = findBatchTarget?.allocation_ho;
-           const allocationOutlet = findOutletSummary?.allocation_outlet;
-        }
+        // const CONCAT_AREA_BRAND_TYPE = activity.surveyOutlet.area + '-' + activity.surveyOutlet.brand + '-' + activity.surveyOutlet.amo_brand_type;
+        // const findBatchTarget = await this.batchTargetRepository.findBatchAmoBrandType(CONCAT_AREA_BRAND_TYPE);
+        // const findOutletSummary = await this.batchTargetRepository.findSummaryAmoBrandType(CONCAT_AREA_BRAND_TYPE);
+        // if (findBatchTarget || findOutletSummary) {
+        //    const allocationHo = findBatchTarget?.allocation_ho;
+        //    const allocationOutlet = findOutletSummary?.allocation_outlet;
+        // }
         const newOutlet = await this.outletRepository.createOutlet({
           name: activity.surveyOutlet.name,
           outlet_code: activity.surveyOutlet.outlet_code,
