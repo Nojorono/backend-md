@@ -4,6 +4,7 @@ import {
   and,
   count,
   count as drizzleCount,
+
   eq,
   gte,
   isNull,
@@ -271,18 +272,22 @@ export class DashboardService {
         batch_target_amo_brand_type: MbatchTarget.amo_brand_type,
         batch_target_total_master: MbatchTarget.total_master,
         batch_target_allocation_ho: MbatchTarget.allocation_ho,
-        actual_outlet: drizzleCount(mOutlets.id),
+        // Count distinct outlet IDs using SQL expression
+        actual_outlet: sql`COUNT(DISTINCT ${mOutlets.id})`,
       })
       .from(Mbatch)
       .innerJoin(MbatchTarget, eq(Mbatch.id, MbatchTarget.batch_id))
       .leftJoin(CallPlan, eq(CallPlan.code_batch, Mbatch.code_batch))
+      // Properly join outlets table using area and region fields that map to amo and regional
       .leftJoin(
         mOutlets,
         and(
-          eq(mOutlets.area, MbatchTarget.amo),
-          eq(mOutlets.region, MbatchTarget.regional),
+          eq(mOutlets.area, MbatchTarget.amo),        // area in outlets maps to amo in batch target
+          eq(mOutlets.region, MbatchTarget.regional), // region in outlets maps to regional in batch target
           eq(mOutlets.brand, MbatchTarget.brand),
           eq(mOutlets.sio_type, MbatchTarget.sio_type),
+          // Add condition to ensure we only count valid outlets
+          isNull(mOutlets.deleted_at)
         ),
       )
       .where(
