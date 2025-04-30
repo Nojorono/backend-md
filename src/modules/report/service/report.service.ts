@@ -49,6 +49,8 @@ export class ReportService {
     });
 
     // Format data into a worksheet with proper cell types and formats
+    // Use the filtered data instead of the original result
+    console.log(`Filtered absent data count: ${result.length}`);
     const data = result.map((row, index) => {
       // Format dates consistently
       const startTimeStr = row.start_time ? new Date(row.start_time).toLocaleString('id-ID', {
@@ -271,9 +273,19 @@ export class ReportService {
       };
     });
 
-    // Create worksheet and workbook
-    const worksheet = xlsx.utils.json_to_sheet(data);
+    // Handle potential empty data array to prevent 'Cannot convert undefined or null to object' error
     const workbook = xlsx.utils.book_new();
+    let worksheet;
+    
+    if (data.length === 0) {
+      // Create a worksheet with a message if no data matches the filter
+      worksheet = xlsx.utils.json_to_sheet([{
+        'No Data': 'No reimbursement data found matching the selected filters'
+      }]);
+    } else {
+      // Create worksheet with the available data
+      worksheet = xlsx.utils.json_to_sheet(data);
+    }
 
     // Get the range of the worksheet
     const range = xlsx.utils.decode_range(worksheet['!ref']);
@@ -357,19 +369,20 @@ export class ReportService {
       eq(mOutlets.is_active, 1),
     ];
 
-    if (filter.area) {
+    // Only add filter conditions if the values are non-empty strings
+    if (filter.area && filter.area.trim() !== '') {
       baseConditions.push(eq(mOutlets.area, filter.area));
     }
 
-    if (filter.region) {
+    if (filter.region && filter.region.trim() !== '') {
       baseConditions.push(eq(mOutlets.region, filter.region));
     }
 
-    if (filter.brand) {
+    if (filter.brand && filter.brand.trim() !== '') {
       baseConditions.push(eq(mOutlets.brand, filter.brand));
     }
 
-    if (filter.sio_type) {
+    if (filter.sio_type && filter.sio_type.trim() !== '') {
       baseConditions.push(eq(mOutlets.sio_type, filter.sio_type));
     }
 
@@ -378,6 +391,8 @@ export class ReportService {
       .from(mOutlets)
       .where(and(...baseConditions));
 
+    // Use the filtered data instead of the original result
+    console.log(`Filtered absent data count: ${result.length}`);
     const data = result.map((row, index) => {
       const photoColumns = {};
       // Add safety check to ensure photos is an array
@@ -412,9 +427,19 @@ export class ReportService {
       };
     });
 
-    // Create worksheet and workbook
-    const worksheet = xlsx.utils.json_to_sheet(data);
+    // Handle potential empty data array to prevent 'Cannot convert undefined or null to object' error
     const workbook = xlsx.utils.book_new();
+    let worksheet;
+    
+    if (data.length === 0) {
+      // Create a worksheet with a message if no data matches the filter
+      worksheet = xlsx.utils.json_to_sheet([{
+        'No Data': 'No reimbursement data found matching the selected filters'
+      }]);
+    } else {
+      // Create worksheet with the available data
+      worksheet = xlsx.utils.json_to_sheet(data);
+    }
 
     // Get the range of the worksheet
     const range = xlsx.utils.decode_range(worksheet['!ref']);
@@ -498,10 +523,14 @@ export class ReportService {
       },
     });
 
-    const data = result.map((row, index) => {
-      if (row.user.area !== filter.area || row.user.region !== filter.region) {
-        return;
-      }
+    // Process the data by filtering matching entries
+    const data = result.filter(row => {
+      // If filter values are empty strings or undefined, treat them as wildcards
+      const areaMatch = !filter.area || filter.area.trim() === '' || row.user.area === filter.area;
+      const regionMatch = !filter.region || filter.region.trim() === '' || row.user.region === filter.region;
+      
+      return areaMatch && regionMatch;
+    }).map((row, index) => {
 
       const photos = {
         'Foto In': {
@@ -536,9 +565,19 @@ export class ReportService {
       };
     });
 
-    // Create worksheet and workbook
-    const worksheet = xlsx.utils.json_to_sheet(data);
+    // Handle potential empty data array to prevent 'Cannot convert undefined or null to object' error
     const workbook = xlsx.utils.book_new();
+    let worksheet;
+    
+    if (data.length === 0) {
+      // Create a worksheet with a message if no data matches the filter
+      worksheet = xlsx.utils.json_to_sheet([{
+        'No Data': 'No reimbursement data found matching the selected filters'
+      }]);
+    } else {
+      // Create worksheet with the available data
+      worksheet = xlsx.utils.json_to_sheet(data);
+    }
 
     // Get the range of the worksheet
     const range = xlsx.utils.decode_range(worksheet['!ref']);
@@ -617,17 +656,25 @@ export class ReportService {
 
     const db = this.drizzleService['db'];
 
+    // Query all absences with user data
+    console.log('Starting absent report generation with filters:', filter);
     const result = await db.query.Absensi.findMany({
         with: {
             user: true,
-        },
-        where: and(
-          eq(Absensi.area, filter.area),
-          eq(Absensi.region, filter.region)
-        )
+        }
+    });
+    
+    // Filter the results based on area and region
+    // Use empty string checks to make empty filters act as wildcards
+    const filteredResult = result.filter(row => {
+        const areaMatch = !filter.area || filter.area.trim() === '' || row.area === filter.area;
+        const regionMatch = !filter.region || filter.region.trim() === '' || row.region === filter.region;
+        return areaMatch && regionMatch;
     });
 
-    const data = result.map((row, index) => {
+    // Use the filtered data instead of the original result
+    console.log(`Filtered absent data count: ${filteredResult.length}`);
+    const data = filteredResult.map((row, index) => {
       const photos = {
         'Foto In': {
           t: 's',
@@ -661,9 +708,19 @@ export class ReportService {
       };
     });
 
-    // Create worksheet and workbook
-    const worksheet = xlsx.utils.json_to_sheet(data);
+    // Handle potential empty data array to prevent 'Cannot convert undefined or null to object' error
     const workbook = xlsx.utils.book_new();
+    let worksheet;
+    
+    if (data.length === 0) {
+      // Create a worksheet with a message if no data matches the filter
+      worksheet = xlsx.utils.json_to_sheet([{
+        'No Data': 'No reimbursement data found matching the selected filters'
+      }]);
+    } else {
+      // Create worksheet with the available data
+      worksheet = xlsx.utils.json_to_sheet(data);
+    }
 
     // Get the range of the worksheet
     const range = xlsx.utils.decode_range(worksheet['!ref']);
