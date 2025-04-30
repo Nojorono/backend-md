@@ -7,7 +7,8 @@ export const Comments = pgTable('comments', {
   content: text('content').notNull(),
   user_id: integer('user_id').notNull(), // ref to user table
   activity_id: integer('activity_id').notNull(), // ref to activity table
-  outlet_id: integer('outlet_id').notNull(), // ref to outlet table
+  outlet_id: integer('outlet_id'), // ref to outlet table
+  survey_outlet_id: integer('survey_outlet_id'), // ref to survey_outlet table
   created_at: timestamp('created_at').defaultNow(),
   is_liked: boolean('is_liked').default(false), // ref to like table
   notification_identifier: text('notification_identifier') // ref to notification table

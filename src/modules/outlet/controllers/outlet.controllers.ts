@@ -35,7 +35,8 @@ export class OutletController {
     @Query('region') region: string,
     @Query('area') area: string
   ) {
-    return this.outletRepository.getAll(region, area);
+    console.log(region?.trim(), area?.trim());
+    return this.outletRepository.getAll(region?.trim(), area?.trim());
   }
   @ApiBearerAuth('accessToken')
   @Get('sio')
