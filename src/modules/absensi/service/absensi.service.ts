@@ -19,6 +19,21 @@ export class AbsensiService {
     return absensiToday;
   }
 
+  async findTodayTimezone(timezone: string): Promise<string> {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  
+    const parts = formatter.formatToParts(new Date());
+    return parts.map(p => p.value).join('');
+  }
+
   async create(CreateDto: any, file: Express.Multer.File) {
     try {
       const user = await this.userRepository.findByIdDecrypted(CreateDto.userId);
