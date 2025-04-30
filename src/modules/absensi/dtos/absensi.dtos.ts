@@ -52,3 +52,9 @@ export class UpdateDto {
   @ApiProperty({ description: 'Photo Out', required: false, type: 'string', format: 'binary' })
   file?: Express.Multer.File;
 }
+
+export class TimezoneDto {
+  @ApiProperty({ description: 'Timezone', example: 'Asia/Jakarta' })
+  timezone: string;
+}
+
