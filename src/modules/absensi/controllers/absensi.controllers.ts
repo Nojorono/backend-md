@@ -80,4 +80,10 @@ export class AbsensiControllers {
       throw new BadRequestException(error.response);
     }
   }
+
+  @ApiBearerAuth('accessToken')
+  @Post('today-timezone')
+  async findTodayTimezone(@Body() body: { timezone: string }) {
+    return this.absensiService.findTodayTimezone(body.timezone);
+  }
 }
