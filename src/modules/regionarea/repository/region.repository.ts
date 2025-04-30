@@ -43,6 +43,14 @@ export class RegionRepository {
       .execute();
   }
 
+  async getByName(name: string) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.select().from(MRegion).where(eq(MRegion.name, name));
+  }
+
   async findLastInsert() {
     const db = this.drizzleService['db'];
     if (!db) {
@@ -169,5 +177,13 @@ export class RegionRepository {
       data: query,
       totalRecords: totalRecords,
     };
+  }
+
+  async deleteForce(id: number) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    return await db.delete(MRegion).where(eq(MRegion.id, id)).execute();
   }
 }
