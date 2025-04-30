@@ -22,6 +22,12 @@ export class RegionService {
   async createData(createDto: CreateRegionDto) {
     try {
       createDto.name = createDto.name.toUpperCase();
+      const findRegion = await this.RegionRepository.getByName(createDto.name);
+      if (findRegion[0].deleted_at !== null) {
+        await this.RegionRepository.deleteForce(findRegion[0].id);
+      }else{
+        throw new HttpException('Region already exists', 400);
+      }
       return await this.RegionRepository.create(createDto);
     } catch (e) {
       logger.error('Error in create data:', e.message, e.stack);
