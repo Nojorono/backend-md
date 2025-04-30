@@ -34,6 +34,7 @@ import { ActivitySogQueueProcessor } from './queue/activitySog.queue';
 import { NotificationsService } from '../notifications/service/notifications.service';
 import { NotificationsRepository } from '../notifications/repository/notifications.repository';
 import { AppGateway } from 'src/socket/socket.gateaway';
+import { BatchTargetRepository } from '../batch/repository/batchtarget.repository';
 
 @Module({
   controllers: [
@@ -80,6 +81,7 @@ import { AppGateway } from 'src/socket/socket.gateaway';
     AppGateway,
     UserRepo,
     OutletRepository,
+    BatchTargetRepository,
     CallPlanScheduleRepository,
     SurveyRepository,
     ActivityRepository,

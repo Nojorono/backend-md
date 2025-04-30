@@ -21,10 +21,12 @@ import { OutletRepository } from 'src/modules/outlet/repository/outlet.repositor
 import { SurveyRepository } from 'src/modules/survey/repository/survey.repository';
 import { JwtService } from '@nestjs/jwt';
 import { DrizzleService } from 'src/common/services/drizzle.service';
+import { BatchTargetRepository } from 'src/modules/batch/repository/batchtarget.repository';
 @Injectable()
 export class ActivityService {
   constructor(
     private readonly repository: ActivityRepository,
+    private readonly batchTargetRepository: BatchTargetRepository,
     private readonly jwtService: JwtService,
     private readonly s3Service: S3Service,
     private readonly i18n: I18nService,
@@ -402,6 +404,13 @@ export class ActivityService {
             await this.i18n.translate('translation.Outlet already exists'),
             HttpStatus.BAD_REQUEST,
           );
+        }
+        const CONCAT_AREA_BRAND_TYPE = activity.surveyOutlet.area + '-' + activity.surveyOutlet.brand + '-' + activity.surveyOutlet.amo_brand_type;
+        const findBatchTarget = await this.batchTargetRepository.findBatchAmoBrandType(CONCAT_AREA_BRAND_TYPE);
+        const findOutletSummary = await this.batchTargetRepository.findSummaryAmoBrandType(CONCAT_AREA_BRAND_TYPE);
+        if (findBatchTarget || findOutletSummary) {
+           const allocationHo = findBatchTarget?.allocation_ho;
+           const allocationOutlet = findOutletSummary?.allocation_outlet;
         }
         const newOutlet = await this.outletRepository.createOutlet({
           name: activity.surveyOutlet.name,

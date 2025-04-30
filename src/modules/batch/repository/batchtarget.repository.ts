@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { and, desc, eq, isNull } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { MbatchTarget } from '../../../schema';
 import { DrizzleService } from '../../../common/services/drizzle.service';
 import { decrypt, encrypt } from '../../../helpers/nojorono.helpers';
@@ -112,6 +113,31 @@ export class BatchTargetRepository {
       .where(eq(MbatchTarget.id, id))
       .returning();
   }
+
+  async findBatchAmoBrandType(amo_brand_type: string) {
+    const db = this.drizzleService['db'];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+    const result = await db
+      .select()
+      .from(MbatchTarget)
+      .where(eq(MbatchTarget.amo_brand_type, amo_brand_type));
+    return result[0]; // Return the first (and expectedly only) result
+  }
+
+  // List outlet summary
+    async findSummaryAmoBrandType(amo_brand_type: string) {
+      const db = this.drizzleService['db'];
+      if (!db) {
+        throw new Error('Database not initialized');
+      }
+      // Querying the outlet_summary view
+      const result = await db.execute(
+        sql`SELECT * FROM outlet_summary WHERE brand_type_outlet = ${amo_brand_type};`,
+      );
+      return result.rows;
+    }
 
   // List all active Roles with pagination and search
   async getAll(batchId: string) {
