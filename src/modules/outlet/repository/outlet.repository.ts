@@ -292,11 +292,19 @@ export class OutletRepository {
       throw new Error('Database not initialized');
     }
 
-    if(region || area) {
+    if(region && area) {
       const data = await db
       .select()
       .from(mOutlets)
       .where(and(eq(mOutlets.is_active, 0), eq(mOutlets.on_survey_complete, 0), eq(mOutlets.region, region), eq(mOutlets.area, area)));
+      return {
+        data,
+      };
+    } else if(region) {
+      const data = await db
+      .select()
+      .from(mOutlets)
+      .where(and(eq(mOutlets.is_active, 0), eq(mOutlets.on_survey_complete, 0), eq(mOutlets.region, region)));
       return {
         data,
       };
