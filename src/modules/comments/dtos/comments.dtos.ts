@@ -1,7 +1,7 @@
 export class CreateDto {
   id?: number;
   activity_id: number;
-  outlet_id: number;
+  outlet_id?: number;
   user_id?: string;
   content: string;
   is_liked?: boolean;
