@@ -4,7 +4,6 @@ import { CreateDto, UpdateDto } from '../dtos/absensi.dtos';
 import { UserRepo } from '../../user/repository/user.repo';
 import { S3Service } from 'src/modules/s3/service/s3.service';
 import { logger } from 'nestjs-i18n';
-import { da } from '@faker-js/faker';
 
 @Injectable()
 export class AbsensiService {
