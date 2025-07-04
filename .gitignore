@@ -38,5 +38,6 @@ yarn.lock
 
 .env
 .env.*
+.env.docker
 junit.xml
 firebase.config.json
