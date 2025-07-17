@@ -1,7 +1,7 @@
 export class CreateBatchDto {
-  code_batch?: string;
-  start_plan?: Date;
-  end_plan?: Date;
+  code_batch: string;
+  start_plan: Date;
+  end_plan: Date;
   created_by?: string;
   created_at?: Date;
   updated_by?: string;

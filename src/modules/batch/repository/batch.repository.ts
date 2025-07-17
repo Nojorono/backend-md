@@ -42,7 +42,11 @@ export class BatchRepository {
         throw new BadRequestException('Batch with this code already exists');
       }
 
-      const result = await db.insert(Mbatch).values(data).returning();
+      // Filter out any fields that shouldn't be inserted (like id)
+      const cleanData = { ...data };
+      delete (cleanData as any).id;
+      
+      const result = await db.insert(Mbatch).values(cleanData).returning();
       return result;
     } catch (error) {
       console.error('Error in batch repository create:', error);
