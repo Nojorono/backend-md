@@ -24,20 +24,30 @@ export class BatchRepository {
   // Create Roles
   async create(data: CreateBatchDto) {
     const db = this.drizzleService['db'];
-
-    // Check for existing active batch
-    const existingBatch = await db.query.Mbatch.findFirst({
-      where: (batch, { and, eq }) => and(
-        eq(batch.code_batch, data.code_batch),
-        isNull(batch.deleted_at)
-      )
-    });
-
-    if (existingBatch) {
-      throw new BadRequestException('Batch with this code already exists');
+    
+    if (!db) {
+      throw new Error('Database not initialized');
     }
 
-    return db.insert(Mbatch).values(data).returning();
+    try {
+      // Check for existing active batch
+      const existingBatch = await db.query.Mbatch.findFirst({
+        where: (batch, { and, eq }) => and(
+          eq(batch.code_batch, data.code_batch),
+          isNull(batch.deleted_at)
+        )
+      });
+
+      if (existingBatch) {
+        throw new BadRequestException('Batch with this code already exists');
+      }
+
+      const result = await db.insert(Mbatch).values(data).returning();
+      return result;
+    } catch (error) {
+      console.error('Error in batch repository create:', error);
+      throw error;
+    }
   }
 
   // Update Roles by ID

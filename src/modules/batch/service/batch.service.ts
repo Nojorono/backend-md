@@ -23,9 +23,28 @@ export class BatchService {
 
   async createData(createBatchDto: CreateBatchDto) {
     try {
+      // Validate required fields
+      if (!createBatchDto.code_batch) {
+        throw new BadRequestException('code_batch is required');
+      }
+      if (!createBatchDto.start_plan) {
+        throw new BadRequestException('start_plan is required');
+      }
+      if (!createBatchDto.end_plan) {
+        throw new BadRequestException('end_plan is required');
+      }
+
+      logger.log('Creating batch with data:', { 
+        code_batch: createBatchDto.code_batch,
+        start_plan: createBatchDto.start_plan,
+        end_plan: createBatchDto.end_plan
+      });
+
       // Create new batch
       const newBatch = await this.batchRepository.create(createBatchDto);
       
+      logger.log('Batch created successfully:', newBatch);
+
       // if (!newBatch || newBatch.length === 0) {
       //   throw new BadRequestException('Failed to create batch');
       // }
@@ -68,11 +87,16 @@ export class BatchService {
 
       return newBatch;
     } catch (error) {
-      logger.error('Error in create batch:', error.message, error.stack);
+      logger.error('Error in create batch:', {
+        message: error.message,
+        stack: error.stack,
+        data: createBatchDto
+      });
+      
       if (error instanceof HttpException) {
         throw error;
       } else {
-        throw new InternalServerErrorException('Failed to create batch data');
+        throw new InternalServerErrorException(`Failed to create batch data: ${error.message}`);
       }
     }
   }
