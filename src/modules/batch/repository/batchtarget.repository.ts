@@ -47,9 +47,26 @@ export class BatchTargetRepository {
     if (!db) {
       throw new Error('Database not initialized');
     }
+    
+    // Clean and validate the data
+    const cleanData = {
+      batch_id: createBatchTargetDto.batch_id ? parseInt(createBatchTargetDto.batch_id.toString()) : null,
+      regional: createBatchTargetDto.regional || null,
+      amo: createBatchTargetDto.amo || null,
+      brand: createBatchTargetDto.brand || null,
+      sio_type: createBatchTargetDto.sio_type || null,
+      brand_type_sio: createBatchTargetDto.brand_type_sio || null,
+      amo_brand_type: createBatchTargetDto.amo_brand_type || null,
+      allocation_ho: createBatchTargetDto.allocation_ho || 0    };
+    
+    // Filter out null values for required fields
+    const insertData = Object.fromEntries(
+      Object.entries(cleanData).filter(([_, value]) => value !== null)
+    );
+    
     return await db
       .insert(MbatchTarget)
-      .values({ ...createBatchTargetDto })
+      .values(insertData)
       .returning();
   }
 

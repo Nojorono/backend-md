@@ -6,7 +6,6 @@ import {
   BadRequestException
 } from '@nestjs/common';
 import { BatchRepository } from '../repository/batch.repository';
-import { UserRepo } from '../../user/repository/user.repo';
 import { CreateBatchDto, UpdateBatchDto } from '../dtos/batch.dtos';
 import { logger } from 'nestjs-i18n';
 import { OutletRepository } from '../../outlet/repository/outlet.repository';
@@ -26,17 +25,34 @@ export class BatchService {
     try {
       // Create new batch
       const newBatch = await this.batchRepository.create(createBatchDto);
+      
+      if (!newBatch || newBatch.length === 0) {
+        throw new BadRequestException('Failed to create batch');
+      }
+
+      const batchId = newBatch[0].id;
+      
       // Get outlet summary for targets
       const outletSummary = await this.outletRepository.getOutletSummary();
       if (!outletSummary || outletSummary.length === 0) {
         logger.warn('No outlet summary data found for batch targets');
+        return newBatch;
       }
 
-      // Create batch targets
-      if (outletSummary) {
-        const batchTargetPromises = outletSummary.map(target => 
+      // Create batch targets with validation
+      const batchTargetPromises = outletSummary
+        .filter(target => {
+          // Filter out records with empty or null required fields
+          return target.regional && 
+                 target.area && 
+                 target.brand && 
+                 target.sio_type && 
+                 target.brand_type_sio && 
+                 target.brand_type_outlet;
+        })
+        .map(target => 
           this.batchTargetRepository.createDummy({
-            batch_id: newBatch[0].id,
+            batch_id: batchId,
             regional: target.regional,
             amo: target.area,
             brand: target.brand,
@@ -45,6 +61,8 @@ export class BatchService {
             amo_brand_type: target.brand_type_outlet,
           })
         );
+      
+      if (batchTargetPromises.length > 0) {
         await Promise.all(batchTargetPromises);
       }
 
@@ -53,7 +71,7 @@ export class BatchService {
       logger.error('Error in create batch:', error.message, error.stack);
       if (error instanceof HttpException) {
         throw error;
-      }else{
+      } else {
         throw new InternalServerErrorException('Failed to create batch data');
       }
     }
