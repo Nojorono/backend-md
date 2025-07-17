@@ -26,45 +26,45 @@ export class BatchService {
       // Create new batch
       const newBatch = await this.batchRepository.create(createBatchDto);
       
-      if (!newBatch || newBatch.length === 0) {
-        throw new BadRequestException('Failed to create batch');
-      }
+      // if (!newBatch || newBatch.length === 0) {
+      //   throw new BadRequestException('Failed to create batch');
+      // }
 
-      const batchId = newBatch[0].id;
+      // const batchId = newBatch[0].id;
       
-      // Get outlet summary for targets
-      const outletSummary = await this.outletRepository.getOutletSummary();
-      if (!outletSummary || outletSummary.length === 0) {
-        logger.warn('No outlet summary data found for batch targets');
-        return newBatch;
-      }
+      // // Get outlet summary for targets
+      // const outletSummary = await this.outletRepository.getOutletSummary();
+      // if (!outletSummary || outletSummary.length === 0) {
+      //   logger.warn('No outlet summary data found for batch targets');
+      //   return newBatch;
+      // }
 
-      // Create batch targets with validation
-      const batchTargetPromises = outletSummary
-        .filter(target => {
-          // Filter out records with empty or null required fields
-          return target.regional && 
-                 target.area && 
-                 target.brand && 
-                 target.sio_type && 
-                 target.brand_type_sio && 
-                 target.brand_type_outlet;
-        })
-        .map(target => 
-          this.batchTargetRepository.createDummy({
-            batch_id: batchId,
-            regional: target.regional,
-            amo: target.area,
-            brand: target.brand,
-            sio_type: target.sio_type,
-            brand_type_sio: target.brand_type_sio,
-            amo_brand_type: target.brand_type_outlet,
-          })
-        );
+      // // Create batch targets with validation
+      // const batchTargetPromises = outletSummary
+      //   .filter(target => {
+      //     // Filter out records with empty or null required fields
+      //     return target.regional && 
+      //            target.area && 
+      //            target.brand && 
+      //            target.sio_type && 
+      //            target.brand_type_sio && 
+      //            target.brand_type_outlet;
+      //   })
+      //   .map(target => 
+      //     this.batchTargetRepository.createDummy({
+      //       batch_id: batchId,
+      //       regional: target.regional,
+      //       amo: target.area,
+      //       brand: target.brand,
+      //       sio_type: target.sio_type,
+      //       brand_type_sio: target.brand_type_sio,
+      //       amo_brand_type: target.brand_type_outlet,
+      //     })
+      //   );
       
-      if (batchTargetPromises.length > 0) {
-        await Promise.all(batchTargetPromises);
-      }
+      // if (batchTargetPromises.length > 0) {
+      //   await Promise.all(batchTargetPromises);
+      // }
 
       return newBatch;
     } catch (error) {
