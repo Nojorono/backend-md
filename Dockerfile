@@ -73,7 +73,7 @@ RUN yarn install --frozen-lockfile --production=true && \
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 
 # Copy any additional runtime files if needed
-COPY --from=builder --chown=nestjs:nodejs /app/drizzle ./drizzle
+COPY --chown=nestjs:nodejs drizzle ./drizzle
 
 # Switch to non-root user
 USER nestjs
