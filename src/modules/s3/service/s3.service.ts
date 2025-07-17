@@ -79,7 +79,7 @@ export class S3Service {
   // Method to delete an image from S3
   async deleteImage(key: string): Promise<string> {
     const bucketUrl =
-      'https://merchandise-nna.s3.ap-southeast-1.amazonaws.com/';
+      'https://nna-app-s3.s3.ap-southeast-3.amazonaws.com/';
     const s3Key = key.replace(bucketUrl, '');
     const deleteParams = {
       Bucket: this.bucketName,
