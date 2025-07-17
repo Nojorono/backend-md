@@ -41,6 +41,9 @@ RUN yarn install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# If prisma directory exists, generate client
+RUN if [ -d "prisma" ]; then yarn prisma generate; fi
+
 # Build the application
 RUN yarn build
 
@@ -71,7 +74,8 @@ RUN yarn install --frozen-lockfile --production=true && \
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 
 # Copy any additional runtime files if needed
-COPY --chown=nestjs:nodejs drizzle ./drizzle
+COPY --from=builder --chown=nestjs:nodejs /app/drizzle ./drizzle
+COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
 
 # Switch to non-root user
 USER nestjs

@@ -1,42 +1,38 @@
+import { faker } from '@faker-js/faker';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UserCreateDto {
   @ApiProperty({
-    example: 'user@example.com',
-    description: 'User email address',
+    example: faker.internet.email(),
   })
   @IsString()
   @IsNotEmpty({ message: 'email not provided' })
   public email: string;
 
   @ApiProperty({
-    example: 'password123',
-    description: 'User password',
+    example: faker.internet.password(),
   })
   @IsString()
   @IsNotEmpty({ message: 'password not provided' })
   public password: string;
 
   @ApiProperty({
-    example: 'John',
-    description: 'User first name',
+    example: faker.person.firstName(),
   })
   @IsString()
   @IsOptional()
   public firstName?: string;
 
   @ApiProperty({
-    example: 'Doe',
-    description: 'User last name',
+    example: faker.person.lastName(),
   })
   @IsString()
   @IsOptional()
   public lastName?: string;
 
   @ApiProperty({
-    example: 'johndoe',
-    description: 'Username',
+    example: faker.internet.userName(),
   })
   @IsString()
   @IsOptional()
