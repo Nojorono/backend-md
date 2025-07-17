@@ -1,5 +1,5 @@
 # Multi-stage build for production
-FROM node:20-alpine AS base
+FROM node:18-alpine AS base
 
 # Set working directory
 WORKDIR /app
@@ -47,7 +47,7 @@ COPY .env.docker .env
 RUN yarn build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:18-alpine AS production
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
