@@ -1,0 +1,2 @@
+ALTER TABLE "absensi" DROP CONSTRAINT "absensi_user_id_date_unique";--> statement-breakpoint
+ALTER TABLE "absensi" ADD CONSTRAINT "absensi_user_id_clock_in_clock_out_unique" UNIQUE("user_id","clock_in","clock_out");

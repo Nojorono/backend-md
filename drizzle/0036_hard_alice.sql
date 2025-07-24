@@ -1,0 +1,1 @@
+ALTER TABLE "activity" ADD COLUMN "status_approval" integer DEFAULT 0;

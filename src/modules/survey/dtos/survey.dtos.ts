@@ -1,0 +1,63 @@
+export class CreateDto {
+  name?: string;
+  batch_code?: string;
+  brand?: string;
+  address_line?: string;
+  sub_district?: string;
+  district?: string;
+  latitude?: string;
+  longitude?: string;
+  outlet_code?: string;
+  sio_type?: string;
+  region?: string;
+  area?: string;
+  cycle?: string;
+  visit_day?: string;
+  odd_even?: string;
+  remarks?: string;
+  photos?: [];
+  range_health_facilities?: number;
+  range_work_place?: number;
+  range_public_transportation_facilities?: number;
+  range_worship_facilities?: number;
+  range_playground_facilities?: number;
+  range_educational_facilities?: number;
+  outlet_id?: number;
+  status?: string;
+  created_by?: string;
+  created_at?: Date;
+}
+
+export class UpdateDto {
+  name?: string;
+  batch_code?: string;
+  brand?: string;
+  address_line?: string;
+  sub_district?: string;
+  district?: string;
+  latitude?: string;
+  longitude?: string;
+  outlet_code?: string;
+  sio_type?: string;
+  region?: string;
+  area?: string;
+  cycle?: string;
+  is_active?: number;
+  visit_day?: string;
+  odd_even?: string;
+  remarks?: string;
+  photos?: [];
+  range_health_facilities?: number;
+  range_work_place?: number;
+  range_public_transportation_facilities?: number;
+  range_worship_facilities?: number;
+  range_playground_facilities?: number;
+  range_educational_facilities?: number;
+  outlet_id?: number;
+  status?: string;
+  is_approved?: number;
+  updated_by?: string;
+  updated_at?: Date;
+  deleted_by?: string;
+  deleted_at?: Date;
+}

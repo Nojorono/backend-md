@@ -1,0 +1,1 @@
+ALTER TABLE "activity_md" RENAME COLUMN "amo_brand_type_sio" TO "amo_brand_type";

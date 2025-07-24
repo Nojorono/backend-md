@@ -1,0 +1,1 @@
+ALTER TABLE "m_outlet" ADD COLUMN "new_outlet_id" integer;

@@ -1,0 +1,1 @@
+ALTER TABLE "sio_type_galery" DROP COLUMN IF EXISTS "type";
