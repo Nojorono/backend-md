@@ -26,6 +26,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleConnection(@ConnectedSocket() client: Socket, ...args: any[]) {
+    console.log('Socket connected:', client.id, 'namespace:', client.nsp.name);
     // Set max listeners for individual socket
     client.setMaxListeners(0);
 
