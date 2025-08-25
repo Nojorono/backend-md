@@ -7,5 +7,6 @@ export default registerAs(
     description: 'Auth APIs description',
     version: '1.0',
     prefix: '/docs',
+    server: '/md-backend-api',
   }),
 );

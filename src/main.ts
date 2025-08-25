@@ -144,7 +144,7 @@ async function bootstrap() {
   logger.log(
     `🚀 ${configService.get(
       'app.name',
-    )} service started successfully on port ${port}`,
+    )} service started successfully on port ${host}:${port}`,
   );
 }
 bootstrap();

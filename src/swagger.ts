@@ -15,11 +15,13 @@ export const setupSwagger = async (app: INestApplication) => {
   const docDesc: string = configService.get<string>('doc.description');
   const docVersion: string = configService.get<string>('doc.version');
   const docPrefix: string = configService.get<string>('doc.prefix');
+  const docServer: string = configService.get<string>('doc.server');
 
   const documentBuild = new DocumentBuilder()
     .setTitle(docName)
     .setDescription(docDesc)
     .setVersion(docVersion)
+    .addServer(docServer)
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'accessToken',
