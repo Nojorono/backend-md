@@ -37,7 +37,7 @@ export class SioGalleryService {
 
   async deleteData(id: number, accessToken: string): Promise<void> {
     const decoded = this.jwtService.verify(accessToken);
-    return this.repository.delete(id, decoded.email);
+    return this.repository.delete(id);
   }
 
   async getAllActive(

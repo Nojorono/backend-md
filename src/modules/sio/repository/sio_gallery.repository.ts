@@ -45,14 +45,14 @@ export class SioGalleryRepository {
     return result[0]; // Return the first (and expectedly only) result
   }
 
-  async delete(id: number, userBy: string) {
+  async delete(id: number) {
     const db = this.drizzleService['db'];
     if (!db) {
       throw new Error('Database not initialized');
     }
+    
     return await db
-      .update(SioTypeGalery)
-      .set({ deleted_at: new Date(), deleted_by: userBy })
+      .delete(SioTypeGalery)
       .where(eq(SioTypeGalery.id, id))
       .returning();
   }
@@ -69,7 +69,7 @@ export class SioGalleryRepository {
       throw new Error('Database not initialized');
     }
 
-    const query = db
+    let query = db
       .select()
       .from(SioTypeGalery)
       .where(eq(SioTypeGalery.sio_type_id, sioTypeId));
@@ -78,20 +78,21 @@ export class SioGalleryRepository {
     const searchColumns = ['name'];
     const searchCondition = buildSearchQuery(searchTerm, searchColumns);
 
-    // Apply search condition if available
     if (searchCondition) {
-      query.where(searchCondition);
+      query = query.where(searchCondition);
     }
-    const records = await query.execute();
-    const totalRecords = parseInt(records.length) || 0;
-    const { offset } = paginate(totalRecords, page, limit);
-    query.limit(limit).offset(offset);
 
-    const result = await query;
+    // Get total count first
+    const totalRecords = await query.execute();
+    const totalCount = totalRecords.length;
+
+    // Apply pagination
+    const { offset } = paginate(totalCount, page, limit);
+    const result = await query.limit(limit).offset(offset);
 
     return {
       data: result,
-      ...paginate(totalRecords, page, limit),
+      ...paginate(totalCount, page, limit),
     };
   }
 
@@ -102,15 +103,16 @@ export class SioGalleryRepository {
       throw new Error('Database not initialized');
     }
 
-    const query = await db
+    const query = db
       .select()
       .from(SioTypeGalery)
       .where(eq(SioTypeGalery.sio_type_id, sioTypeId));
 
-    const totalRecords = parseInt(query.length) || 0;
+    const result = await query.execute();
+    const totalRecords = result.length;
 
     return {
-      data: query,
+      data: result,
       totalRecords: totalRecords,
     };
   }
